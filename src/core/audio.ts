@@ -44,9 +44,11 @@ export class AudioService {
   suspend(value: boolean) {
     this.suspended = value;
     this.apply(this.settings);
-    if (value) this.music?.pause();
-    else if (this.music?.isPaused) this.music.resume();
-    else if (this.music && !this.music.isPlaying) this.music.play();
+    if (value) this.sound.pauseAll();
+    else {
+      this.sound.resumeAll();
+      if (this.music && !this.music.isPlaying) this.music.play();
+    }
   }
   destroy() {
     this.stopMusic();

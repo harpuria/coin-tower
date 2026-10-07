@@ -2,14 +2,14 @@
 
 - [Decided] Build a 2D casual web game with Phaser, retaining the portrait layout and supporting desktop/mobile browsers with mouse/touch input.
 - Scaffold defaults: Phaser/TypeScript/Vite versions are pinned in `package.json` and `package-lock.json`; use Node 24 (`.nvmrc`). Configuration lives in `src/config/game.ts` (720×1280, FIT).
-- The current playable content is the template's star-collector demo, not the migrated Coin Tower game. External services are disabled. Read `docs/SETUP.md` for provenance, the legacy project, and unresolved scope.
+- The playable is Coin Tower's agreed first web slice with original mobile art. External services are disabled. Read `docs/SETUP.md` for provenance and deferred scope, and `docs/ASSET_SOURCES.md` when importing/replacing art or audio.
 
 ## Start here
 
 1. This file, then `docs/SETUP.md` for setup facts and migration context.
-2. `docs/DEVELOPMENT.md` for scene, asset, input, storage, and deployment work.
+2. `docs/IMPLEMENTATION_PLAN.md` Status, then `docs/GAME_DESIGN.md` for gameplay work and `docs/DEVELOPMENT.md` for implementation entry points.
 3. Read `docs/ARCHITECTURE.md` before changing `core/`, `services/`, `app.ts`, lifecycle, persistence, or service contracts.
-4. When created, read the Status section of `docs/IMPLEMENTATION_PLAN.md`, recent commits, `docs/GAME_DESIGN.md`, task-relevant system documents, and relevant playtest notes.
+4. Recent commits, task-relevant system documents, and the latest relevant `docs/PLAYTEST_NOTES.md` entry.
 
 ## Commands
 
@@ -21,12 +21,13 @@ Prefix all shell commands with `rtk`, including each segment in chains. `rtk pro
 - Browser checks and screenshots: `rtk npm run test:e2e` (desktop/mobile Chromium; artifacts in `test-results/`).
 - Production preview: `rtk npm run preview` → `http://localhost:4173`.
 - Production browser checks, after build: `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`.
+- Development observation: open `http://localhost:5173/?debug`; `window.__COIN_TOWER__` supports `snapshot()`, `freeze(boolean)`, and `advance(milliseconds)`. See `docs/DEVELOPMENT.md`; the hook is excluded from production.
 - Validation status and environment limits: `docs/VALIDATION.md`. Update this section when a command changes or breaks; use these commands before claiming gameplay validation.
 
 ## Boundaries and development policies
 
 - Game rules, save schema, session state, and asset manifests belong in `src/game/`; runtime assets in `public/assets/`; identity, resolution, and feature flags in `src/config/game.ts`.
-- `src/main.ts` and `src/app.ts` compose the application. `src/core/` and `src/services/` are reusable and must not import `src/game/` or demo asset keys. `src/ui/Shell.ts` is replaceable demo UI.
+- `src/main.ts` and `src/app.ts` compose the application. `src/core/` and `src/services/` are reusable and must not import `src/game/` or game asset keys. `src/ui/Shell.ts` owns HTML controls; `Session` owns run time and `GameController` connects actions to common services. Read ADR 0002 before changing pause/input ownership.
 - Inspect actual project/runtime state through available reliable tools; use direct file operations where appropriate and current official documentation for uncertain Phaser APIs. Phaser 3 rendering examples need verification against installed Phaser 4 types/source.
 - Read architecture contracts before modifying common APIs. Record exact dependency versions, lockfile changes, licenses, and compatibility evidence in `docs/DEPENDENCIES.md`.
 - Save schema changes require old-data migration fixtures. Preserve unreadable source data until an explicit user reset. Wrap real SDKs in adapters; production Mock success must never grant transactions or rewards.

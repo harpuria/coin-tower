@@ -28,8 +28,8 @@ CI는 `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` 모두
 
 ## Asset과 서비스
 
-- `public/assets/demo/`의 SVG와 `public/favicon.svg`는 이 템플릿에서 직접 만든 벡터입니다.
-- WAV는 사인파로 합성했습니다. 외부 이미지·음원·폰트가 없고 글꼴은 시스템 폰트입니다.
+- `public/assets/coin-tower/`의 PNG 9개는 사용자 요청에 따라 모바일 원본을 그대로 복사했습니다. 출처와 원본 일치 해시는 [ASSET_SOURCES.md](ASSET_SOURCES.md)에 있습니다.
+- `stack.wav`는 템플릿의 합성 효과음을 재사용한 임시 음원입니다. BGM은 없으며 글꼴은 시스템 폰트입니다. 파비콘 SVG는 프로젝트 초기화 중 작성했습니다.
 - 광고·결제·분석 SDK와 외부 전송 endpoint는 없습니다.
 - 파생 게임은 실제로 쓰는 의존성/asset의 라이선스 고지와 SDK 약관을 직접 관리합니다.
 
@@ -38,4 +38,4 @@ CI는 `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` 모두
 1. 공식 changelog와 Node 지원 범위를 확인합니다.
 2. 정확한 버전으로 설치하고 `package-lock.json`을 함께 커밋합니다.
 3. `npm run check`, `npm run test:e2e`, `E2E_PREVIEW=1 npm run test:e2e`를 실행합니다.
-4. 이 표와 [검증 기록](template/VALIDATION.md)을 갱신합니다.
+4. 이 표와 이 프로젝트의 [검증 기록](VALIDATION.md)을 갱신합니다. 가져온 템플릿 기록은 `template/`에 보존합니다.

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { gameConfig } from '../config/game';
-import { queueAssets } from '../game/assets';
+import { installAssetFrames, queueAssets } from '../game/assets';
 import type { App } from '../app';
 
 export class PreloadScene extends Phaser.Scene {
@@ -35,6 +35,7 @@ export class PreloadScene extends Phaser.Scene {
   }
   create() {
     if (this.failed) return;
+    installAssetFrames(this.textures);
     this.app.ready = true;
     this.app.onState();
     this.scene.start(gameConfig.startScene);

@@ -1,8 +1,6 @@
 # Coin Tower Web
 
-[결정] 기존 모바일 Coin Tower를 Phaser 기반의 웹 2D 캐주얼 게임으로 만듭니다. 세로 구도를 유지하며 PC·모바일 브라우저에서 마우스·터치를 지원합니다.
-
-현재는 **개발 기반 확인용 별 모으기 예제**가 실행됩니다. 동전 낙하·적층·Perfect·콤보 등 기존 게임은 아직 이식하지 않았습니다.
+좌우로 움직이는 금화를 클릭·탭으로 떨어뜨려 탑을 쌓는 Phaser 웹 2D 캐주얼 게임입니다. 기존 모바일 Coin Tower의 아트를 재사용하며 PC 마우스와 모바일 터치를 지원합니다.
 
 ## 실행하기
 
@@ -13,33 +11,42 @@ rtk proxy npm ci
 rtk npm run dev
 ```
 
-`http://localhost:5173`을 엽니다. 휴대폰은 같은 네트워크에서 개발 서버의 Network 주소로 접속합니다. 예제는 `플레이 시작` 후 방향키·WASD 또는 화면을 누른 위치로 이동해 별을 모읍니다. 동전 낙하 입력은 이식 단계에서 추가합니다.
+`http://localhost:5173`을 엽니다. 휴대폰은 같은 Wi-Fi에서 개발 서버의 Network 주소로 접속합니다.
 
-논리 해상도는 720×1280이며 화면에 맞춰 비율을 유지합니다. 예제 기록과 소리 설정은 현재 브라우저에만 저장됩니다. 광고·결제·분석은 비활성화되어 있고 로그인·전체 유저 랭킹·클라우드 저장·PWA 오프라인 지원은 포함하지 않습니다.
+## 플레이
+
+- 첫 화면이나 **게임 시작**을 누르면 새 판이 시작됩니다. 다음 클릭·탭으로 첫 동전을 떨어뜨립니다.
+- 첫 동전은 넓은 받침대에 놓고, 이후에는 맨 위 동전을 겨냥합니다. 성공한 개수가 점수이며 첫 실패에서 끝납니다.
+- 동전을 쌓을수록 이동이 빨라집니다. 정확히 맞추면 Perfect, 연속 Perfect는 COMBO x4까지 표시됩니다.
+- **다시 도전**으로 바로 새 판을 시작합니다. 최고 기록은 완료한 판만 이 브라우저에 저장됩니다.
+- 일시정지 후 계속하기는 3·2·1 뒤 재개됩니다. 탭을 떠났다가 돌아오면 일시정지 화면에서 기다립니다.
+- 소리 버튼으로 짧은 착지 효과음을 켜고 끌 수 있습니다. 지원 브라우저에서는 전체화면을 사용할 수 있습니다.
+
+논리 해상도는 세로 720×1280이며 창 크기가 달라도 게임 영역의 비율과 이동 템포를 유지합니다. 게임 영역에 포커스가 있으면 Space·Enter로 시작/낙하할 수도 있고 Escape로 멈출 수 있습니다.
+
+현재 범위는 [첫 플레이 버전 설계](docs/GAME_DESIGN.md)입니다. 기록 목록·업적·로그인·전체 유저 랭킹·클라우드·광고·결제·PWA는 후속 범위입니다. 템플릿 예제나 모바일 저장 기록은 새 웹 최고 기록에 합치지 않습니다.
 
 ## 명령
 
 ```bash
 rtk npm run check          # 린트·포맷·단위 검사·타입 검사·배포 빌드
-rtk npm run test:e2e       # 데스크톱·모바일 크기의 Chromium 예제 검사
+rtk npm run test:e2e       # PC 마우스·모바일 합성 터치의 Chromium 검사
 rtk npm run build         # dist/ 생성
-rtk npm run preview       # 빌드 결과를 localhost:4173에서 확인
+rtk npm run preview       # localhost:4173에서 빌드 확인
 rtk proxy env E2E_PREVIEW=1 npm run test:e2e # 빌드 후 배포 결과 검사
 ```
 
-Playwright 브라우저가 설치되지 않았다면 `rtk proxy npx playwright install chromium`을 한 번 실행합니다. `dist/`를 정적 호스팅에 배포할 수 있습니다. 현재 외부 배포는 하지 않았습니다.
+Playwright 브라우저가 없다면 `rtk proxy npx playwright install chromium`을 한 번 실행합니다. 배포할 때는 `dist/` 전체를 정적 호스팅에 올립니다. 현재 외부 배포는 하지 않았습니다.
 
 ## 문서
 
-- [첫 웹 플레이 버전의 규칙과 범위](docs/GAME_DESIGN.md): 동전 낙하·적층·실패·재시작과 완료 조건
-- [설정과 이식 범위](docs/SETUP.md): 확정된 방향, 원본 프로젝트, 미결 사항, 템플릿 출처
-- [이 프로젝트의 검증 기록](docs/VALIDATION.md): 실제 실행한 검사와 미검증 환경
-- [개발 안내](docs/DEVELOPMENT.md): 장면·에셋·저장·입력·배포
-- [구조와 계약](docs/ARCHITECTURE.md): 재사용 계층과 게임 코드의 경계
-- [의존성](docs/DEPENDENCIES.md): 정확한 버전·라이선스·호환성
-- [웹 전환 ADR](docs/adr/0001-web-platform.md): 기술 방향과 결과
-- [템플릿 적용 절차](docs/template/APPLYING.md) · [템플릿의 과거 검증](docs/template/VALIDATION.md)
+- [게임 규칙과 범위](docs/GAME_DESIGN.md)
+- [현재 구현 상태](docs/IMPLEMENTATION_PLAN.md)
+- [이 프로젝트의 검증](docs/VALIDATION.md) · [플레이 테스트 노트](docs/PLAYTEST_NOTES.md)
+- [아트·효과음 출처](docs/ASSET_SOURCES.md)
+- [개발 안내](docs/DEVELOPMENT.md) · [구조와 계약](docs/ARCHITECTURE.md)
+- [설정과 원본 프로젝트](docs/SETUP.md) · [의존성](docs/DEPENDENCIES.md)
 
 ## 출처
 
-[phaser-web-template](https://github.com/harpuria/phaser-web-template) 0.2.0을 2026-10-07에 적용했습니다. 적용 commit: `b953c81b31cfdb36f73c6462d707a45ec2b8a46d`. 원본의 Git 이력 대신 이 프로젝트의 로컬 `main` 저장소를 초기화했습니다.
+[phaser-web-template](https://github.com/harpuria/phaser-web-template) 0.2.0, commit `b953c81b31cfdb36f73c6462d707a45ec2b8a46d`를 2026-10-07에 적용했습니다. 이후 확정된 Coin Tower 규칙과 원본 모바일 아트를 웹 플레이에 연결했습니다.

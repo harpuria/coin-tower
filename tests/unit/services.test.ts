@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MockAdapter, PlatformServices } from '../../src/services/platform';
 import { PauseState } from '../../src/core/pause';
 import { watchUncaughtErrors } from '../../src/core/errors';
-import { roundMs } from '../../src/game/session';
 import { settingsSchema } from '../../src/core/settings';
 
 const options = {
@@ -102,12 +101,4 @@ it('rejects malformed settings, including nonfinite and out-of-range audio', () 
     expect(schema.validate({ ...schema.defaults(), master: volume })).toBe(
       false,
     );
-});
-
-it('only shortens the demo round through the query string', () => {
-  expect(roundMs('')).toBe(30_000);
-  expect(roundMs('?round=4')).toBe(4_000);
-  expect(roundMs('?round=999')).toBe(30_000);
-  for (const bad of ['?round=0', '?round=-3', '?round=abc'])
-    expect(roundMs(bad)).toBe(30_000);
 });

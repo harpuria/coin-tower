@@ -14,8 +14,8 @@
 - Copied source/configuration, runtime demo assets, existing tests, CI, and documentation; excluded template Git history, generated artifacts, and the optional Claude Code import file.
 - Phaser 4.2.1, TypeScript 6.0.3, Vite 8.3.2, npm lockfile, Node 24 recommendation. Installed Node: 24.16.0; npm: 11.13.0. Exact versions remain authoritative in package configuration.
 - Project/package: Coin Tower / `coin-tower`, version 0.1.0. Logical viewport: 720×1280 with FIT scaling; portrait preference. Browsers without orientation locking still render the portrait viewport.
-- The template's star collector remains as an explicitly labeled smoke-test demo. Menu/result placement, initial collection target, and browser checks were adapted for portrait dimensions. No Coin Tower gameplay or mobile save migration has been implemented.
-- Demo persistence uses `coin-tower-web-demo` to keep future Coin Tower records separate. Ads, billing, analytics, and Mock services are disabled pending product decisions.
+- The initial scaffold demo has been replaced by the agreed Coin Tower first playable. Original mobile PNGs, deterministic run simulation, completion-only local best, feedback, pause/countdown, and mouse/touch controls are implemented. See `GAME_DESIGN.md` for rules and `IMPLEMENTATION_PLAN.md` for current validation status.
+- Game persistence uses `coin-tower-web-v1`, separate from the scaffold's `coin-tower-web-demo` and mobile saves. Ads, billing, analytics, and Mock services remain disabled pending product decisions.
 - Available tooling: Node/npm, pnpm, Git, GitHub CLI, template TypeScript/Vite tools and Playwright browser checks. No Phaser-specific MCP is required. Actual validation results belong in `VALIDATION.md`.
 - Language defaults retained from the mobile project: Korean communication, player/design/art/audio documents, and explanatory comments; English agent instructions, implementation handoffs, ADRs, identifiers, and filenames.
 
@@ -29,7 +29,7 @@ The legacy project's Android-only release and Google Play Games plan describe th
 
 ## Remaining decisions
 
-- [Decided] The initial port slice is defined in [GAME_DESIGN.md](GAME_DESIGN.md). It is ready for implementation; the current executable remains the template demo.
+- [Decided] The initial port slice is defined in [GAME_DESIGN.md](GAME_DESIGN.md) and implemented. Device feel and release targets remain separate from the local/browser validation recorded in `VALIDATION.md`.
 - [Open] Global ranking, identity, cloud storage, and a web-compatible backend/provider, if required.
 - [Open] Hosting/distribution channel, offline/PWA requirements, minimum browser/device support, and FPS target.
 - [Open] Ads, purchases, and analytics requirements; disabled in the scaffold.

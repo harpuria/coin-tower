@@ -15,13 +15,13 @@ src/core/                 게임과 무관하게 재사용하는 코드
   screen.ts errors.ts       전체화면/방향 고정, 처리되지 않은 오류 감시
 src/services/platform.ts  광고·결제·분석 계약, Mock, unavailable
 src/scenes/               공통 Boot / Preload
-src/game/                 게임 전용: 장면, 저장 schema, 진행 상태(session), asset 목록
-src/ui/Shell.ts           예제 HTML 메뉴/HUD/설정/서비스 패널 (교체 대상)
+src/game/                 게임 전용: session/rules, controller, 장면, 저장 schema, asset 목록
+src/ui/Shell.ts           HTML 시작/HUD/결과/일시정지/카운트다운과 주 포인터 입력
 tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐름 검사
 ```
 
 의존 방향: `game/`, `ui/` → `core/`, `services/`. `core/`와 `services/`는 `game/`이나 데모 asset 키를 알지 않습니다.
-`App`은 `game/`의 schema와 `Session`을 조립만 하고, 점수·보상 규칙은 `game/`에 둡니다.
+`App`은 `game/`의 schema와 `Session`을 조립만 하고, 점수·보상 규칙은 `game/`에 둡니다. `Session`은 한 판의 결정적 상태, `GameController`는 행동·완료 저장·오디오 연결을 소유하며 `CoinTowerScene`은 상태를 그립니다.
 게임은 외부 SDK를 직접 부르지 않고 `app.platform`을 거칩니다.
 
 ## 용어
@@ -41,16 +41,17 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 2. `BootScene`이 `app.attach(game)`으로 오디오, 탭 숨김/pagehide 처리, 자동 저장 타이머를 연결합니다.
 3. `PreloadScene`이 게임의 `queueAssets`로 asset을 불러오며 진행률을 표시합니다.
    하나라도 실패하면 안내를 띄우고 멈춥니다. 모두 성공하면 `app.ready = true` 후 `startScene`으로 넘어갑니다.
-4. 장면 전환은 `transition()`이 registry lock으로 중복 요청을 막고, 장면 shutdown 때 lock을 풉니다.
+4. 현재 게임은 CoinTower 장면 안의 모델 모드로 시작·플레이·결과를 전환합니다. 별도 장면이 필요한 기능은 기존 `transition()`의 중복 요청 방지 계약을 사용할 수 있습니다.
 5. HMR 때는 오류 감시, HTML listener, 타이머, 오디오, Phaser 게임을 순서대로 정리합니다.
 
-`App`은 장면이 바뀌어도 유지됩니다. 물리·게임 객체·입력 키는 Phaser 장면 수명을 따릅니다.
+`App`은 장면이 바뀌어도 유지됩니다. 렌더 객체는 Phaser 장면 수명을 따르고, native 포인터와 HTML 버튼 listener는 Shell 수명을 따릅니다. 런타임에는 동전 간 물리 시뮬레이션 대신 Session의 착지 규칙을 사용합니다.
 
 ## 일시정지
 
 `PauseState`는 이유를 집합으로 보관하고, 모든 이유가 사라질 때만 재개합니다. 그래서 탭 복귀가 수동 정지를 풀지 않습니다.
-일시정지 동안 `gameConfig.pausableScenes`의 장면과 오디오를 멈춥니다. 메뉴 연출처럼 멈출 필요 없는 장면은 목록에서 뺍니다.
-수동 토글(버튼·Escape)은 `has('manual')`을 기준으로 해서 다른 이유로 멈춘 동안에도 의도대로 동작합니다.
+공통 계층은 `gameConfig.pausableScenes`의 장면과 오디오를 멈춥니다. 현재 Coin Tower에서는 이 목록을 비워 두고 모델의 `paused`/`countdownMs`로 게임 시간을 멈춰 UI와 재개 카운트다운을 유지합니다. controller의 `run` 이유와 환경의 `hidden`/`focus` 이유는 오디오를 중단합니다.
+
+App의 숨김·blur는 게임의 `onBackground`를 호출합니다. controller가 모델에 정지를 유지하므로 환경 이유가 해제되어도 자동으로 재개하지 않습니다. 명시적인 계속하기가 카운트다운을 시작합니다. [ADR 0002](adr/0002-run-simulation-and-interruptions.md)를 함께 읽습니다.
 
 ## 저장
 
@@ -74,7 +75,7 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 - `AudioService`는 master/mute를 sound manager에, music/sfx 음량을 각 sound에 적용합니다. asset 키는 호출하는 쪽이 넘깁니다.
 - BGM은 사용자 동작 이후 시작하고 일시정지 동안 멈춥니다. 설정을 바꾸면 즉시 반영합니다.
-- 입력은 Phaser world 좌표를 쓰고, 캔버스(`#game`)만 `touch-action: none`입니다. 키보드 이벤트는 `#game`에서만 받습니다.
+- 현재 낙하 입력은 `#game`의 native 주 pointerdown 한 번으로 받습니다. 터치에서 파생된 별도 마우스 이벤트를 추가로 처리하지 않으며 메뉴는 캔버스의 형제 HTML 요소여서 낙하로 전파되지 않습니다. 게임 영역은 `touch-action: none`이며 Space/Enter는 그 영역에 포커스가 있을 때만 받습니다.
 - 고정 논리 해상도 + `FIT`. 전체화면 대상은 캔버스와 오버레이를 감싼 `#stage`입니다.
 
 ## 서비스

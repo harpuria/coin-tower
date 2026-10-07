@@ -1,31 +1,57 @@
 import type { App } from '../app';
 import { gameConfig } from '../config/game';
 import { fullscreenAvailable, toggleFullscreen } from '../core/screen';
-import { assetKeys } from '../game/assets';
-import { GameScene, MenuScene } from '../game/scenes';
-import { MockAdapter } from '../services/platform';
+import type { GameController } from '../game/controller';
 
+/** 네이티브 HTML 버튼을 게임 화면 위에 배치해 입력과 접근성을 함께 유지한다. */
 export class Shell {
   private controller = new AbortController();
   private root: HTMLElement;
-  private servicePending = false;
-  constructor(private app: App) {
+  constructor(
+    private app: App,
+    private game: GameController,
+  ) {
     this.root = document.querySelector<HTMLElement>('#app')!;
+    const asset = `${import.meta.env.BASE_URL}assets/coin-tower/`;
+    // CSS의 상대 URL이 배포 CSS 파일 위치를 기준으로 해석되지 않도록 고정한다.
+    const panel = new URL(`${asset}hud_panel.png`, document.baseURI).href;
+    this.root.style.setProperty('--panel-art', `url("${panel}")`);
     this.root.innerHTML = `
-      <header class="header"><a class="brand" href="./"><span class="brand-icon">●</span> COIN TOWER <span class="muted">/ WEB</span></a><span class="version">v${gameConfig.version} <span class="dot"></span> READY TO BUILD</span></header>
-      <section class="intro"><p class="eyebrow">COIN TOWER · WEB SETUP</p><h1>Coin Tower, 웹으로<span>.</span></h1><p class="subtitle">현재는 별 모으기 예제로 세로 화면과 브라우저 입력을 확인할 수 있습니다.</p></section>
-      <div class="workspace"><section class="stage-card" aria-label="게임 데모">
-        <div class="stage-heading"><span><span class="dot"></span> STAR COLLECTOR <small>개발 기반 확인용 예제</small></span><span id="mode-label">MENU</span></div>
-        <div class="canvas-wrap" id="stage" data-orientation="${gameConfig.orientation}"><div id="game" tabindex="0" aria-label="별 모으기 게임. 방향키, WASD, 게임패드로 이동하거나 화면을 누르세요."></div><div id="pause-overlay" class="overlay" hidden>잠시 쉬어가는 중<span>계속하기를 누르면 다시 시작합니다.</span></div><div id="rotate-hint" class="overlay">기기를 ${gameConfig.orientation === 'landscape' ? '가로' : '세로'}로 돌려 주세요<span>전체화면에서 권장 방향으로 플레이합니다.</span></div><button id="exit-fullscreen" class="secondary" aria-label="전체화면 나가기">✕</button><div id="error-overlay" class="overlay" role="alert" hidden>문제가 발생했습니다<span id="error-message"></span><button id="reload" class="primary">새로고침</button></div></div>
-        <div class="game-toolbar"><p><kbd>W A S D</kbd> / <kbd>↑ ↓ ← →</kbd> 이동 <span class="touch-hint">· 화면을 눌러 이동</span></p><div><button id="fullscreen" class="secondary" hidden>전체화면</button><button id="pause" class="secondary" hidden>일시정지</button><button id="home" class="secondary" hidden>메뉴</button><button id="play" class="primary">플레이 시작 <span>↗</span></button></div></div>
-      </section>
-      <aside class="sidebar"><section class="panel"><div class="panel-title"><h2>예제 플레이 기록</h2><span class="tag">LOCAL SAVE</span></div><div class="stats"><div><strong id="best">0</strong><span>최고 기록</span></div><div><strong id="rounds">0</strong><span>플레이 횟수</span></div></div><p id="storage-status" class="caption"></p><button id="settings" class="wide secondary">설정 열기 <span>⚙</span></button></section>
-      <section class="panel"><div class="panel-title"><h2>기본 기능</h2><span class="tag green">INCLUDED</span></div><ul class="features"><li>버전 관리가 있는 로컬 저장</li><li>음량 · 효과음 · 배경음 설정</li><li>화면 전환 · 자동 일시정지</li><li>키보드 · 마우스 · 터치 · 게임패드 입력</li><li>전체화면 · 오류 안내 화면</li><li>광고 · 결제 서비스 연결 지점</li></ul></section></aside></div>
-      <section class="toolbox"><div><p class="eyebrow">SERVICE PLAYGROUND</p><h2>예제 소리와 서비스 상태</h2><p class="caption" id="service-mode"></p></div><div class="service-actions"><label class="check"><input id="consent" type="checkbox" /> Mock 분석·광고 동의</label><select id="outcome" aria-label="Mock 결과"><option value="completed">성공</option><option value="cancelled">취소</option><option value="error">오류</option></select><button id="reward" class="secondary">보상형 광고 테스트</button><button id="purchase" class="secondary">구매 테스트</button><button id="sound" class="secondary">효과음 듣기</button></div><p id="notice" role="status" aria-live="polite">준비되었습니다. 플레이를 시작해 보세요.</p></section>
-      <footer><span>PHASER 4.2.1 · TYPESCRIPT · VITE</span><span>당신의 게임은 <code>src/game/</code>에서 시작됩니다.</span></footer>
-      <dialog id="settings-dialog" aria-labelledby="settings-title"><form method="dialog"><div class="panel-title"><h2 id="settings-title">게임 설정</h2><button class="icon-button" aria-label="설정 닫기">✕</button></div><p class="caption">변경한 설정은 이 브라우저에 저장됩니다.</p><label class="check"><input id="muted" type="checkbox" /> 전체 음소거</label><label class="range-label">전체 음량<input id="master" type="range" min="0" max="1" step="0.05" /></label><label class="range-label">배경음<input id="music" type="range" min="0" max="1" step="0.05" /></label><label class="range-label">효과음<input id="sfx" type="range" min="0" max="1" step="0.05" /></label><label class="check"><input id="reducedMotion" type="checkbox" /> 화면 움직임 줄이기</label><hr /><p class="caption">플레이 기록 초기화는 설정을 유지합니다.</p><button id="reset" type="button" class="danger wide">플레이 기록 초기화</button><button id="reset-settings" type="button" class="secondary wide">설정 초기화 / 저장 오류 복구</button><button class="primary wide">완료</button></form></dialog>`;
-    this.root.style.setProperty('--game-w', String(gameConfig.width));
-    this.root.style.setProperty('--game-h', String(gameConfig.height));
+      <h1 class="sr-only">Coin Tower</h1>
+      <section id="stage" aria-label="Coin Tower 게임">
+        <div id="surface">
+          <div id="game" tabindex="0" aria-label="게임 영역. 클릭 또는 터치로 동전을 떨어뜨리세요."></div>
+          <div id="title-screen" class="layer title-screen">
+            <div class="title-best blue-panel"><span>이 브라우저의 최고 기록</span><strong id="title-best">0</strong><small>COINS</small></div>
+            <div class="start-prompt"><button id="play" class="game-button primary">게임 시작</button><p>클릭 · 터치로 동전을 쌓아 보세요</p></div>
+          </div>
+          <div id="hud" class="layer" hidden>
+            <div class="hud-stats"><div class="blue-panel"><span>BEST</span><strong id="best">0</strong></div><div class="blue-panel"><span>COINS</span><strong id="score">0</strong></div></div>
+            <button id="pause" class="icon-button pause-button" aria-label="일시정지">Ⅱ</button>
+            <div id="combo" class="blue-panel combo" hidden>COMBO <strong id="combo-count">x2</strong></div>
+            <p id="tap-prompt" class="tap-prompt">클릭 · 터치로 낙하</p>
+          </div>
+          <section id="result-screen" class="layer veil" aria-label="게임 결과" hidden>
+            <img class="result-heading" src="${asset}game_over.png" alt="GAME OVER" />
+            <div class="result-stats blue-panel"><div><span>이번 기록</span><strong id="result-score">0</strong></div><div><span>최고 기록</span><strong id="result-best">0</strong></div></div>
+            <p class="result-caption">한 번 더, 조금 더 높이.</p>
+            <div class="result-actions"><button id="retry" class="game-button primary">다시 도전</button><button id="home" class="game-button">첫 화면</button></div>
+          </section>
+          <section id="pause-overlay" class="layer veil" aria-label="일시정지 메뉴" hidden>
+            <img class="pause-heading" src="${asset}paused.png" alt="PAUSED" />
+            <div class="pause-actions"><button id="continue" class="game-button primary">계속하기</button><button id="restart" class="game-button">다시 시작</button><button id="pause-home" class="game-button">첫 화면으로</button></div>
+          </section>
+          <section id="confirm-overlay" class="layer veil" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
+            <div class="confirm-card"><h2 id="confirm-title">현재 판을 중단할까요?</h2><p>진행 중인 판은 기록되지 않습니다.<br />기존 최고 기록은 유지됩니다.</p><button id="confirm-yes" class="game-button primary">확인</button><button id="confirm-no" class="game-button">취소</button></div>
+          </section>
+          <div id="countdown-overlay" class="layer countdown" hidden><span>준비하세요</span><strong id="countdown" aria-live="polite">3</strong></div>
+          <div class="utility"><button id="mute" class="utility-button" aria-label="소리 끄기" aria-pressed="false">소리 켜짐</button><button id="fullscreen" class="utility-button" hidden>전체화면</button></div>
+          <p id="storage-notice" role="status" class="storage-notice"></p>
+          <div id="loading-overlay" class="layer blocking"><p>동전을 준비하고 있어요…</p></div>
+          <div id="error-overlay" class="layer blocking" role="alert" hidden><p id="error-message"></p><button id="reload" class="game-button">새로고침</button></div>
+          <span id="mode-label" class="sr-only" aria-live="polite">MENU</span>
+        </div>
+      </section>`;
     this.bind();
     app.onState = () => this.render();
     this.render();
@@ -33,186 +59,132 @@ export class Shell {
   private element<T extends HTMLElement = HTMLElement>(id: string) {
     return this.root.querySelector<T>(`#${id}`)!;
   }
-  private on(id: string, event: string, handler: () => void) {
-    this.element(id).addEventListener(event, handler, {
+  private on(id: string, handler: () => void) {
+    this.element(id).addEventListener('click', handler, {
       signal: this.controller.signal,
     });
   }
-  private notify(message: string) {
-    this.element('notice').textContent = message;
-  }
   private bind() {
-    const app = this.app;
-    this.on('game', 'pointerdown', () => this.element('game').focus());
-    this.on('game', 'blur', () => {
-      for (const scene of app.game?.scene.getScenes(false) ?? [])
-        scene.input?.keyboard?.resetKeys();
-    });
-    this.on('play', 'click', () => {
-      const mode = app.session.mode;
-      if (!app.game?.scene.isActive('Menu') && mode !== 'result') return;
-      if (mode === 'menu')
-        (app.game!.scene.getScene('Menu') as MenuScene).startGame();
-      else app.game!.scene.getScene('Game').scene.restart();
-      this.element('game').focus();
-    });
-    this.on('pause', 'click', () => {
-      app.pause.set('manual', !app.pause.has('manual'));
-      this.element('game').focus();
-    });
-    this.on('home', 'click', () => {
-      app.pause.set('manual', false);
-      (app.game?.scene.getScene('Game') as GameScene).goHome();
-    });
-    this.on('fullscreen', 'click', () => {
-      if (app.game) toggleFullscreen(app.game, gameConfig.orientation);
-    });
-    this.on('reload', 'click', () => location.reload());
-    this.on('exit-fullscreen', 'click', () => {
-      if (app.game?.scale.isFullscreen) app.game.scale.stopFullscreen();
-    });
-    this.on('settings', 'click', () => {
-      for (const [key, value] of Object.entries(app.settings.data)) {
-        const input = this.element<HTMLInputElement>(key);
-        if (typeof value === 'boolean') input.checked = value;
-        else input.value = String(value);
-      }
-      app.pause.set('settings', true);
-      this.element<HTMLDialogElement>('settings-dialog').showModal();
-    });
-    this.on('settings-dialog', 'close', () => {
-      app.pause.set('settings', false);
-      app.flush();
-    });
-    for (const key of [
-      'master',
-      'music',
-      'sfx',
-      'muted',
-      'reducedMotion',
-    ] as const) {
-      this.on(key, 'input', () => {
-        const input = this.element<HTMLInputElement>(key);
-        app.settings.update((settings) => ({
-          ...settings,
-          [key]:
-            input.type === 'checkbox' ? input.checked : Number(input.value),
-        }));
-        app.audio?.apply(app.settings.data);
-        app.settings.flush();
-        this.render();
-      });
-    }
-    this.on('reset', 'click', () => {
-      if (!confirm('플레이 기록을 지울까요? 이 작업은 되돌릴 수 없습니다.'))
-        return;
-      this.notify(
-        app.save.reset()
-          ? '플레이 기록을 초기화했습니다.'
-          : '저장 공간에 접근할 수 없습니다.',
-      );
+    const signal = this.controller.signal;
+    this.element('game').addEventListener(
+      'pointerdown',
+      (event) => {
+        if (
+          !event.isPrimary ||
+          event.button !== 0 ||
+          !(event.target instanceof HTMLCanvasElement)
+        )
+          return;
+        event.preventDefault();
+        this.element('game').focus({ preventScroll: true });
+        this.game.tap();
+      },
+      { signal },
+    );
+    this.element('game').addEventListener(
+      'keydown',
+      (event) => {
+        if (event.repeat || !['Space', 'Enter'].includes(event.code)) return;
+        event.preventDefault();
+        this.game.tap();
+      },
+      { signal },
+    );
+    this.on('play', () => this.game.start());
+    this.on('retry', () => this.game.start());
+    this.on('home', () => this.game.home());
+    this.on('pause', () => this.game.pause());
+    this.on('continue', () => this.game.resume());
+    this.on('restart', () => this.game.request('restart'));
+    this.on('pause-home', () => this.game.request('home'));
+    this.on('confirm-yes', () => this.game.confirm(true));
+    this.on('confirm-no', () => this.game.confirm(false));
+    this.on('reload', () => location.reload());
+    this.on('mute', () => {
+      this.app.settings.update((s) => ({ ...s, muted: !s.muted }));
+      this.app.audio?.apply(this.app.settings.data);
+      this.app.settings.flush();
       this.render();
     });
-    this.on('reset-settings', 'click', () => {
-      if (!confirm('저장된 설정을 초기화할까요?')) return;
-      this.notify(
-        app.settings.reset()
-          ? '설정을 초기화했습니다.'
-          : '저장 공간에 접근할 수 없습니다.',
-      );
-      app.audio?.apply(app.settings.data);
-      this.element<HTMLDialogElement>('settings-dialog').close();
-      this.render();
+    this.on('fullscreen', () => {
+      if (this.app.game)
+        toggleFullscreen(this.app.game, gameConfig.orientation);
     });
-    this.on('consent', 'change', () => {
-      app.platform.consent = this.element<HTMLInputElement>('consent').checked;
-    });
-    this.on('outcome', 'change', () => {
-      if (app.platform.adapter instanceof MockAdapter)
-        app.platform.adapter.outcome = this.element<HTMLSelectElement>(
-          'outcome',
-        ).value as MockAdapter['outcome'];
-    });
-    const request = async (type: 'reward' | 'purchase') => {
-      if (this.servicePending) return;
-      this.servicePending = true;
-      this.element<HTMLButtonElement>('reward').disabled = true;
-      this.element<HTMLButtonElement>('purchase').disabled = true;
-      app.pause.set('service', true);
-      this.notify('서비스 상태 확인 중…');
-      const result = await (type === 'reward'
-        ? app.platform.rewarded()
-        : app.platform.purchase('demo-product'));
-      app.pause.set('service', false);
-      this.servicePending = false;
-      this.element<HTMLButtonElement>('reward').disabled = false;
-      this.element<HTMLButtonElement>('purchase').disabled = false;
-      this.notify(
-        `${type === 'reward' ? '보상형 광고' : '구매'}: ${result.status}${'mock' in result ? ' (Mock · 실제 보상/결제 없음)' : ''}`,
-      );
-    };
-    this.on('reward', 'click', () => {
-      void request('reward');
-    });
-    this.on('purchase', 'click', () => {
-      void request('purchase');
-    });
-    this.on('sound', 'click', () => {
-      app.audio?.sfx(assetKeys.collect);
-      this.notify('효과음을 재생했습니다. 음소거와 볼륨 설정을 확인해 주세요.');
+    document.addEventListener('fullscreenchange', () => this.render(), {
+      signal,
     });
     document.addEventListener(
       'keydown',
       (event) => {
-        if (
-          event.code !== 'Escape' ||
-          this.element<HTMLDialogElement>('settings-dialog').open ||
-          app.session.mode !== 'playing'
-        )
+        if (event.code !== 'Escape' || this.app.session.mode !== 'playing')
           return;
-        app.pause.set('manual', !app.pause.has('manual'));
+        if (this.app.session.confirmation) this.game.confirm(false);
+        else this.game.pause();
       },
-      { signal: this.controller.signal },
+      { signal },
     );
   }
   render() {
     const app = this.app;
-    const mode = app.session.mode;
-    this.element<HTMLButtonElement>('play').disabled = !app.ready;
-    this.element<HTMLButtonElement>('sound').disabled = !app.ready;
-    if (app.loadingError) this.notify(app.loadingError);
-    this.element('best').textContent = String(app.save.data.best);
-    this.element('rounds').textContent = String(app.save.data.rounds);
-    const ready =
-      app.save.status === 'ready' && app.settings.status === 'ready';
-    this.element('storage-status').textContent = ready
-      ? '이 브라우저에 자동으로 저장됩니다.'
-      : `저장 보호 모드 · 기록: ${app.save.status}, 설정: ${app.settings.status}. 설정에서 초기화할 수 있습니다.`;
-    this.element('mode-label').textContent = app.pause.paused
-      ? 'PAUSED'
-      : mode.toUpperCase();
+    const run = app.session;
+    const menu = run.mode === 'menu';
+    const playing = run.mode === 'playing';
+    this.element('surface').dataset.mode = run.mode;
+    this.element('surface').dataset.phase = run.phase;
+    this.element('title-screen').hidden = !menu;
+    this.element('hud').hidden = !playing;
+    this.element('result-screen').hidden = run.mode !== 'result';
     this.element('pause-overlay').hidden =
-      !app.pause.paused || mode !== 'playing';
-    this.element('pause').hidden = mode !== 'playing';
-    this.element('pause').textContent = app.pause.has('manual')
-      ? '계속하기'
-      : '일시정지';
-    this.element('home').hidden = mode === 'menu';
-    this.element('play').hidden = mode === 'playing';
+      !playing || !run.paused || !!run.confirmation;
+    this.element('confirm-overlay').hidden = !run.confirmation;
+    this.element('confirm-title').textContent =
+      run.confirmation === 'home'
+        ? '첫 화면으로 돌아갈까요?'
+        : '새 판을 시작할까요?';
+    this.element('countdown-overlay').hidden = !playing || run.countdownMs <= 0;
+    this.element('countdown').textContent = String(
+      Math.ceil(run.countdownMs / 1000),
+    );
+    this.element('pause').hidden = run.paused;
+    this.element('combo').hidden = run.combo < 2;
+    this.element('combo-count').textContent = `x${run.combo}`;
+    this.element('tap-prompt').hidden = run.score >= 5 || run.frozen;
+    for (const id of ['score', 'result-score'])
+      this.element(id).textContent = String(run.score);
+    for (const id of ['best', 'title-best', 'result-best'])
+      this.element(id).textContent = String(app.save.data.best);
+    this.element<HTMLButtonElement>('play').disabled =
+      !app.ready || !!app.fatalError;
+    this.element('loading-overlay').hidden = app.ready || !!app.loadingError;
+    this.element('error-overlay').hidden = !(
+      app.loadingError || app.fatalError
+    );
+    this.element('error-message').textContent =
+      app.loadingError || app.fatalError;
+    this.element('storage-notice').textContent =
+      app.save.status === 'ready' && this.game.saved
+        ? ''
+        : '기록을 저장할 수 없습니다. 계속 플레이할 수 있어요.';
+    this.element('mode-label').textContent = run.paused
+      ? 'PAUSED'
+      : run.countdownMs > 0
+        ? 'COUNTDOWN'
+        : run.mode.toUpperCase();
+    const muted = app.settings.data.muted;
+    this.element('mute').textContent = muted ? '소리 꺼짐' : '소리 켜짐';
+    this.element('mute').setAttribute(
+      'aria-label',
+      muted ? '소리 켜기' : '소리 끄기',
+    );
+    this.element('mute').setAttribute('aria-pressed', String(muted));
     this.element('fullscreen').hidden = !(
       app.ready &&
       app.game &&
       fullscreenAvailable(app.game)
     );
-    this.element('error-overlay').hidden = !app.fatalError;
-    this.element('error-message').textContent = app.fatalError;
-    this.element('play').textContent =
-      mode === 'result' ? '다시 플레이 ↗' : '플레이 시작 ↗';
-    this.element('service-mode').textContent = app.platform.isMock
-      ? '개발용 Mock입니다. 외부 서비스로 데이터를 보내거나 실제 결제하지 않습니다.'
-      : '외부 서비스가 비활성화되어 있습니다. 광고·구매는 unavailable을 반환합니다.';
-    this.element('consent').closest('label')!.hidden = !app.platform.isMock;
-    this.element('outcome').hidden = !app.platform.isMock;
+    this.element('fullscreen').textContent = app.game?.scale.isFullscreen
+      ? '전체화면 나가기'
+      : '전체화면';
   }
   destroy() {
     this.controller.abort();

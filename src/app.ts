@@ -42,6 +42,8 @@ export class App {
   loadingError = '';
   fatalError = '';
   onState = () => {};
+  /** 게임의 중단 정책은 구성하는 쪽에서 연결한다. */
+  onBackground = () => {};
   private cleanup: (() => void)[] = [];
 
   attach(game: Phaser.Game) {
@@ -50,15 +52,25 @@ export class App {
     const visibility = () => {
       if (document.hidden) this.flush();
       this.pause.set('hidden', document.hidden);
+      if (document.hidden) this.onBackground();
     };
+    const blur = () => {
+      this.pause.set('focus', true);
+      this.onBackground();
+    };
+    const focus = () => this.pause.set('focus', false);
     const flush = () => this.flush();
     document.addEventListener('visibilitychange', visibility);
     window.addEventListener('pagehide', flush);
+    window.addEventListener('blur', blur);
+    window.addEventListener('focus', focus);
     const timer = window.setInterval(flush, gameConfig.autosaveMs);
     this.cleanup.push(() => {
       clearInterval(timer);
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('pagehide', flush);
+      window.removeEventListener('blur', blur);
+      window.removeEventListener('focus', focus);
     });
     visibility();
   }
