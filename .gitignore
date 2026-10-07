@@ -1,0 +1,20 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.env*
+!.env.example
+.DS_Store
+*.local
+
+# Local editor files and signing material
+.vscode/
+.idea/
+*.tsbuildinfo
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+credentials*.json
