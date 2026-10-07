@@ -6,6 +6,7 @@ export class AudioService {
   private music?: Phaser.Sound.BaseSound;
   private musicKey?: string;
   private suspended = false;
+  private platformMuted = false;
   constructor(
     private sound: Phaser.Sound.BaseSoundManager,
     private settings: Readonly<Settings>,
@@ -15,7 +16,7 @@ export class AudioService {
 
   apply(settings: Readonly<Settings>) {
     this.settings = settings;
-    this.sound.mute = settings.muted || this.suspended;
+    this.sound.mute = settings.muted || this.suspended || this.platformMuted;
     this.sound.volume = settings.master;
     if (this.music && 'setVolume' in this.music) {
       (this.music as Phaser.Sound.WebAudioSound).setVolume(settings.music);
@@ -49,6 +50,10 @@ export class AudioService {
       this.sound.resumeAll();
       if (this.music && !this.music.isPlaying) this.music.play();
     }
+  }
+  setPlatformMuted(value: boolean) {
+    this.platformMuted = value;
+    this.apply(this.settings);
   }
   destroy() {
     this.stopMusic();

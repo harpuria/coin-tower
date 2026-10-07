@@ -5,9 +5,14 @@ import type { RunAction } from './session';
 /** 한 판의 행동을 공통 저장·오디오·수명 서비스에 연결한다. */
 export class GameController {
   private viewKey = '';
+  private gameplayActive = false;
   saved = true;
   constructor(readonly app: App) {
-    app.onBackground = () => this.pause();
+    app.onBackground = () => {
+      this.run.pause();
+      // SDK가 포커스/탭 전환을 처리한다. 복귀 후 명시적인 재개만 다시 보고한다.
+      this.sync(false);
+    };
   }
   get run() {
     return this.app.session;
@@ -15,7 +20,14 @@ export class GameController {
   private get background() {
     return this.app.pause.has('hidden') || this.app.pause.has('focus');
   }
-  private sync() {
+  private sync(reportGameplay = true) {
+    const active =
+      this.run.mode === 'playing' && !this.run.frozen && !this.background;
+    if (reportGameplay && active !== this.gameplayActive) {
+      if (active) this.app.platform.gameplayStart();
+      else this.app.platform.gameplayStop();
+    }
+    this.gameplayActive = active;
     this.app.pause.set('run', this.run.mode === 'playing' && this.run.frozen);
     const key = [
       this.run.mode,

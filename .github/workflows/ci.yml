@@ -23,6 +23,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: E2E_PREVIEW=1 npm run test:e2e
+      - run: npm run test:crazygames
+      - run: npm run build:crazygames
+      - run: E2E_PREVIEW=1 npm run test:crazygames
       - uses: actions/upload-artifact@v7
         if: failure()
         with:

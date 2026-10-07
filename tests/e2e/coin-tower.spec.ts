@@ -41,6 +41,11 @@ test('real mouse/touch start, drop, first miss, retry, home, and saved best', as
 }, info) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  const sdkRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('sdk.crazygames.com'))
+      sdkRequests.push(request.url());
+  });
   await ready(page);
   const panelLoaded = await page.evaluate(async () => {
     const background = getComputedStyle(
@@ -112,6 +117,7 @@ test('real mouse/touch start, drop, first miss, retry, home, and saved best', as
   ).toBe(true);
   await page.screenshot({ path: info.outputPath('title.png'), fullPage: true });
   expect(errors).toEqual([]);
+  expect(sdkRequests).toEqual([]);
   if (preview)
     expect(await page.evaluate(() => window.__COIN_TOWER__)).toBeUndefined();
 });
@@ -285,7 +291,7 @@ test('corrupt progress is preserved while the player can still complete a run', 
   );
   await ready(page);
   await expect(page.locator('#storage-notice')).toContainText(
-    '저장할 수 없습니다',
+    'cannot be saved',
   );
   await page.locator('#play').click();
   await tapGame(page, info);
@@ -307,7 +313,7 @@ test('asset failure and uncaught errors offer reload without claiming readiness'
   await page.route('**/assets/coin-tower/coin.png', (route) => route.abort());
   await page.goto('/');
   await expect(page.locator('#error-overlay')).toContainText(
-    '파일을 불러오지 못했습니다',
+    'Unable to load game files',
   );
   await expect(page.locator('#play')).toBeDisabled();
   await page.unrouteAll();
@@ -342,7 +348,7 @@ test('storage quota failure keeps gameplay available and reports the failed save
   await tapGame(page, info);
   await expect(page.locator('#result-score')).toHaveText('1');
   await expect(page.locator('#storage-notice')).toContainText(
-    '저장할 수 없습니다',
+    'cannot be saved',
   );
   expect(
     await page.evaluate((key) => localStorage.getItem(key), saveKey),

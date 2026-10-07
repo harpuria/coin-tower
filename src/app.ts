@@ -22,6 +22,7 @@ export class App {
   readonly platform = new PlatformServices({
     ...gameConfig.services,
     development: import.meta.env.DEV,
+    crazygames: gameConfig.crazygames,
   });
   readonly pause = new PauseState((paused) => {
     for (const key of gameConfig.pausableScenes) {
@@ -49,6 +50,11 @@ export class App {
   attach(game: Phaser.Game) {
     this.game = game;
     this.audio = new AudioService(game.sound, this.settings.data);
+    this.audio.setPlatformMuted(this.platform.muted);
+    this.platform.onMute = (muted) => {
+      this.audio?.setPlatformMuted(muted);
+      this.onState();
+    };
     const visibility = () => {
       if (document.hidden) this.flush();
       this.pause.set('hidden', document.hidden);
@@ -86,5 +92,6 @@ export class App {
     this.flush();
     this.cleanup.forEach((fn) => fn());
     this.audio?.destroy();
+    this.platform.destroy();
   }
 }

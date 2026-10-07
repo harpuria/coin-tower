@@ -26,5 +26,5 @@ function describe(value: unknown): string {
   if (typeof value === 'string') return value;
   if (value && typeof value === 'object' && 'message' in value)
     return String(value.message);
-  return '알 수 없는 오류';
+  return 'An unexpected error occurred.';
 }

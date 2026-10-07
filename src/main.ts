@@ -19,34 +19,50 @@ const stopWatchingErrors = watchUncaughtErrors((message) => {
   app.fatalError = message;
   app.onState();
 });
-const game = new Phaser.Game({
-  type: Phaser.AUTO,
-  parent: 'game',
-  width: gameConfig.width,
-  height: gameConfig.height,
-  backgroundColor: gameConfig.background,
-  pixelArt: gameConfig.pixelArt,
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    fullscreenTarget: 'stage',
-  },
-  input: {
-    activePointers: 2,
-    keyboard: { target: document.getElementById('game')! },
-  },
-  scene: [
-    new BootScene(app),
-    new PreloadScene(app),
-    new CoinTowerScene(app, controller),
-  ],
-});
+let game: Phaser.Game | undefined;
+let disposed = false;
+async function start() {
+  try {
+    await app.platform.initialize();
+  } catch (error) {
+    if (disposed) return;
+    console.warn('[CrazyGames] Initialization failed', error);
+    app.loadingError = 'Unable to connect. Please reload to try again.';
+    app.onState();
+    return;
+  }
+  if (disposed) return;
+  game = new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: 'game',
+    width: gameConfig.width,
+    height: gameConfig.height,
+    backgroundColor: gameConfig.background,
+    pixelArt: gameConfig.pixelArt,
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      fullscreenTarget: 'stage',
+    },
+    input: {
+      activePointers: 2,
+      keyboard: { target: document.getElementById('game')! },
+    },
+    scene: [
+      new BootScene(app),
+      new PreloadScene(app),
+      new CoinTowerScene(app, controller),
+    ],
+  });
+}
+void start();
 
 // Keep hot module replacement from accumulating canvases, timers and DOM listeners.
 if (import.meta.hot)
   import.meta.hot.dispose(() => {
+    disposed = true;
     stopWatchingErrors();
     shell.destroy();
     app.destroy();
-    game.destroy(true);
+    game?.destroy(true);
   });

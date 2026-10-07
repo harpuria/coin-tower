@@ -2,6 +2,34 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-07 — CrazyGames Basic Launch 준비
+
+- 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스와 Pixel 7 터치 에뮬레이션이며 실기기 검사가 아니다.
+- 범위: SDK v3 준비 완료 후 게임 생성, gameplay start/stop, 초기·변경 플랫폼 음소거, 영어 UI/접근성/복구 문구, CrazyGames 빌드의 자체 전체화면 숨김과 호출 차단. 게임 규칙·아트·저장 schema는 유지했다.
+
+| 검사                                                                                                       | 실제 결과                                                                                      |
+| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `rtk npm run check`                                                                                        | 린트·포맷·타입·standalone 배포 빌드 성공, 단위 검사 6개 파일·48개 통과                         |
+| `rtk npm run test:e2e`                                                                                     | standalone 개발 브라우저 검사 16개 통과                                                        |
+| `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`                                                             | standalone 배포 브라우저 검사 12개 통과, 개발 시간 제어 전용 4개 의도적 제외                   |
+| `rtk proxy env CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames`               | CrazyGames 개발 브라우저 검사 16개 통과: fixture 14개 + 실제 SDK local 검사 2개                |
+| `rtk npm run build:crazygames`                                                                             | 제출용 빌드 성공: `dist/` 15개 파일, 11,214,961 bytes. 외부 SDK 파일은 이 합계에 포함하지 않음 |
+| `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames` | CrazyGames 배포 브라우저 검사 16개 통과: fixture 14개 + 실제 SDK local 검사 2개                |
+
+### SDK 경계와 화면 근거
+
+- 단위 검사: 초기화 한 번·준비 이전 API 호출 방지, init 거부/disabled 환경/다운로드 실패/SDK 누락, 제한 시간 초과·취소·늦은 완료 무시, listener 제거, 런타임 SDK 이벤트 예외 처리, standalone 오프라인 동작, CrazyGames 연동 경로에서 광고·구매·분석 비활성 유지.
+- 이벤트 검사: 메뉴/로딩은 시작을 보고하지 않음. 새 판·RETRY·확인된 RESTART와 재개 카운트다운 종료에 start, 수동 정지·첫 실패에 stop. 반복 프레임/확인 취소/이미 정지된 메뉴 전환은 중복하지 않음. 합성 blur/focus/visibility 자체는 SDK 이벤트를 보내지 않으며 복귀 후 명시적 재개만 start를 보냄.
+- 음소거: 초기·변경 SDK mute를 `AudioService`에 전달한 테스트 sound manager의 mute에 OR 적용하는 단위 검사와, 브라우저의 버튼·저장 설정 보존 검사를 함께 사용했다. 플랫폼 강제 음소거, 사용자 mute, 일시정지 중 어느 하나라도 남으면 소리를 켜지 않는다. 오디오 청취 검사는 아니다.
+- 음소거 검사를 보강해 배포본의 실제 WebAudio masterMuteNode gain을 관측했다. 사용자 입력으로 자동 재생 잠금이 풀린 뒤 플랫폼 mute에서 0, 해제에서 1, 사용자 mute가 남으면 0임을 PC·모바일 브라우저에서 추가 확인했다(`rtk npm run test:crazygames -- --grep 'platform mute'` 및 `rtk proxy env E2E_PREVIEW=1 npm run test:crazygames -- --grep 'platform mute'`, 개발·배포 각각 2개 통과). 초기 잠금 상태의 gain을 즉시 읽는 검사는 렌더 전 값을 반환하므로 입력 후 오디오 렌더를 기다리도록 수정했다. SDK 설정 입력은 fixture이며 실제 포털 음소거 검사는 아니다.
+- 브라우저 fixture는 공식 CDN 요청 경로를 테스트 코드로 대체한다. 이 결과를 실제 SDK 또는 CrazyGames 포털 결과로 해석하지 않는다. 실제 SDK 검사는 CDN에서 받은 108,970-byte 원본 파일을 수정 없이 같은 URL 요청에 제공했다. SDK 자체의 `environment === 'local'`과 실제 시작/일시정지/재개 호출·런타임 오류 없음을 확인했다. 원본 해시는 `DEPENDENCIES.md`에 있다.
+- SDK 이벤트 시나리오의 마지막 성공·실패 준비는 브라우저 Clock으로 시간을 고정한 뒤 실제 마우스/터치와 RAF 시간을 진행한다. production에 개발 관측 API를 추가하지 않았다. `?debug`에서도 배포본 관측 API가 없음을 검사한다.
+- 영어 문구는 숨겨진 메뉴까지 포함해 한국어가 남지 않는지 검사했다. 821×462 DPR 1 포털 크기의 title/pause/confirm 캡처를 직접 확인했다. 자동 폭 검사와 전체화면 숨김 검사도 통과했다. 처음 캡처에서 발견한 확인문의 한국어 잔여 문장을 수정하고 재검사했다.
+- 초기 실행에서 소스 수정의 HMR 간섭, 두 검사 묶음의 출력 폴더 공유, 동시 렌더 부하에 따른 실패가 있었다. 출력 경로를 `test-results/standalone/`와 `test-results/crazygames/`로 분리하고 재사용 서버 대신 자체 서버·단일 작업자로 순차 실행해 최종 결과를 확인했다. 실패 재현 준비의 시간 의존성은 브라우저 Clock으로 제거했다.
+- 실패 시나리오의 의도적인 SDK 경고 및 `recovery fixture` 오류와 도구의 `NO_COLOR` 경고는 정상 플레이 오류로 계산하지 않는다. CI에 CrazyGames 개발/배포 fixture 검사 경로를 추가했으며 원격 CI 실행은 아직 하지 않았다.
+- 미검증: **CrazyGames 포털 업로드·Preview 통신·플랫폼 음소거/전체화면 UI·심사 승인**, 실제 Android/iPhone 및 Safari/Firefox, 물리적 탭/OS 전환, 실제 오디오·터치 지연·네트워크 로딩 체감. 광고·결제·계정·클라우드는 이번 구현 범위가 아니다.
+- 마지막 빌드는 CrazyGames용 `dist/`다. 일반 `build`/`check` 실행 뒤 제출하려면 다시 `build:crazygames`가 필요하다. 산출물은 ignore되며 외부 게시를 하지 않았다.
+
 ## 2026-10-07 — 5·10·20개 집중 플레이 관측
 
 - 게임 기준: `d121c4e`. 런타임 게임 코드·아트·밸런스는 변경하지 않았다.

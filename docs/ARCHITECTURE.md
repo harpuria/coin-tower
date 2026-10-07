@@ -14,6 +14,7 @@ src/core/                 게임과 무관하게 재사용하는 코드
   input.ts navigation.ts    이동 입력 통합, 장면 전환
   screen.ts errors.ts       전체화면/방향 고정, 처리되지 않은 오류 감시
 src/services/platform.ts  광고·결제·분석 계약, Mock, unavailable
+src/services/crazygames.ts HTML5 SDK v3 초기화·플레이 이벤트·음소거 adapter
 src/scenes/               공통 Boot / Preload
 src/game/                 게임 전용: session/rules, controller, 장면, 저장 schema, asset 목록
 src/ui/Shell.ts           HTML 시작/HUD/결과/일시정지/카운트다운과 주 포인터 입력
@@ -38,11 +39,11 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 ## 시작과 정리
 
 1. `main.ts`가 `App`과 `Shell`을 만들고 처리되지 않은 오류 감시를 시작합니다.
-2. `BootScene`이 `app.attach(game)`으로 오디오, 탭 숨김/pagehide 처리, 자동 저장 타이머를 연결합니다.
+2. CrazyGames 모드에서는 `app.platform.initialize()`로 SDK를 먼저 준비한 뒤 Phaser를 만듭니다. 초기화/다운로드는 10초로 제한하며 실패하면 영어 재시도 화면을 표시합니다. 일반 모드에서는 외부 SDK를 로드하지 않습니다. `BootScene`이 `app.attach(game)`으로 오디오, 플랫폼 음소거, 탭 숨김/pagehide 처리, 자동 저장 타이머를 연결합니다.
 3. `PreloadScene`이 게임의 `queueAssets`로 asset을 불러오며 진행률을 표시합니다.
    하나라도 실패하면 안내를 띄우고 멈춥니다. 모두 성공하면 `app.ready = true` 후 `startScene`으로 넘어갑니다.
 4. 현재 게임은 CoinTower 장면 안의 모델 모드로 시작·플레이·결과를 전환합니다. 별도 장면이 필요한 기능은 기존 `transition()`의 중복 요청 방지 계약을 사용할 수 있습니다.
-5. HMR 때는 오류 감시, HTML listener, 타이머, 오디오, Phaser 게임을 순서대로 정리합니다.
+5. HMR 때는 오류 감시, HTML listener, 타이머, 오디오, 플랫폼 listener/진행 중 초기화, Phaser 게임을 정리합니다. 폐기된 앱의 늦은 초기화 완료는 게임이나 listener를 만들지 않습니다.
 
 `App`은 장면이 바뀌어도 유지됩니다. 렌더 객체는 Phaser 장면 수명을 따르고, native 포인터와 HTML 버튼 listener는 Shell 수명을 따릅니다. 런타임에는 동전 간 물리 시뮬레이션 대신 Session의 착지 규칙을 사용합니다.
 
@@ -74,13 +75,17 @@ App의 숨김·blur는 게임의 `onBackground`를 호출합니다. controller�
 ## 오디오, 입력, 화면
 
 - `AudioService`는 master/mute를 sound manager에, music/sfx 음량을 각 sound에 적용합니다. asset 키는 호출하는 쪽이 넘깁니다.
+- 최종 음소거는 사용자 설정 OR 플랫폼 강제 음소거 OR 일시정지입니다. SDK settings listener는 별도 플래그만 바꾸며 저장 설정에 쓰지 않습니다.
 - BGM은 사용자 동작 이후 시작하고 일시정지 동안 멈춥니다. 설정을 바꾸면 즉시 반영합니다.
 - 현재 낙하 입력은 `#game`의 native 주 pointerdown 한 번으로 받습니다. 터치에서 파생된 별도 마우스 이벤트를 추가로 처리하지 않으며 메뉴는 캔버스의 형제 HTML 요소여서 낙하로 전파되지 않습니다. 게임 영역은 `touch-action: none`이며 Space/Enter는 그 영역에 포커스가 있을 때만 받습니다.
 - 고정 논리 해상도 + `FIT`. 전체화면 대상은 캔버스와 오버레이를 감싼 `#stage`입니다.
+- CrazyGames 빌드에서는 초기화 성공 여부와 관계없이 자체 전체화면 버튼을 숨기고 호출도 차단합니다.
 
 ## 서비스
 
-`PlatformAdapter`는 광고·구매·분석 호출의 교체 지점입니다. 현재 구현은 개발용 `MockAdapter`와 `UnavailableAdapter`뿐입니다.
+`PlatformServices`는 CrazyGames 모드에서 `CrazyGamesIntegration`의 준비·게임 이벤트·플랫폼 음소거·정리를 소유합니다. game 계층은 전역 SDK를 직접 참조하지 않습니다. `GameController.sync()`는 실제 플레이 가능 상태로의 전환만 보고하며 재개 카운트다운 종료 시 시작을 보고합니다. background callback은 SDK 이벤트 없이 내부 추적 상태만 갱신합니다. SDK가 포커스/visibility를 처리하고 게임 모델은 기존대로 일시정지에 머무릅니다. [ADR 0003](adr/0003-crazygames-basic-launch.md)을 함께 읽습니다.
+
+`PlatformAdapter`는 광고·구매·분석 호출의 교체 지점입니다. 이 기능들의 구현은 개발용 `MockAdapter`와 `UnavailableAdapter`뿐이며 CrazyGames 기본 연동으로 활성화하지 않습니다.
 `PlatformServices`가 gate(기능 스위치, 동의, 동시 요청)와 오류 변환을 담당합니다.
 Mock 완료 결과에는 `mock: true`가 붙고, 게임 재화/권한을 자동 지급하지 않습니다. Mock 동의는 세션 메모리에만 있습니다.
 

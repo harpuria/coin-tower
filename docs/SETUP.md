@@ -6,6 +6,7 @@
 - [Decided] Initialize a runnable project using the Phaser web template.
 - [Decided] Retain the portrait composition; support desktop and mobile browsers using mouse and touch.
 - [Decided] Initialize local Git; connect a remote later.
+- [Decided] Target CrazyGames Basic Launch; integrate HTML5 SDK v3 initialization, gameplay events, and platform mute. Use English game UI and hide the game's fullscreen button in the CrazyGames build. Physical-device tuning is deferred for now.
 
 ## Applied scaffold
 
@@ -17,7 +18,7 @@
 - The initial scaffold demo has been replaced by the agreed Coin Tower first playable. Original mobile PNGs, deterministic run simulation, completion-only local best, feedback, pause/countdown, and mouse/touch controls are implemented. See `GAME_DESIGN.md` for rules and `IMPLEMENTATION_PLAN.md` for current validation status.
 - Game persistence uses `coin-tower-web-v1`, separate from the scaffold's `coin-tower-web-demo` and mobile saves. Ads, billing, analytics, and Mock services remain disabled pending product decisions.
 - Available tooling: Node/npm, pnpm, Git, GitHub CLI, template TypeScript/Vite tools and Playwright browser checks. No Phaser-specific MCP is required. Actual validation results belong in `VALIDATION.md`.
-- Language defaults retained from the mobile project: Korean communication, player/design/art/audio documents, and explanatory comments; English agent instructions, implementation handoffs, ADRs, identifiers, and filenames.
+- Document/comment language defaults retained from the mobile project: Korean communication, player/design/art/audio documents, and explanatory comments; English agent instructions, implementation handoffs, ADRs, identifiers, and filenames. The user requested English game UI for CrazyGames preparation.
 
 ## Legacy reference
 
@@ -31,7 +32,8 @@ The legacy project's Android-only release and Google Play Games plan describe th
 
 - [Decided] The initial port slice is defined in [GAME_DESIGN.md](GAME_DESIGN.md) and implemented. Device feel and release targets remain separate from the local/browser validation recorded in `VALIDATION.md`.
 - [Open] Global ranking, identity, cloud storage, and a web-compatible backend/provider, if required.
-- [Open] Hosting/distribution channel, offline/PWA requirements, minimum browser/device support, and FPS target.
+- [Decided] Distribution target: CrazyGames. Dedicated `dev:crazygames` / `build:crazygames` select the SDK integration; normal development/build remains standalone. See ADR 0003 and `DEVELOPMENT.md`.
+- [Open] Offline/PWA requirements, minimum browser/device support, and FPS target.
 - [Open] Ads, purchases, and analytics requirements; disabled in the scaffold.
 - [Open] Remote repository and branch/push workflow; Git LFS remains deferred until needed.
 

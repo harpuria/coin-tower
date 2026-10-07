@@ -11,7 +11,7 @@ export class PreloadScene extends Phaser.Scene {
   preload() {
     const { width, height } = this.scale;
     const label = this.add
-      .text(width / 2, height / 2, '준비 중… 0%', {
+      .text(width / 2, height / 2, 'Loading… 0%', {
         fontFamily: 'sans-serif',
         fontSize: '24px',
         color: '#e2e8f0',
@@ -19,17 +19,15 @@ export class PreloadScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
     this.load.on('progress', (value: number) => {
-      if (!this.failed) label.setText(`준비 중… ${Math.round(value * 100)}%`);
+      if (!this.failed) label.setText(`Loading… ${Math.round(value * 100)}%`);
     });
     this.failed = false;
     this.load.on('loaderror', () => {
       this.failed = true;
       this.app.loadingError =
-        '파일을 불러오지 못했습니다. 새로고침해 다시 시도해 주세요.';
+        'Unable to load game files. Please reload to try again.';
       this.app.onState();
-      label.setText(
-        '파일을 불러오지 못했습니다.\n새로고침해 다시 시도해 주세요.',
-      );
+      label.setText('Unable to load game files.\nPlease reload to try again.');
     });
     queueAssets(this.load);
   }

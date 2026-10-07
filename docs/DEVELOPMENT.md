@@ -55,6 +55,38 @@ window.__COIN_TOWER__.freeze(false);
 
 ## 검증과 배포
 
+### CrazyGames Basic Launch
+
+플레이 UI는 영어입니다. 일반 `dev`/`build`는 SDK 없이 실행되며, CrazyGames용 실행물은 아래 전용 명령으로 만듭니다.
+
+```bash
+rtk npm run dev:crazygames
+rtk npm run test:crazygames
+rtk npm run build:crazygames
+rtk proxy env E2E_PREVIEW=1 npm run test:crazygames
+rtk npm run preview
+```
+
+CrazyGames에 제출할 파일은 **`build:crazygames` 직후의 `dist/` 전체**입니다. `check`/`build`를 나중에 실행하면 standalone 출력으로 바뀌므로 다시 `build:crazygames`를 실행합니다. 상대 asset 경로는 두 빌드 모두 유지합니다. Preview 명령은 마지막 빌드 결과를 그대로 제공합니다.
+
+- SDK는 공식 v3 CDN을 로드하고 `init()`을 기다린 뒤 Phaser를 시작합니다. 다운로드·초기화가 실패하거나 10초를 넘기거나 SDK 환경이 disabled이면 시작을 차단하고 영어 RELOAD 화면을 제공합니다. 일반 정적 호스팅은 standalone 빌드를 사용합니다.
+- localhost/127.0.0.1의 실제 SDK는 local 환경입니다. LAN에서 SDK 개발 검사가 필요하면 공식 `?useLocalSdk=true`를 사용합니다. 이 로컬 기능은 CrazyGames 포털 Preview 검증을 대신하지 않습니다.
+- 게임 시작·RETRY·확인된 RESTART와 재개 카운트다운 종료에 `gameplayStart`, 수동 일시정지·결과·플레이 종료에 `gameplayStop`을 보냅니다. 반복 프레임은 중복 이벤트를 보내지 않습니다. 탭 숨김/blur/focus만으로 이벤트를 보내지 않으며 SDK가 처리합니다. 복귀 후 게임은 기존처럼 정지 상태를 유지하고 명시적으로 재개합니다.
+- 초기 `game.settings.muteAudio`와 변경 listener를 적용합니다. 플랫폼 음소거 중 소리 버튼은 비활성화되며 플랫폼 해제 후 기존 사용자 설정으로 돌아갑니다. 플랫폼 상태는 localStorage에 쓰지 않습니다.
+- CrazyGames 빌드는 자체 전체화면 버튼과 호출을 차단합니다. 광고·결제·분석·로그인·클라우드 저장을 활성화하지 않습니다. 최고 기록과 소리 설정의 기존 저장 schema를 유지합니다.
+- `test:crazygames`는 SDK 다운로드 경로를 결정적 fixture로 대체해 초기화 순서·이벤트·음소거·실패 복구·821×462 화면을 검사합니다. 실제 SDK local 검사는 아래처럼 공식 파일을 임시로 받아 별도로 실행합니다. 이 파일을 저장소에 추가하지 않습니다.
+
+```bash
+rtk proxy curl --fail --silent --show-error https://sdk.crazygames.com/crazygames-sdk-v3.js -o /private/tmp/coin-tower-crazygames-v3.js
+rtk proxy env CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames
+# build:crazygames 후 같은 실제 SDK를 배포본에서 검사
+rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames
+```
+
+파일을 지정하지 않으면 실제 SDK local 검사 2개만 명시적으로 제외합니다. fixture 검사를 실제 플랫폼 승인으로 해석하지 않습니다. Preview 업로드 뒤 SDK 통신·플랫폼 음소거·플랫폼 전체화면·재시작/재개 이벤트를 최종 확인합니다. SDK API 기준은 [공식 초기화 문서](https://docs.crazygames.com/sdk/intro/), [game 문서](https://docs.crazygames.com/sdk/game/)입니다.
+
+### Standalone 회귀 검사
+
 ```bash
 rtk npm run check
 rtk npm run test:e2e
@@ -63,4 +95,4 @@ rtk proxy env E2E_PREVIEW=1 npm run test:e2e
 
 단위 검사는 착지 경계·점수·콤보·속도·정지·재시작과 공통 저장/서비스를 확인합니다. 브라우저 검사는 실제 마우스·합성 터치, 완료 저장과 복원, 중단, 오류 복구를 확인합니다. 개발 모드에서는 시간 제어를 사용한 21개 적층·카메라·정확한 정지 단계 검사가 추가됩니다. production에서는 그 추가 검사만 제외하고 실제 입력 검사를 실행합니다.
 
-브라우저 검사 산출물은 `test-results/`입니다. 합성 터치와 모바일 화면 크기는 실기기 입력 감각 검증을 대체하지 않습니다. `dist/` 전체를 정적 호스팅에 배포할 수 있고 현재 외부 서비스 연동이나 게시 작업은 하지 않았습니다.
+브라우저 검사 산출물은 `test-results/standalone/`와 `test-results/crazygames/`입니다. 각 검사는 다른 출력 폴더와 자체 서버를 사용합니다. 호스트의 렌더 부하와 포커스 간섭을 줄이도록 두 묶음은 순서대로 실행합니다. 합성 터치와 모바일 화면 크기는 실기기 입력 감각 검증을 대체하지 않습니다. 외부 게시 작업은 하지 않았습니다.

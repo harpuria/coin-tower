@@ -1,3 +1,5 @@
+import { CrazyGamesIntegration } from './crazygames';
+
 export type ServiceResult =
   | { status: 'completed'; mock: true }
   | {
@@ -46,6 +48,27 @@ export class PlatformServices {
   consent = false;
   readonly adapter: PlatformAdapter;
   readonly isMock: boolean;
+  private integration?: CrazyGamesIntegration;
+  onMute: (muted: boolean) => void = () => {};
+  get muted() {
+    return this.integration?.muted ?? false;
+  }
+  get hideFullscreen() {
+    return this.options.crazygames === true;
+  }
+  initialize() {
+    return this.integration?.initialize() ?? Promise.resolve();
+  }
+  gameplayStart() {
+    this.integration?.gameplayStart();
+  }
+  gameplayStop() {
+    this.integration?.gameplayStop();
+  }
+  destroy() {
+    this.integration?.destroy();
+    this.onMute = () => {};
+  }
 
   constructor(
     private options: {
@@ -54,10 +77,15 @@ export class PlatformServices {
       ads: boolean;
       billing: boolean;
       analytics: boolean;
+      crazygames?: boolean;
     },
   ) {
     this.isMock = options.development && options.mock;
     this.adapter = this.isMock ? new MockAdapter() : new UnavailableAdapter();
+    if (options.crazygames) {
+      this.integration = new CrazyGamesIntegration();
+      this.integration.onMute = (muted) => this.onMute(muted);
+    }
   }
 
   private async request(

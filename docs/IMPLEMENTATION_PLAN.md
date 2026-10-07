@@ -1,21 +1,26 @@
-# Implementation Plan — First Coin Tower Web Playable
+# Implementation Plan — Coin Tower CrazyGames Basic Launch
 
 ## Goal
 
 [Decided] Deliver the first playable defined in [GAME_DESIGN.md](GAME_DESIGN.md), reusing the mobile art with mouse/touch input, completion-only local best, Perfect/combo, and pause/countdown behavior.
 
+[Decided] Prepare that playable for CrazyGames Basic Launch with HTML5 SDK v3 initialization, gameplay events, platform mute, English UI, and hidden custom fullscreen controls on CrazyGames.
+
 ## Status
 
 - Completed: first playable implemented and validated; original art, run rules, mouse/touch, persistence, and interruptions are connected.
-- Current: first playable and focused browser touch playtest at 5/10/20 coins are complete. Evidence and remaining device limits are in `VALIDATION.md` and the latest `PLAYTEST_NOTES.md` entry.
-- Next proposed task: collect physical-device feedback on timing and Perfect readability before adjusting the agreed starting values.
-- Blockers: none for the first playable. Physical-device feel and Safari/Firefox remain unverified; release services are deferred by design.
+- Current: CrazyGames Basic Launch preparation is implemented and locally validated: SDK v3 initialization, gameplay events, platform mute, English UI, and hidden custom fullscreen controls in a dedicated CrazyGames build. See `VALIDATION.md` for results and external limits.
+- Scope: Basic Launch preparation only; advertising, accounts, cloud saves, and portal publication are not included. Physical-device tuning is deferred at the user's request.
+- Validation: SDK boundary unit tests, deterministic SDK fixtures in desktop/mobile browsers, standalone regression, production builds, and an unmodified official CDN SDK in local mode passed. CrazyGames Preview remains an external verification step.
+- Next proposed task: prepare the CrazyGames upload archive and run the portal Preview checks before submission.
+- Blockers: none for implementation. Portal acceptance, physical-device feel, and Safari/Firefox remain unverified.
 
 ## Slices
 
 - Completed slice 1: title → drop/stack → first miss → result/retry/home, original art, speed/camera, and completion-only best in a separate storage namespace.
 - Completed slice 2: Perfect/combo, pause at every phase, background interruption, confirmation, and 3/2/1 resume with independent UI input.
 - Completed slice 3: deterministic rules, native browser mouse/touch events, production checks, screenshots, asset provenance, and validation/playtest handoff.
+- Completed slice 4: Basic Launch adapter and lifecycle connection, English controls/recovery/accessibility, dedicated build mode, and SDK boundary/browser validation.
 
 ## Implementation Entry Points
 
@@ -23,4 +28,4 @@
 
 ## Open Questions
 
-Release targets and services remain as recorded in `SETUP.md`; they do not block this playable. No additional mechanics are proposed by this implementation.
+CrazyGames is the confirmed release target. Portal Preview/acceptance and any later monetization/account/cloud scope remain separate from this local implementation. No additional mechanics are proposed.

@@ -18,7 +18,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run format:check && npm run test && npm run build"
+    "check": "npm run lint && npm run format:check && npm run test && npm run build",
+    "dev:crazygames": "vite --mode crazygames --host 0.0.0.0",
+    "build:crazygames": "npm run typecheck && vite build --mode crazygames",
+    "test:crazygames": "playwright test --config playwright.crazygames.config.ts"
   },
   "dependencies": {
     "phaser": "4.2.1"

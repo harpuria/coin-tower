@@ -2,7 +2,7 @@
 
 - [Decided] Build a 2D casual web game with Phaser, retaining the portrait layout and supporting desktop/mobile browsers with mouse/touch input.
 - Scaffold defaults: Phaser/TypeScript/Vite versions are pinned in `package.json` and `package-lock.json`; use Node 24 (`.nvmrc`). Configuration lives in `src/config/game.ts` (720×1280, FIT).
-- The playable is Coin Tower's agreed first web slice with original mobile art. External services are disabled. Read `docs/SETUP.md` for provenance and deferred scope, and `docs/ASSET_SOURCES.md` when importing/replacing art or audio.
+- The playable is Coin Tower's agreed first web slice with original mobile art and English UI. [Decided] Prepare CrazyGames Basic Launch with HTML5 SDK v3; see ADR 0003. Ads, billing, and analytics remain disabled. Read `docs/SETUP.md` for provenance and deferred scope, and `docs/ASSET_SOURCES.md` when importing/replacing art or audio.
 
 ## Start here
 
@@ -17,6 +17,7 @@ Prefix all shell commands with `rtk`, including each segment in chains. `rtk pro
 
 - Install: `rtk proxy npm ci`.
 - Run: `rtk npm run dev` → `http://localhost:5173` (LAN access for mobile browsers).
+- CrazyGames run/build: `rtk npm run dev:crazygames` / `rtk npm run build:crazygames`. SDK browser checks: `rtk npm run test:crazygames`; after that build, `rtk proxy env E2E_PREVIEW=1 npm run test:crazygames`. See `docs/DEVELOPMENT.md` for real SDK versus fixture coverage.
 - Static checks and production build: `rtk npm run check` (lint, format, unit tests, typecheck, build).
 - Browser checks and screenshots: `rtk npm run test:e2e` (desktop/mobile Chromium; artifacts in `test-results/`).
 - Focused 5/10/20 touch playtest: `rtk npm run playtest:touch`; read the method and limits in `docs/DEVELOPMENT.md` before interpreting timings or screenshots.
@@ -40,6 +41,7 @@ Prefix all shell commands with `rtk`, including each segment in chains. `rtk pro
 ## Language and decision status
 
 - Korean: user communication, concept/design/art/audio direction, other user-facing documents, and explanatory code comments. English: agent instructions, implementation handoffs, ADRs, code identifiers, and filenames. English copies are provided on request.
+- [Decided] The game's player-facing UI is English for CrazyGames preparation; the document/comment language policy above is unchanged.
 - Labels: `[결정]` / `[Decided]` = user confirmed; `[제안]` / `[Proposed]` = awaiting confirmation; `[미결]` / `[Open]` = unresolved; `[가설]` / `[Hypothesis]` = needs play or production evidence. Only the user can move an item to Decided.
 
 ## Version control

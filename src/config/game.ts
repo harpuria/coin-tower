@@ -1,6 +1,7 @@
 export const gameConfig = {
   title: 'Coin Tower',
   version: '0.1.0',
+  crazygames: import.meta.env?.MODE === 'crazygames',
   storagePrefix: 'coin-tower-web-v1',
   width: 720,
   height: 1280,

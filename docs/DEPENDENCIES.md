@@ -30,7 +30,9 @@ CI는 `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` 모두
 
 - `public/assets/coin-tower/`의 PNG 9개는 사용자 요청에 따라 모바일 원본을 그대로 복사했습니다. 출처와 원본 일치 해시는 [ASSET_SOURCES.md](ASSET_SOURCES.md)에 있습니다.
 - `stack.wav`는 템플릿의 합성 효과음을 재사용한 임시 음원입니다. BGM은 없으며 글꼴은 시스템 폰트입니다. 파비콘 SVG는 프로젝트 초기화 중 작성했습니다.
-- 광고·결제·분석 SDK와 외부 전송 endpoint는 없습니다.
+- CrazyGames 빌드는 공식 HTML5 SDK **v3** CDN `https://sdk.crazygames.com/crazygames-sdk-v3.js`를 실행 중 로드합니다. 확인일 2026-10-07. 이 URL은 major만 고정하며 정확한 patch는 고정할 수 없습니다. npm 의존성 추가나 SDK 재배포는 하지 않습니다. 공식 [초기화 문서](https://docs.crazygames.com/sdk/intro/)와 [game API](https://docs.crazygames.com/sdk/game/)가 계약의 기준이며 소스의 타입은 사용하는 API 범위만 선언합니다. 로컬 검사와 포털 Preview의 구분은 `VALIDATION.md`에 기록합니다.
+- 이번 실제 SDK local 검사 파일: 108,970 bytes, SHA-256 `df040bea90f50e8c741415f7594a6883f53ac435e9f08b8a39b7a50c96362681`. 임시 다운로드를 그대로 사용한 관측 기록이며 CDN의 향후 내용 고정을 뜻하지 않습니다.
+- 광고·결제·분석 SDK 기능은 비활성화 상태입니다. CrazyGames SDK 자체 통신은 해당 플랫폼의 SDK 계약을 따릅니다. 게시 전 개발자 포털의 최신 약관과 배포 조건을 확인합니다.
 - 파생 게임은 실제로 쓰는 의존성/asset의 라이선스 고지와 SDK 약관을 직접 관리합니다.
 
 ## 업데이트 절차
