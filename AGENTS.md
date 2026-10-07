@@ -19,6 +19,7 @@ Prefix all shell commands with `rtk`, including each segment in chains. `rtk pro
 - Run: `rtk npm run dev` → `http://localhost:5173` (LAN access for mobile browsers).
 - Static checks and production build: `rtk npm run check` (lint, format, unit tests, typecheck, build).
 - Browser checks and screenshots: `rtk npm run test:e2e` (desktop/mobile Chromium; artifacts in `test-results/`).
+- Focused 5/10/20 touch playtest: `rtk npm run playtest:touch`; read the method and limits in `docs/DEVELOPMENT.md` before interpreting timings or screenshots.
 - Production preview: `rtk npm run preview` → `http://localhost:4173`.
 - Production browser checks, after build: `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`.
 - Development observation: open `http://localhost:5173/?debug`; `window.__COIN_TOWER__` supports `snapshot()`, `freeze(boolean)`, and `advance(milliseconds)`. See `docs/DEVELOPMENT.md`; the hook is excluded from production.

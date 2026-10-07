@@ -7,8 +7,8 @@
 ## Status
 
 - Completed: first playable implemented and validated; original art, run rules, mouse/touch, persistence, and interruptions are connected.
-- Current: this implementation effort is complete. Evidence is in `VALIDATION.md` and `PLAYTEST_NOTES.md`.
-- Next proposed task: focused physical-device playtest of timing at 5/10/20 coins and Perfect readability; wait for the user's request.
+- Current: first playable and focused browser touch playtest at 5/10/20 coins are complete. Evidence and remaining device limits are in `VALIDATION.md` and the latest `PLAYTEST_NOTES.md` entry.
+- Next proposed task: collect physical-device feedback on timing and Perfect readability before adjusting the agreed starting values.
 - Blockers: none for the first playable. Physical-device feel and Safari/Firefox remain unverified; release services are deferred by design.
 
 ## Slices
