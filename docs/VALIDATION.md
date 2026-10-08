@@ -2,6 +2,20 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-08 — 결과·메뉴의 두 기록과 항목별 NEW BEST
+
+- 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스·Pixel 7 터치 에뮬레이션이며 실기기 검사는 아니다.
+- 범위: 결과의 두 기록 비교 표, 이번 판을 반영한 개인 최고, 항목별 경신 배지, 메뉴의 두 개인 최고. 저장 형식 v2·공통 서비스·SDK·게임 속도·판정·아트는 유지했다.
+- `rtk npm run check`: 린트·포맷·타입·standalone 배포 빌드 성공, 단위 검사 6개 파일·65개 통과.
+- `rtk npm run test:e2e`: 전체 개발 브라우저 검사 24개 통과. 두 기록·경신 조합·화면 경계와 개발 훅 없는 단일 Perfect 결과 검사, 기존 입력·중단·저장·오류 복구 회귀를 포함한다.
+- `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`: standalone 배포 브라우저 검사 16개 통과, 개발 시간 제어 전용 8개 의도적 제외. 실제 Perfect 1회 완료 결과·두 배지·메뉴·새로고침, 구버전 이행·기존 기록 보존·오류 복구를 포함한다.
+- `rtk proxy env CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames`: CrazyGames 개발 회귀 16개 통과(fixture 14개·공식 SDK local 2개). 원본 파일 해시는 기존 `DEPENDENCIES.md`와 일치한다. `rtk npm run build:crazygames` 제출용 빌드도 성공했다.
+- `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames`: CrazyGames 배포 회귀 16개 통과(fixture 14개·공식 SDK local 2개). 마지막 `dist/`는 검증한 CrazyGames 빌드다. 실제 포털 Preview 검사는 아니다.
+- 규칙·상태: 갱신 전 개인 최고와 비교한 완료 결과를 보존해 높이만·콤보만·둘 다 경신, 동점·낮은 기록을 구분한다. 반복 프레임이 배지를 없애거나 완료를 중복 기록하지 않고, 새 판·메뉴에서 완료 결과를 비운다.
+- 화면·입력: 개발 시간 제어·합성 준비 후 실제 마우스/터치 실패 입력으로 x0·x1·x12·x100과 두 기록의 값을 확인했다. 360×640·390×844·821×462의 결과·메뉴 캡처를 직접 확인하고 패널·숫자·버튼 경계, 메뉴 두 칸의 같은 크기, 동전 아트 비가림을 검사했다. 개발 훅 없이 브라우저 Clock과 실제 입력으로 Perfect 1회 → 실패 → 두 경신 배지 → 메뉴 → 새로고침의 x1 유지도 확인했다.
+- 수정 후 재검증: 제목 PNG 사각형과 패널의 7px 겹침을 발견해 결과 패널을 아래로 조정하고 작은 배지 글자를 키웠다. 모바일 연속 리사이즈 검사는 FIT 반영을 기다리도록 보완했다. Clock 검사의 세 번째 동전이 다시 Perfect로 놓이는 준비 오류는 목표 밖으로 이동한 뒤 실패하도록 고쳤다. 게임 규칙 변경은 없었다.
+- 미검증: 실제 Android/iPhone·Safari/Firefox, 사람의 두 기록 이해 속도·작은 글자 체감, 실제 CrazyGames 포털 Preview와 전역 리더보드. 사용자 요청대로 실기기 조정은 보류한다. 방법과 가설은 [PLAYTEST_NOTES.md](PLAYTEST_NOTES.md)에 있다.
+
 ## 2026-10-08 — 무제한 콤보와 완료 시 최장 콤보 저장
 
 - 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스·Pixel 7 터치 에뮬레이션이며 실기기 검사는 아니다.

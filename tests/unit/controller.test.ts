@@ -42,6 +42,47 @@ function land(game: GameController, offset = 0) {
   game.update(rules.settleMs);
 }
 
+it.each([
+  { best: 3, bestCombo: 2, newBest: false, newBestCombo: false },
+  { best: 4, bestCombo: 3, newBest: false, newBestCombo: false },
+  { best: 2, bestCombo: 2, newBest: true, newBestCombo: false },
+  { best: 4, bestCombo: 1, newBest: false, newBestCombo: true },
+  { best: 0, bestCombo: 0, newBest: true, newBestCombo: true },
+])(
+  'retains independent result flags against the previous best: %j',
+  (previous) => {
+    const { controller: game } = fixture({
+      best: previous.best,
+      bestCombo: previous.bestCombo,
+      rounds: 1,
+    });
+    game.start();
+    expect(game.result).toBeNull();
+    for (let index = 0; index < 3; index++) land(game);
+    land(game, -100);
+    expect(game.result).toEqual({
+      score: 3,
+      combo: 2,
+      best: Math.max(previous.best, 3),
+      bestCombo: Math.max(previous.bestCombo, 2),
+      newBest: previous.newBest,
+      newBestCombo: previous.newBestCombo,
+    });
+    const completed = game.result;
+    game.update(10_000);
+    expect(game.result).toBe(completed);
+    game.home();
+    expect(game.result).toBeNull();
+    game.start();
+    land(game);
+    land(game, -100);
+    expect(game.result?.combo).toBe(0);
+    expect(game.result?.newBestCombo).toBe(false);
+    game.start();
+    expect(game.result).toBeNull();
+  },
+);
+
 it.each([0, 1])('records %i for a run with that many Perfects', (perfects) => {
   const { app, controller: game } = fixture();
   game.start();
@@ -74,6 +115,14 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   expect(app.save.data).toEqual({ best: 30, bestCombo: 4, rounds: 2 });
   land(game, -100);
   expect(app.save.data).toEqual({ best: 30, bestCombo: 8, rounds: 3 });
+  expect(game.result).toEqual({
+    score: 15,
+    combo: 8,
+    best: 30,
+    bestCombo: 8,
+    newBest: false,
+    newBestCombo: true,
+  });
   expect(storage.setItem).toHaveBeenCalledTimes(1);
   game.update(10_000);
   game.start();

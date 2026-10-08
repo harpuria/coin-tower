@@ -83,6 +83,10 @@ test('real mouse/touch start, drop, first miss, retry, home, and saved best', as
   await expect(page.locator('#result-screen')).toBeVisible();
   await expect(page.locator('#result-score')).toHaveText('1');
   await expect(page.locator('#result-best')).toHaveText('1');
+  await expect(page.locator('#result-combo')).toHaveText('x0');
+  await expect(page.locator('#result-best-combo')).toHaveText('x0');
+  await expect(page.locator('#new-best-coins')).toBeVisible();
+  await expect(page.locator('#new-best-combo')).toBeHidden();
   await page.screenshot({
     path: info.outputPath('result.png'),
     fullPage: true,
@@ -97,6 +101,7 @@ test('real mouse/touch start, drop, first miss, retry, home, and saved best', as
   ).toBe(1);
   await page.locator('#retry').click();
   await expect(page.locator('#score')).toHaveText('0');
+  await expect(page.locator('#new-best-coins')).toBeHidden();
   await expect(page.locator('#surface')).toHaveAttribute(
     'data-phase',
     'moving',
@@ -106,8 +111,10 @@ test('real mouse/touch start, drop, first miss, retry, home, and saved best', as
   await page.locator('#confirm-yes').click();
   await expect(page.locator('#play')).toBeVisible();
   await expect(page.locator('#title-best')).toHaveText('1');
+  await expect(page.locator('#title-best-combo')).toHaveText('x0');
   await page.reload();
   await expect(page.locator('#title-best')).toHaveText('1');
+  await expect(page.locator('#title-best-combo')).toHaveText('x0');
   const box = (await page.locator('#game canvas').boundingBox())!;
   expect(box.width / box.height).toBeCloseTo(9 / 16, 2);
   expect(
@@ -374,6 +381,255 @@ test('v1 migration preserves height and v2 combo best survives a lower completed
     bestCombo: 8,
     rounds: 14,
   });
+});
+
+test('result rows and menu bests distinguish each record break, ties and large combos', async ({
+  page,
+}, info) => {
+  test.setTimeout(90_000);
+  test.skip(preview, 'development-only deterministic run preparation');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await ready(page, true);
+  const cases = [
+    {
+      best: 30,
+      bestCombo: 8,
+      perfects: 12,
+      ordinary: 7,
+      newCoins: false,
+      newCombo: true,
+    },
+    {
+      best: 20,
+      bestCombo: 12,
+      perfects: 12,
+      ordinary: 7,
+      newCoins: false,
+      newCombo: false,
+    },
+    {
+      best: 1,
+      bestCombo: 12,
+      perfects: 1,
+      ordinary: 0,
+      newCoins: true,
+      newCombo: false,
+    },
+    {
+      best: 0,
+      bestCombo: 0,
+      perfects: 1,
+      ordinary: 0,
+      newCoins: true,
+      newCombo: true,
+    },
+    {
+      best: 0,
+      bestCombo: 0,
+      perfects: 0,
+      ordinary: 0,
+      newCoins: true,
+      newCombo: false,
+    },
+    {
+      best: 0,
+      bestCombo: 0,
+      perfects: 100,
+      ordinary: 0,
+      newCoins: true,
+      newCombo: true,
+    },
+  ];
+  for (const scenario of cases) {
+    await page.evaluate(
+      ({ key, best, bestCombo }) => {
+        localStorage.setItem(
+          key,
+          JSON.stringify({ version: 2, data: { best, bestCombo, rounds: 1 } }),
+        );
+      },
+      { key: saveKey, best: scenario.best, bestCombo: scenario.bestCombo },
+    );
+    await ready(page, true);
+    await page.locator('#play').click();
+    // 판 준비만 합성 입력으로 진행한다. 마지막 실패 입력은 실제 마우스·터치다.
+    await page.evaluate(
+      ({ perfects, ordinary, settleMs }) => {
+        const debug = window.__COIN_TOWER__!;
+        const canvas = document.querySelector('#game canvas')!;
+        const offsets = [
+          0,
+          ...Array<number>(perfects).fill(0),
+          ...Array.from({ length: ordinary }, (_, i) =>
+            i % 2 === 0 ? 35 : -35,
+          ),
+        ];
+        for (const offset of offsets) {
+          const run = debug.snapshot();
+          debug.advance(
+            (Math.abs(run.activeX - run.targetX - offset) / run.speed) * 1000,
+          );
+          canvas.dispatchEvent(
+            new PointerEvent('pointerdown', {
+              bubbles: true,
+              button: 0,
+              isPrimary: true,
+            }),
+          );
+          debug.advance(1000);
+          debug.advance(settleMs);
+        }
+      },
+      { ...scenario, settleMs: rules.settleMs },
+    );
+    await place(page, info, 100);
+    const score = 1 + scenario.perfects + scenario.ordinary;
+    const best = Math.max(scenario.best, score);
+    const bestCombo = Math.max(scenario.bestCombo, scenario.perfects);
+    await expect(page.locator('#result-score')).toHaveText(String(score));
+    await expect(page.locator('#result-best')).toHaveText(String(best));
+    await expect(page.locator('#result-combo')).toHaveText(
+      `x${scenario.perfects}`,
+    );
+    await expect(page.locator('#result-best-combo')).toHaveText(
+      `x${bestCombo}`,
+    );
+    await expect(page.locator('#new-best-coins')).toBeVisible({
+      visible: scenario.newCoins,
+    });
+    await expect(page.locator('#new-best-combo')).toBeVisible({
+      visible: scenario.newCombo,
+    });
+    await advance(page, 5000);
+    await expect(page.locator('#new-best-combo')).toBeVisible({
+      visible: scenario.newCombo,
+    });
+    if (scenario.perfects === 12 && scenario.newCombo) {
+      await page.screenshot({
+        path: info.outputPath('result-combo-only.png'),
+        fullPage: true,
+      });
+    }
+    if (scenario.perfects === 100) {
+      for (const viewport of [
+        { width: 360, height: 640 },
+        { width: 390, height: 844 },
+        { width: 821, height: 462 },
+      ]) {
+        await page.setViewportSize(viewport);
+        const panel = (await page.locator('.result-stats').boundingBox())!;
+        const heading = (await page.locator('.result-heading').boundingBox())!;
+        const caption = (await page.locator('.result-caption').boundingBox())!;
+        const actions = (await page.locator('.result-actions').boundingBox())!;
+        expect(heading.y + heading.height).toBeLessThan(panel.y);
+        expect(panel.y + panel.height).toBeLessThan(caption.y);
+        expect(caption.y + caption.height).toBeLessThan(actions.y);
+        expect(
+          await page
+            .locator('.result-stats')
+            .evaluate((el) =>
+              [
+                ...el.querySelectorAll<HTMLElement>(
+                  'th, td, strong, .record-badge',
+                ),
+              ].every((cell) => cell.scrollWidth <= cell.clientWidth),
+            ),
+        ).toBe(true);
+        await page.screenshot({
+          path: info.outputPath(`records-result-${viewport.width}.png`),
+          fullPage: true,
+        });
+      }
+    }
+    await page.locator('#home').click();
+    await expect(page.locator('#title-best')).toHaveText(String(best));
+    await expect(page.locator('#title-best-combo')).toHaveText(`x${bestCombo}`);
+    await expect(page.locator('#new-best-coins')).toBeHidden();
+    await expect(page.locator('#new-best-combo')).toBeHidden();
+    if (scenario.perfects === 100) {
+      for (const viewport of [
+        { width: 360, height: 640 },
+        { width: 821, height: 462 },
+      ]) {
+        await page.setViewportSize(viewport);
+        // Phaser의 비동기 FIT 리사이즈가 HTML 레이아웃을 따라온 뒤 아트 경계를 읽는다.
+        await expect
+          .poll(async () => {
+            const canvas = (await page.locator('#game canvas').boundingBox())!;
+            const surface = (await page.locator('#surface').boundingBox())!;
+            return Math.abs(canvas.height - surface.height);
+          })
+          .toBeLessThan(1);
+        const cards = (await page.locator('.title-records').boundingBox())!;
+        const canvas = (await page.locator('#game canvas').boundingBox())!;
+        expect(cards.y + cards.height).toBeLessThan(
+          canvas.y + (canvas.height * 552.5) / rules.height,
+        );
+        const columns = await page
+          .locator('.title-record-columns .blue-panel')
+          .all();
+        const left = (await columns[0]!.boundingBox())!;
+        const right = (await columns[1]!.boundingBox())!;
+        expect(left.width).toBeCloseTo(right.width, 1);
+        expect(left.height).toBeCloseTo(right.height, 1);
+        expect(
+          await page
+            .locator('.title-record-columns')
+            .evaluate((el) =>
+              [...el.querySelectorAll<HTMLElement>('span, strong')].every(
+                (cell) => cell.scrollWidth <= cell.clientWidth,
+              ),
+            ),
+        ).toBe(true);
+        await page.screenshot({
+          path: info.outputPath(`records-menu-${viewport.width}.png`),
+          fullPage: true,
+        });
+      }
+      await page.reload();
+      await expect(page.locator('#title-best')).toHaveText('101');
+      await expect(page.locator('#title-best-combo')).toHaveText('x100');
+    }
+  }
+  expect(errors).toEqual([]);
+});
+
+test('single Perfect result and both new records survive menu and reload without debug hooks', async ({
+  page,
+}, info) => {
+  await ready(page);
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
+  await page.locator('#play').click();
+  await tapGame(page, info);
+  await page.clock.runFor(580);
+  await expect(page.locator('#score')).toHaveText('1');
+  await expect(page.locator('#surface')).toHaveAttribute(
+    'data-phase',
+    'moving',
+  );
+  await page.clock.runFor(1250);
+  await tapGame(page, info);
+  await page.clock.runFor(580);
+  await expect(page.locator('#score')).toHaveText('2');
+  await expect(page.locator('#surface')).toHaveAttribute(
+    'data-phase',
+    'moving',
+  );
+  await page.clock.runFor(300);
+  await tapGame(page, info);
+  await page.clock.runFor(320);
+  await expect(page.locator('#result-combo')).toHaveText('x1');
+  await expect(page.locator('#result-best-combo')).toHaveText('x1');
+  await expect(page.locator('#new-best-coins')).toBeVisible();
+  await expect(page.locator('#new-best-combo')).toBeVisible();
+  await page.locator('#home').click();
+  await expect(page.locator('#title-best')).toHaveText('2');
+  await expect(page.locator('#title-best-combo')).toHaveText('x1');
+  await page.reload();
+  await expect(page.locator('#title-best-combo')).toHaveText('x1');
+  expect(await page.evaluate(() => window.__COIN_TOWER__)).toBeUndefined();
 });
 
 test('pause preserves dropping/settling and interrupted countdown starts again', async ({

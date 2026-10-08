@@ -22,7 +22,13 @@ export class Shell {
         <div id="surface">
           <div id="game" tabindex="0" aria-label="Game area. Click or tap to drop a coin."></div>
           <div id="title-screen" class="layer title-screen">
-            <div class="title-best blue-panel"><span>BEST ON THIS BROWSER</span><strong id="title-best">0</strong><small>COINS</small></div>
+            <section class="title-records" aria-labelledby="title-records-heading">
+              <h2 id="title-records-heading">BEST ON THIS BROWSER</h2>
+              <div class="title-record-columns">
+                <div class="blue-panel"><span>BEST COINS</span><strong id="title-best">0</strong></div>
+                <div class="blue-panel"><span>BEST COMBO</span><strong id="title-best-combo">x0</strong></div>
+              </div>
+            </section>
             <div class="start-prompt"><button id="play" class="game-button primary">PLAY</button><p>Click or tap to stack coins</p></div>
           </div>
           <div id="hud" class="layer" hidden>
@@ -33,7 +39,15 @@ export class Shell {
           </div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
             <img class="result-heading" src="${asset}game_over.png" alt="GAME OVER" />
-            <div class="result-stats blue-panel"><div><span>THIS RUN</span><strong id="result-score">0</strong></div><div><span>BEST</span><strong id="result-best">0</strong></div></div>
+            <div class="result-stats blue-panel">
+              <table aria-label="Run records">
+                <thead><tr><th scope="col"><span class="sr-only">RECORD</span></th><th scope="col">THIS RUN</th><th scope="col">BEST</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">COINS<span id="new-best-coins" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-score">0</strong></td><td><strong id="result-best">0</strong></td></tr>
+                  <tr><th scope="row">PERFECT COMBO<span id="new-best-combo" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-combo">x0</strong></td><td><strong id="result-best-combo">x0</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
             <p class="result-caption">One more try. A little higher.</p>
             <div class="result-actions"><button id="retry" class="game-button primary">TRY AGAIN</button><button id="home" class="game-button">MENU</button></div>
           </section>
@@ -58,6 +72,11 @@ export class Shell {
   }
   private element<T extends HTMLElement = HTMLElement>(id: string) {
     return this.root.querySelector<T>(`#${id}`)!;
+  }
+  private record(id: string, value: string) {
+    const element = this.element(id);
+    element.textContent = value;
+    element.style.setProperty('--record-digits', String(value.length));
   }
   private on(id: string, handler: () => void) {
     this.element(id).addEventListener('click', handler, {
@@ -152,10 +171,18 @@ export class Shell {
       String(String(run.combo).length + 1),
     );
     this.element('tap-prompt').hidden = run.score >= 5 || run.frozen;
-    for (const id of ['score', 'result-score'])
-      this.element(id).textContent = String(run.score);
-    for (const id of ['best', 'title-best', 'result-best'])
-      this.element(id).textContent = String(app.save.data.best);
+    const progress = app.save.data;
+    const result = this.game.result;
+    this.element('score').textContent = String(run.score);
+    this.element('best').textContent = String(progress.best);
+    this.record('title-best', String(progress.best));
+    this.record('title-best-combo', `x${progress.bestCombo}`);
+    this.record('result-score', String(result?.score ?? 0));
+    this.record('result-best', String(result?.best ?? 0));
+    this.record('result-combo', `x${result?.combo ?? 0}`);
+    this.record('result-best-combo', `x${result?.bestCombo ?? 0}`);
+    this.element('new-best-coins').hidden = !result?.newBest;
+    this.element('new-best-combo').hidden = !result?.newBestCombo;
     this.element<HTMLButtonElement>('play').disabled =
       !app.ready || !!app.fatalError;
     this.element('loading-overlay').hidden = app.ready || !!app.loadingError;
