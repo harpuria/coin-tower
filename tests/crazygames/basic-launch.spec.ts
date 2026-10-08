@@ -91,7 +91,7 @@ test('awaits v3 initialization, keeps English UI and hides custom fullscreen', a
   }
   await expect(page.locator('#game')).toHaveAttribute(
     'aria-label',
-    'Game area. Click or tap to drop a coin.',
+    'Game area. Click, tap or press Space to drop a coin.',
   );
   expect(await events(page)).toEqual(['init']);
   await page.screenshot({

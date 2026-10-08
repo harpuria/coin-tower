@@ -21,6 +21,8 @@
 
 현재 입력은 HTML 게임 영역의 **native pointerdown**으로 통합합니다. 주 포인터의 왼쪽 버튼/터치 시작만 받고, HTML 메뉴 버튼은 캔버스의 형제 요소로 분리합니다. Phaser mouse/touch 이벤트를 다시 처리하면 입력이 중복될 수 있습니다.
 
+PC에서는 게임 문서에 포커스가 있을 때 Space로 시작/낙하를 받습니다. 게임 영역 클릭 없이 첫 화면에서 시작할 수 있으며 시작과 첫 낙하는 별도 입력입니다. 반복 keydown은 무시하고 게임 단축키의 페이지 스크롤은 막습니다. 포커스된 버튼·링크·입력 필드에는 단축키를 적용하지 않습니다. PLAY·TRY AGAIN·CONTINUE 뒤 게임 영역에 포커스를 돌려주며, 기존 Enter는 게임 영역 포커스에서만 동작합니다. 정지·카운트다운·결과·로딩·오류 상태는 게임 단축키로 진행하지 않습니다.
+
 Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`의 X·0~9 PNG를 조합합니다. `Shell`은 횟수가 바뀔 때만 글자 노드를 교체하고, 피드백을 표시하는 동안 RAF에서 Session의 잔여 시간을 읽어 불투명도를 맞춥니다. 별도의 게임 시간을 진행하지 않으며 정지·카운트다운·종료 때 숨기고 RAF를 해제합니다. 모든 글자는 필수 자산 로더에서 미리 읽습니다. 제작 사양·출처는 [ART_DIRECTION.md](ART_DIRECTION.md)와 [ASSET_SOURCES.md](ASSET_SOURCES.md)를 따릅니다.
 
 카메라·낙하·피드백은 Session의 게임 시간을 사용합니다. 장면 자체를 pause하면 재개 카운트다운도 멈추므로 이 게임의 `pausableScenes`는 비워 둡니다. 모델이 게임 시간을 멈추고 공통 PauseState는 소리를 멈춥니다. 자세한 이유는 [ADR 0002](adr/0002-run-simulation-and-interruptions.md)에 있습니다.
@@ -76,7 +78,7 @@ CrazyGames에 제출할 파일은 **`build:crazygames` 직후의 `dist/` 전체*
 #### 포털 등록·Preview·심사 순서
 
 1. 개발자 가입 후 포털의 **`Submit a game`** 흐름에서 게임 정보 입력·빌드 업로드·Preview를 진행합니다. 공식 안내는 최종 제출 전에 Preview로 여러 버전을 확인할 수 있다고 설명합니다. 이 문서에서 포털 버튼·필드 전체를 직접 관찰한 것은 아닙니다. [공식 Preview 안내](https://docs.crazygames.com/#testing-your-game)
-2. 업로드 산출물은 위 CrazyGames 빌드의 `dist/` 내용입니다. ZIP의 최상위에 `index.html`이 오도록 묶고 asset 상대 경로를 유지합니다. 생성 ZIP은 Git에서 제외한 `releases/`에 보관합니다. 현재 업로드용 파일은 `coin-tower-crazygames-0.1.0-20261008-d1bd050.zip`이며 크기·해시·확인 범위는 [검증 기록](VALIDATION.md)에 있습니다. 게임 코드를 변경한 뒤에는 새 빌드와 ZIP을 만들어야 합니다.
+2. 업로드 산출물은 위 CrazyGames 빌드의 **`dist/` 내부 전체**입니다. 사용자는 포털이 압축 업로드를 지원하지 않는다고 보고했으므로 파일/폴더 업로드를 사용합니다. 업로드 루트에 `index.html`·`favicon.svg`·`assets/`가 오도록 상대 경로와 하위 폴더를 유지합니다. `releases/`의 `coin-tower-crazygames-0.1.0-20261008-d1bd050.zip`은 이전 코드의 보관용 생성물이며 최신 Space 변경을 포함하지 않습니다. 최신 배포는 새 `build:crazygames` 결과를 사용합니다.
 3. 포털 Preview에서 로딩·마우스/터치·재시도·일시정지·SDK 이벤트·음소거·플랫폼 전체화면을 확인한 뒤 최종 QA 심사를 제출합니다. 초기 QA → Basic Launch → 성과에 따른 Full Launch 검토가 공식 흐름입니다. [출시 절차](https://docs.crazygames.com/)
 4. **리더보드는 별도 초대 기능**입니다. 게임 가입/업로드/심사만으로 자동 활성화된다고 가정하지 않습니다. 게임의 Leaderboard 설정이 가능한지 확인하고, 보이지 않으면 포털/지원 채널에서 해당 게임의 자격·활성화 가능 여부를 문의합니다. 리더보드 없이 기존 개인 기록 버전으로 Basic Launch 준비를 진행할 수 있습니다. [기능 제약](https://docs.crazygames.com/sdk/leaderboards/)
 

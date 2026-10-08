@@ -2,6 +2,14 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-09 — PC Space 시작·낙하 입력
+
+- 변경: `Shell`에서 Space를 게임 문서 단축키로 받아 첫 화면 시작과 플레이 낙하에 연결했다. 기존 게임 영역 Enter는 유지하며 PLAY·TRY AGAIN·CONTINUE 뒤 게임 영역으로 포커스를 돌린다. 안내·접근성 문구와 기존 문구 검사 기대값을 갱신했다.
+- 정적 검토: 키 반복·수정키·IME·이미 처리된 이벤트, 버튼/링크/편집 요소·게임 밖 컨트롤, 로딩·오류·정지·카운트다운·결과는 게임 단축키에서 제외한다. Space 처리는 한 listener에서만 수행하고 시작과 첫 낙하를 같은 호출에 처리하지 않는다. 실제 입력 관측 결과는 아니다.
+- `rtk npm run lint`: 성공. `rtk npm run build:crazygames`: TypeScript 검사와 production 빌드 성공. 변경 파일 포맷과 `git diff --check`를 확인했다.
+- 게임 테스트·브라우저 검사는 이번 요청에서 추가하거나 실행하지 않았다. 실제 PC Space/누르고 있기·버튼 키보드 동작·포털 iframe 포커스 및 모바일 안내 배치는 미검증이다. 이전 런타임 검사 통과를 이번 입력 변경의 관측으로 간주하지 않는다.
+- 현재 `dist/`는 Space 변경을 포함한 새 CrazyGames 빌드다. 이전 `releases/` ZIP에는 이 변경이 없다. 포털은 사용자 보고에 따라 `dist/` 내부 전체를 파일/폴더로 업로드한다.
+
 ## 2026-10-08 — CrazyGames Preview 업로드 ZIP
 
 - 대상 소스: `d1bd050`, 패키지 버전 0.1.0. 게임 코드 변경 없이 `rtk npm run build:crazygames` 실행: TypeScript 검사·CrazyGames production 빌드 성공.

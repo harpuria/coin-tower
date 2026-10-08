@@ -22,7 +22,7 @@ export class Shell {
       <h1 class="sr-only">Coin Tower</h1>
       <section id="stage" aria-label="Coin Tower game">
         <div id="surface">
-          <div id="game" tabindex="0" aria-label="Game area. Click or tap to drop a coin."></div>
+          <div id="game" tabindex="0" aria-label="Game area. Click, tap or press Space to drop a coin."></div>
           <div id="title-screen" class="layer title-screen">
             <section class="title-records" aria-labelledby="title-records-heading">
               <h2 id="title-records-heading">BEST ON THIS BROWSER</h2>
@@ -31,13 +31,13 @@ export class Shell {
                 <div class="blue-panel"><span>BEST COMBO</span><strong id="title-best-combo">x0</strong></div>
               </div>
             </section>
-            <div class="start-prompt"><button id="play" class="game-button primary">PLAY</button><p>Click or tap to stack coins</p></div>
+            <div class="start-prompt"><button id="play" class="game-button primary">PLAY</button><p>Click, tap or press Space to stack coins</p></div>
           </div>
           <div id="hud" class="layer" hidden>
             <div class="hud-stats"><div class="blue-panel"><span>BEST</span><strong id="best">0</strong></div><div class="blue-panel"><span>COINS</span><strong id="score">0</strong></div></div>
             <button id="pause" class="icon-button pause-button" aria-label="Pause">Ⅱ</button>
             <div id="combo" class="combo" hidden><strong id="combo-count" class="sr-only">x1</strong><span class="combo-glyphs" aria-hidden="true"></span></div>
-            <p id="tap-prompt" class="tap-prompt">Click or tap to drop</p>
+            <p id="tap-prompt" class="tap-prompt">Click, tap or press Space to drop</p>
           </div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
             <img class="result-heading" src="${asset}game_over.png" alt="GAME OVER" />
@@ -120,17 +120,26 @@ export class Shell {
     this.element('game').addEventListener(
       'keydown',
       (event) => {
-        if (event.repeat || !['Space', 'Enter'].includes(event.code)) return;
+        if (event.repeat || event.code !== 'Enter') return;
         event.preventDefault();
         this.game.tap();
       },
       { signal },
     );
-    this.on('play', () => this.game.start());
-    this.on('retry', () => this.game.start());
+    // 시작 버튼의 포커스가 남아 Space를 다시 눌렀을 때 새 판을 열지 않게 한다.
+    const focusGame = () => this.element('game').focus({ preventScroll: true });
+    const start = () => {
+      this.game.start();
+      if (this.app.session.mode === 'playing') focusGame();
+    };
+    this.on('play', start);
+    this.on('retry', start);
     this.on('home', () => this.game.home());
     this.on('pause', () => this.game.pause());
-    this.on('continue', () => this.game.resume());
+    this.on('continue', () => {
+      this.game.resume();
+      focusGame();
+    });
     this.on('restart', () => this.game.request('restart'));
     this.on('pause-home', () => this.game.request('home'));
     this.on('confirm-yes', () => this.game.confirm(true));
@@ -150,6 +159,43 @@ export class Shell {
     document.addEventListener('fullscreenchange', () => this.render(), {
       signal,
     });
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (
+          event.code !== 'Space' ||
+          event.defaultPrevented ||
+          event.isComposing ||
+          event.altKey ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          !this.app.ready ||
+          this.app.loadingError ||
+          this.app.fatalError ||
+          document.hidden
+        )
+          return;
+        const target = event.target;
+        // 버튼·입력 필드는 고유한 키보드 동작을 유지하고 게임 입력과 겹치지 않는다.
+        if (
+          !(target instanceof HTMLElement) ||
+          (target !== document.body &&
+            target !== document.documentElement &&
+            !this.root.contains(target)) ||
+          target.closest(
+            'button, a, input, select, textarea, [role="button"], [contenteditable]:not([contenteditable="false"])',
+          )
+        )
+          return;
+        const run = this.app.session;
+        if (run.mode !== 'menu' && (run.mode !== 'playing' || run.frozen))
+          return;
+        event.preventDefault();
+        if (!event.repeat) this.game.tap();
+      },
+      { signal },
+    );
     document.addEventListener(
       'keydown',
       (event) => {

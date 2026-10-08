@@ -9,12 +9,13 @@
 - Completed: first playable, original mobile art, mouse/touch, deterministic run simulation, interruptions, and completion-only local records.
 - Completed: CrazyGames HTML5 SDK v3 initialization, gameplay events, platform mute, English UI, and hidden custom fullscreen controls in the dedicated build.
 - Completed: unlimited Perfect combo, save schema v2 migration, independent browser bests, result/menu comparison and NEW BEST badges, gold X/0–9 feedback art. Retain current Perfect/X layout after PC feedback; physical-device tuning remains deferred.
+- Completed implementation (2026-10-09): Space starts from the menu without clicking the game area and drops during play; held keys and native button controls do not duplicate game input. PLAY/TRY AGAIN/CONTINUE restore game-area focus. Static checks/build and remaining runtime verification are recorded in `VALIDATION.md`.
 - Design updated: the user adopted one native weekly height board, platform widgets/tie policy, and client SDK score submission. Browser personal bests remain all-time and independent. The former two all-time boards and external-provider implementation proposal are superseded.
-- Current checkpoint: upload ZIP prepared from source `d1bd050` / version 0.1.0: `releases/coin-tower-crazygames-0.1.0-20261008-d1bd050.zip`. Runtime account/leaderboard integration remains unimplemented. No upload, account access, or review submission was performed.
+- Current checkpoint: Space implementation and current CrazyGames `dist/` prepared. The archived ZIP from source `d1bd050` / version 0.1.0 predates the input change. Runtime account/leaderboard integration remains unimplemented. No upload, account access, or review submission was performed.
 - User reports developer registration completed. Game entry/upload/Preview/review state and native leaderboard invitation are unknown; do not treat registration as leaderboard access.
-- Next: upload the prepared ZIP and inspect it in portal Preview. Leaderboard activation is an independent external gate; Basic Launch preparation can proceed without it.
-- Current validation: CrazyGames production build/typecheck passed; 26 ZIP entries/CRC/bytes, relative HTML references, production SDK URL/development-hook exclusion and 21 game asset bytes verified. No game tests/browser regressions were rerun for packaging. Size/hash and evidence are in [VALIDATION.md](VALIDATION.md).
-- Previous runtime validation remains in [VALIDATION.md](VALIDATION.md): 65 unit tests, standalone 24 development/16 production checks, and CrazyGames production 16 checks (14 fixtures, 2 official SDK local). None proves portal authentication, leaderboard acceptance, or real-device behavior. Existing `dist/` remains the previously validated CrazyGames build.
+- Next: upload the current CrazyGames `dist/` contents and inspect portal Preview. The user reports ZIP upload is unsupported; the old ZIP predates the Space change. Leaderboard activation is an independent external gate; Basic Launch preparation can proceed without it.
+- Current validation: lint, formatting, typecheck and CrazyGames production build passed for the Space change. No game tests/browser checks were added or run; actual keyboard behavior remains unverified. Historical ZIP size/hash checks are retained in [VALIDATION.md](VALIDATION.md).
+- Previous runtime validation remains in [VALIDATION.md](VALIDATION.md): 65 unit tests, standalone 24 development/16 production checks, and CrazyGames production 16 checks (14 fixtures, 2 official SDK local). Those results predate Space implementation and do not validate the new input or current `dist/`. Portal authentication, leaderboard acceptance, and real-device behavior remain unverified.
 
 ## Slice 1 — Upload and Preview the Existing Playable
 
@@ -22,7 +23,7 @@
 - **Scope:** produce `build:crazygames` output, prepare an upload archive of the contents of `dist/`, and record build provenance. Start from the portal's `Submit a game` flow to upload and use Preview before final review submission. See [DEVELOPMENT.md](DEVELOPMENT.md).
 - **Acceptance:** Preview loads original art with no missing paths; mouse/touch, gameplay events, platform mute/fullscreen, pause/resume and retry work. Record actual results and supported devices. Confirm whether a Leaderboard tab/configuration is available; if absent, ask CrazyGames about eligibility through portal/support rather than guessing an activation date.
 - **Boundary:** submission for QA is distinct from uploading/previewing. No automatic publication or final review submission is authorized by the user's question about process. No claim of Basic/Full Launch acceptance or native leaderboard invitation.
-- **Current result:** build and upload archive preparation are complete. The ZIP is about 10.6 MB, with root `index.html`; generated files are ignored by Git. Real Preview and all portal-specific acceptance conditions remain unverified, so slice 1 is only locally complete.
+- **Current result:** the previous upload archive was prepared, but the user reports the portal requires files/folders. Use the newly built `dist/` contents for the Space-input version; the archived ZIP is historical. Real Preview and all portal-specific acceptance conditions remain unverified, so slice 1 is only locally prepared.
 
 ## Slice 2 — Native Account and Completed Score Submission
 
@@ -52,4 +53,4 @@
 
 ## Next Request
 
-Upload the prepared ZIP through `Submit a game`, then check portal Preview. Example follow-up: `$game-implement CrazyGames Preview에서 발견한 문제를 아래 피드백 기준으로 수정해줘.` Native integration can follow once actual access and remaining operational rules are known. Final review submission remains a separate action.
+Upload the current CrazyGames `dist/` contents through `Submit a game`, then check Space/mouse input in portal Preview. Example follow-up: `$game-implement CrazyGames Preview에서 발견한 문제를 아래 피드백 기준으로 수정해줘.` Native integration can follow once actual access and remaining operational rules are known. Final review submission remains a separate action.
