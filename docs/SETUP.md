@@ -32,7 +32,8 @@ The legacy project's Android-only release and Google Play Games plan describe th
 
 - [Decided] The initial port slice is defined in [GAME_DESIGN.md](GAME_DESIGN.md) and implemented. Device feel and release targets remain separate from the local/browser validation recorded in `VALIDATION.md`.
 - [Decided] Leaderboard record categories: best height and longest Perfect combo in a completed run; both finalize only at the first failure. Rules are in `design/records.md`. Unlimited combo display, browser personal best combo storage, equal-weight result rows/menu best columns, and per-metric NEW BEST feedback are implemented; global leaderboard integration remains open.
-- [Open] Leaderboard presentation, identity, cloud storage, and a web-compatible backend/provider.
+- [Decided] Global leaderboard periods, ties, and participation policy follow `design/records.md`. Account authentication and global ranking are planned and remain unimplemented.
+- [Open] Leaderboard presentation, backend/provider, authentication integration and account transitions, submission validation/retry, and cloud storage. Current official CrazyGames leaderboard constraints are recorded in `design/records.md`.
 - [Decided] Distribution target: CrazyGames. Dedicated `dev:crazygames` / `build:crazygames` select the SDK integration; normal development/build remains standalone. See ADR 0003 and `DEVELOPMENT.md`.
 - [Open] Offline/PWA requirements, minimum browser/device support, and FPS target.
 - [Open] Ads, purchases, and analytics requirements; disabled in the scaffold.
