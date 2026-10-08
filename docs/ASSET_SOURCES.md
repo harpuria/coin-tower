@@ -28,7 +28,7 @@ PNG는 수정 없이 복사했다. 원본과 아래 파일의 SHA-256이 일치�
 
 ## 시간대 배경 변형
 
-- 파일: `public/assets/coin-tower/backgrounds/sky_ruins_noon.png`, `sky_ruins_evening.png`, `sky_ruins_night.png`. 상태: 생성 완료·런타임 미연결. 기존 아침 배경은 수정하지 않았다.
+- 파일: `public/assets/coin-tower/backgrounds/sky_ruins_noon.png`, `sky_ruins_evening.png`, `sky_ruins_night.png`. 상태: 플레이에 사용하는 생성 아트. 기존 아침 배경은 수정하지 않았다. 런타임 전환과 관찰 한계는 [시간대 배경](design/backgrounds.md)과 [검증 기록](VALIDATION.md)을 따른다.
 - 출처: 2026-10-09 OpenAI 내장 `image_gen.imagegen` 참조 이미지 편집. 입력은 위 모바일 재사용 배경 `sky_ruins.png`다. 모델 상세 버전·seed는 제공되지 않았다.
 - 지시: 같은 장면의 큰 구도·유적·폭포·빈 하늘을 유지하며 점심·저녁·밤의 색과 조명으로 변형한다. 투명 배경·새 물체·문자·UI는 넣지 않는다.
 - 후처리: 없음. 생성 PNG를 그대로 복사했다. 실제 크기는 점심·밤 941×1672, 저녁 941×1671이다. 전체 프롬프트·파일 해시·비교 결과·런타임 관찰 한계는 [제작 기록](art/background-time-of-day.md)에 있다.

@@ -1,4 +1,9 @@
 import { landingKind, moveSpeed, rules } from './rules';
+import {
+  backgroundAt,
+  backgroundRules,
+  type BackgroundTime,
+} from './backgrounds';
 
 export type Mode = 'menu' | 'playing' | 'result';
 export type Phase = 'moving' | 'dropping' | 'settling';
@@ -28,6 +33,9 @@ export class Session {
   private settleRemaining = 0;
   private cameraStart = 0;
   private cameraEnd = 0;
+  private backgroundFrom: BackgroundTime = 'morning';
+  private backgroundTo: BackgroundTime = 'morning';
+  private backgroundElapsedMs: number = backgroundRules.fadeMs;
 
   constructor() {
     this.reset('menu');
@@ -46,6 +54,13 @@ export class Session {
   }
   get frozen() {
     return this.paused || this.countdownMs > 0;
+  }
+  get background() {
+    return {
+      from: this.backgroundFrom,
+      to: this.backgroundTo,
+      progress: this.backgroundElapsedMs / backgroundRules.fadeMs,
+    };
   }
 
   start() {
@@ -66,6 +81,8 @@ export class Session {
     this.countdownMs = 0;
     this.confirmation = null;
     this.settleRemaining = 0;
+    this.backgroundFrom = this.backgroundTo = 'morning';
+    this.backgroundElapsedMs = backgroundRules.fadeMs;
     this.cameraOffset = rules.height * rules.targetFraction - this.targetY;
     this.cameraStart = this.cameraEnd = this.cameraOffset;
     this.spawn();
@@ -122,6 +139,12 @@ export class Session {
       return;
     }
     this.feedbackRemaining = Math.max(0, this.feedbackRemaining - deltaMs);
+    this.backgroundElapsedMs = Math.min(
+      backgroundRules.fadeMs,
+      this.backgroundElapsedMs + deltaMs,
+    );
+    if (this.backgroundElapsedMs === backgroundRules.fadeMs)
+      this.backgroundFrom = this.backgroundTo;
     if (this.phase === 'moving') {
       const left = rules.width / 2 - rules.laneHalfWidth;
       const span = rules.laneHalfWidth * 2;
@@ -148,6 +171,12 @@ export class Session {
         return 'finished';
       }
       this.coins.push({ x: this.activeX, y: this.targetY });
+      const nextBackground = backgroundAt(this.score);
+      if (nextBackground !== this.backgroundTo) {
+        this.backgroundFrom = this.backgroundTo;
+        this.backgroundTo = nextBackground;
+        this.backgroundElapsedMs = 0;
+      }
       this.streak = kind === 'perfect' ? this.streak + 1 : 0;
       this.maxCombo = Math.max(this.maxCombo, this.streak);
       this.feedback = kind;
@@ -172,6 +201,7 @@ export class Session {
       mode: this.mode,
       phase: this.phase,
       score: this.score,
+      background: this.background,
       activeX: this.activeX,
       activeY: this.activeY,
       targetX: this.targetX,

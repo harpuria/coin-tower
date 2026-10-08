@@ -25,6 +25,8 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 `App`은 `game/`의 schema와 `Session`을 조립만 하고, 점수·보상 규칙은 `game/`에 둡니다. `Session`은 한 판의 결정적 상태, `GameController`는 행동·완료 저장·오디오 연결을 소유하며 `CoinTowerScene`은 상태를 그립니다.
 게임은 외부 SDK를 직접 부르지 않고 `app.platform`을 거칩니다.
 
+배경 시간대·전환 경과 시간도 Session이 소유합니다. Scene은 불투명한 이전 배경 위에 다음 배경의 불투명도를 올려 그리며 별도 tween 시간을 진행하지 않습니다. 중단·결과에서 모델 시간이 멈추면 배경 전환도 멈춥니다.
+
 ## 용어
 
 | 용어         | 뜻                                                                            |

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { App } from '../app';
 import { assetKeys } from './assets';
+import type { BackgroundTime } from './backgrounds';
 import type { GameController } from './controller';
 import { rules } from './rules';
 
@@ -15,8 +16,17 @@ declare global {
   }
 }
 
+const backgroundTextures: Record<BackgroundTime, string> = {
+  morning: assetKeys.background,
+  noon: assetKeys.backgroundNoon,
+  evening: assetKeys.backgroundEvening,
+  night: assetKeys.backgroundNight,
+};
+
 /** 원본 금화와 배경으로 한 판을 그리며 게임 시간은 Session에 맡긴다. */
 export class CoinTowerScene extends Phaser.Scene {
+  private backgroundBase!: Phaser.GameObjects.Image;
+  private backgroundNext!: Phaser.GameObjects.Image;
   private pedestal!: Phaser.GameObjects.Image;
   private activeCoin!: Phaser.GameObjects.Image;
   private titleCoin!: Phaser.GameObjects.Image;
@@ -33,9 +43,15 @@ export class CoinTowerScene extends Phaser.Scene {
   }
 
   create() {
-    this.add
+    this.backgroundBase = this.add
       .image(360, 640, assetKeys.background)
-      .setDisplaySize(rules.width, rules.height);
+      .setDisplaySize(rules.width, rules.height)
+      .setDepth(-2);
+    this.backgroundNext = this.add
+      .image(360, 640, assetKeys.background)
+      .setDisplaySize(rules.width, rules.height)
+      .setDepth(-1)
+      .setVisible(false);
     this.pedestal = this.add
       .image(360, 620, assetKeys.pedestal, 'art')
       .setOrigin(0.5, 0);
@@ -77,6 +93,17 @@ export class CoinTowerScene extends Phaser.Scene {
   }
   private renderRun() {
     const run = this.app.session;
+    const background = run.background;
+    const progress = background.progress;
+    // 아래 배경은 불투명하게 두고 새 배경으로 덮어 검은 중간 화면을 막는다.
+    this.backgroundBase
+      .setTexture(backgroundTextures[background.from])
+      .setDisplaySize(rules.width, rules.height);
+    this.backgroundNext
+      .setTexture(backgroundTextures[background.to])
+      .setDisplaySize(rules.width, rules.height)
+      .setAlpha(progress * progress * (3 - 2 * progress))
+      .setVisible(background.from !== background.to);
     const title = run.mode === 'menu';
     this.logo
       .setPosition(title ? 360 : 142, title ? 190 : 92)

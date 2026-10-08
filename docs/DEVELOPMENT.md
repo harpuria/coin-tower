@@ -4,16 +4,17 @@
 
 ## 작업별 시작 위치
 
-| 작업                                   | 위치                                                   |
-| -------------------------------------- | ------------------------------------------------------ |
-| 이동·낙하·착지·콤보·카메라·재시작      | `src/game/session.ts`, 시작값은 `src/game/rules.ts`    |
-| 행동·완료 저장·오디오·중단 연결        | `src/game/controller.ts`                               |
-| PNG 목록·투명 여백 frame               | `src/game/assets.ts`, 출처는 `ASSET_SOURCES.md`        |
-| 원본 아트와 탑 렌더링                  | `src/game/scenes.ts`                                   |
-| 시작·HUD·결과·일시정지·확인·카운트다운 | `src/ui/Shell.ts`, `src/style.css`                     |
-| 이름·해상도·저장 접두사·외부 서비스    | `src/config/game.ts`                                   |
-| 저장 schema                            | `src/game/save.ts`; schema 변경 시 구버전 fixture 추가 |
-| 공통 저장·소리·브라우저 수명           | `src/core/`, `src/app.ts`                              |
+| 작업                                   | 위치                                                                              |
+| -------------------------------------- | --------------------------------------------------------------------------------- |
+| 이동·낙하·착지·콤보·카메라·재시작      | `src/game/session.ts`, 시작값은 `src/game/rules.ts`                               |
+| 행동·완료 저장·오디오·중단 연결        | `src/game/controller.ts`                                                          |
+| PNG 목록·투명 여백 frame               | `src/game/assets.ts`, 출처는 `ASSET_SOURCES.md`                                   |
+| 원본 아트와 탑 렌더링                  | `src/game/scenes.ts`                                                              |
+| 시간대 배경 구간·순서·전환 시간        | `src/game/backgrounds.ts`, 전환 상태는 `session.ts`, 두 배경 렌더링은 `scenes.ts` |
+| 시작·HUD·결과·일시정지·확인·카운트다운 | `src/ui/Shell.ts`, `src/style.css`                                                |
+| 이름·해상도·저장 접두사·외부 서비스    | `src/config/game.ts`                                                              |
+| 저장 schema                            | `src/game/save.ts`; schema 변경 시 구버전 fixture 추가                            |
+| 공통 저장·소리·브라우저 수명           | `src/core/`, `src/app.ts`                                                         |
 
 ## 실행과 관찰
 
@@ -32,13 +33,15 @@ Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`
 개발 서버에서 `http://localhost:5173/?debug`를 엽니다. 브라우저 콘솔에 다음 API가 생깁니다. production 빌드에는 없습니다.
 
 ```js
-window.__COIN_TOWER__.snapshot(); // 모드·단계·위치·속도·현재 combo·판의 maxCombo·카메라·정지 상태
+window.__COIN_TOWER__.snapshot(); // 모드·단계·위치·속도·combo·maxCombo·카메라·정지·background 상태
 window.__COIN_TOWER__.freeze(true); // 자동 시간 진행만 정지; 실제 UI/포인터 입력은 유지
 window.__COIN_TOWER__.advance(100); // 게임 시간을 100ms 진행
 window.__COIN_TOWER__.freeze(false);
 ```
 
 `freeze`는 사용자의 일시정지와 별개인 검사용 기능입니다. `advance`도 실제 한 판이 일시정지된 동안에는 게임을 진행하지 않습니다. 착지 시 남은 시간을 정착/다음 동전에 넘기지 않으므로 단계를 각각 진행해야 합니다.
+
+`snapshot().background`는 `from`/`to` 시간대와 0~1의 `progress`를 포함합니다. Scene은 이 진행률에 부드러운 곡선을 적용해 다음 배경을 덮습니다. 배경 시간도 `advance`를 따르며 정지·카운트다운·결과에서 진행하지 않습니다. 두 이미지는 같은 논리 화면 크기로 표시합니다. 시간대 자산 세 장은 필수 로더로 미리 읽으며 추가 요청을 기다리느라 전환을 멈추지 않습니다.
 
 ## 5·10·20개 터치 플레이 테스트
 
