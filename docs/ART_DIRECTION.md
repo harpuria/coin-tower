@@ -1,5 +1,13 @@
 # Coin Tower 웹 아트 방향
 
+## 시간대 배경
+
+- [결정] 기존 아침 느낌의 배경을 보존하고, 적층 높이에 따라 시간의 흐름을 표현할 배경 변형을 준비한다. 2026-10-09 사용자 요청을 따른다.
+- 제작한 변형: 점심의 맑은 파랑·중성 흰빛, 노을 진 저녁의 살구·주황·라벤더, 밤의 남색·푸른 달빛 느낌. 유적·폭포·배너의 큰 배치와 중앙의 빈 공간을 참조해 유지한다.
+- 파일: `public/assets/coin-tower/backgrounds/sky_ruins_noon.png`, `sky_ruins_evening.png`, `sky_ruins_night.png`. 원본 `sky_ruins.png`는 수정하지 않았다.
+- [미결] 각 시간대의 전환 높이·전환 방식·새 판 초기화 규칙. 현재 런타임은 원본만 사용하며 새 배경은 자산 준비 상태다.
+- 실제 출력 크기·세부 구도 차이·프롬프트·관찰 한계는 [제작 기록](art/background-time-of-day.md), 이용 조건은 [자산 출처](ASSET_SOURCES.md)를 따른다.
+
 ## Perfect 콤보 숫자
 
 - [결정] 기존 `public/assets/coin-tower/perfect.png`를 유지하고 아래 줄에 X와 숫자 PNG를 조합해 `X1`, `X2`, …를 표시한다. 2026-10-08 사용자 요청을 따른다.
