@@ -2,6 +2,15 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-08 — CrazyGames Preview 업로드 ZIP
+
+- 대상 소스: `d1bd050`, 패키지 버전 0.1.0. 게임 코드 변경 없이 `rtk npm run build:crazygames` 실행: TypeScript 검사·CrazyGames production 빌드 성공.
+- 산출물: `releases/coin-tower-crazygames-0.1.0-20261008-d1bd050.zip`, **10,572,071 bytes(약 10.6 MB)**. 압축 전 11,758,506 bytes, 26개 파일. `releases/`는 생성물로 Git에서 제외한다.
+- ZIP SHA-256: `0a6345830f4cae1e4a63e4ba82c02c04329186fd4239c17335108fffce878d39`.
+- 패키지 확인: ZIP 최상위 `index.html`, 상대 HTML 링크의 파일 존재, 모든 entry의 경로·CRC·현재 `dist/`와 byte 일치, 21개 게임 자산(콤보 이미지 11개 포함)의 원본 byte 일치를 확인했다. ZIP에는 런타임 HTML/JS/CSS/PNG/SVG/WAV만 포함한다. 번들의 공식 SDK v3 URL과 개발 훅 제외도 확인했다.
+- 이번 작업에서 게임 테스트·브라우저 회귀 검사는 재실행하지 않았다. 이전 런타임 관측은 아래 기록을 따른다. 압축 파일 크기는 실제 초기 네트워크 다운로드 측정값이 아니다.
+- 현재 개인 기록 플레이 버전의 ZIP이며 주간 리더보드·로그인·클라우드 저장은 아직 연결하지 않았다. 실제 포털 업로드·Preview·리더보드 활성화·심사 제출은 수행하지 않았다. 다음은 이 ZIP을 포털 Preview에 올려 실제 환경을 확인하는 단계다.
+
 ## 2026-10-08 — Perfect 콤보 이미지 글자
 
 - 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스·Pixel 7 터치 에뮬레이션이며 실기기 검사는 아니다.

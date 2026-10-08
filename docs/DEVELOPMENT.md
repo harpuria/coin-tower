@@ -76,7 +76,7 @@ CrazyGames에 제출할 파일은 **`build:crazygames` 직후의 `dist/` 전체*
 #### 포털 등록·Preview·심사 순서
 
 1. 개발자 가입 후 포털의 **`Submit a game`** 흐름에서 게임 정보 입력·빌드 업로드·Preview를 진행합니다. 공식 안내는 최종 제출 전에 Preview로 여러 버전을 확인할 수 있다고 설명합니다. 이 문서에서 포털 버튼·필드 전체를 직접 관찰한 것은 아닙니다. [공식 Preview 안내](https://docs.crazygames.com/#testing-your-game)
-2. 업로드 산출물은 위 CrazyGames 빌드의 `dist/` 내용입니다. ZIP을 준비한다면 `index.html`과 asset 경로가 같은 상대 구조를 유지하도록 묶고 실제 포털 업로드 형식에 맞춥니다. 현재 결정 갱신에서 새 ZIP이나 빌드는 만들지 않았습니다.
+2. 업로드 산출물은 위 CrazyGames 빌드의 `dist/` 내용입니다. ZIP의 최상위에 `index.html`이 오도록 묶고 asset 상대 경로를 유지합니다. 생성 ZIP은 Git에서 제외한 `releases/`에 보관합니다. 현재 업로드용 파일은 `coin-tower-crazygames-0.1.0-20261008-d1bd050.zip`이며 크기·해시·확인 범위는 [검증 기록](VALIDATION.md)에 있습니다. 게임 코드를 변경한 뒤에는 새 빌드와 ZIP을 만들어야 합니다.
 3. 포털 Preview에서 로딩·마우스/터치·재시도·일시정지·SDK 이벤트·음소거·플랫폼 전체화면을 확인한 뒤 최종 QA 심사를 제출합니다. 초기 QA → Basic Launch → 성과에 따른 Full Launch 검토가 공식 흐름입니다. [출시 절차](https://docs.crazygames.com/)
 4. **리더보드는 별도 초대 기능**입니다. 게임 가입/업로드/심사만으로 자동 활성화된다고 가정하지 않습니다. 게임의 Leaderboard 설정이 가능한지 확인하고, 보이지 않으면 포털/지원 채널에서 해당 게임의 자격·활성화 가능 여부를 문의합니다. 리더보드 없이 기존 개인 기록 버전으로 Basic Launch 준비를 진행할 수 있습니다. [기능 제약](https://docs.crazygames.com/sdk/leaderboards/)
 

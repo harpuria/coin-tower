@@ -10,10 +10,10 @@
 - Completed: CrazyGames HTML5 SDK v3 initialization, gameplay events, platform mute, English UI, and hidden custom fullscreen controls in the dedicated build.
 - Completed: unlimited Perfect combo, save schema v2 migration, independent browser bests, result/menu comparison and NEW BEST badges, gold X/0–9 feedback art. Retain current Perfect/X layout after PC feedback; physical-device tuning remains deferred.
 - Design updated: the user adopted one native weekly height board, platform widgets/tie policy, and client SDK score submission. Browser personal bests remain all-time and independent. The former two all-time boards and external-provider implementation proposal are superseded.
-- Current checkpoint: design/plan/ADR/document updates only; runtime account/leaderboard integration remains unimplemented. No upload, account access, or review submission was performed.
+- Current checkpoint: upload ZIP prepared from source `d1bd050` / version 0.1.0: `releases/coin-tower-crazygames-0.1.0-20261008-d1bd050.zip`. Runtime account/leaderboard integration remains unimplemented. No upload, account access, or review submission was performed.
 - User reports developer registration completed. Game entry/upload/Preview/review state and native leaderboard invitation are unknown; do not treat registration as leaderboard access.
-- Next proposed task: prepare a CrazyGames upload package and inspect it in portal Preview. Leaderboard activation is an independent external gate; Basic Launch preparation can proceed without it.
-- Current validation: document formatting, local link existence, and diff checks only. No gameplay tests or builds were run for this decision update.
+- Next: upload the prepared ZIP and inspect it in portal Preview. Leaderboard activation is an independent external gate; Basic Launch preparation can proceed without it.
+- Current validation: CrazyGames production build/typecheck passed; 26 ZIP entries/CRC/bytes, relative HTML references, production SDK URL/development-hook exclusion and 21 game asset bytes verified. No game tests/browser regressions were rerun for packaging. Size/hash and evidence are in [VALIDATION.md](VALIDATION.md).
 - Previous runtime validation remains in [VALIDATION.md](VALIDATION.md): 65 unit tests, standalone 24 development/16 production checks, and CrazyGames production 16 checks (14 fixtures, 2 official SDK local). None proves portal authentication, leaderboard acceptance, or real-device behavior. Existing `dist/` remains the previously validated CrazyGames build.
 
 ## Slice 1 — Upload and Preview the Existing Playable
@@ -22,7 +22,7 @@
 - **Scope:** produce `build:crazygames` output, prepare an upload archive of the contents of `dist/`, and record build provenance. Start from the portal's `Submit a game` flow to upload and use Preview before final review submission. See [DEVELOPMENT.md](DEVELOPMENT.md).
 - **Acceptance:** Preview loads original art with no missing paths; mouse/touch, gameplay events, platform mute/fullscreen, pause/resume and retry work. Record actual results and supported devices. Confirm whether a Leaderboard tab/configuration is available; if absent, ask CrazyGames about eligibility through portal/support rather than guessing an activation date.
 - **Boundary:** submission for QA is distinct from uploading/previewing. No automatic publication or final review submission is authorized by the user's question about process. No claim of Basic/Full Launch acceptance or native leaderboard invitation.
-- **Current limitation:** SDK/local fixtures have passed previously, but real Preview remains unverified. This planning task has not rebuilt or created an upload archive.
+- **Current result:** build and upload archive preparation are complete. The ZIP is about 10.6 MB, with root `index.html`; generated files are ignored by Git. Real Preview and all portal-specific acceptance conditions remain unverified, so slice 1 is only locally complete.
 
 ## Slice 2 — Native Account and Completed Score Submission
 
@@ -52,4 +52,4 @@
 
 ## Next Request
 
-`$game-implement CrazyGames 포털 Preview 업로드용 배포 ZIP을 준비하고 빌드·검증 결과와 업로드 방법을 정리해줘.` This is the next concrete artifact; the native integration can follow once actual access and remaining operational rules are known.
+Upload the prepared ZIP through `Submit a game`, then check portal Preview. Example follow-up: `$game-implement CrazyGames Preview에서 발견한 문제를 아래 피드백 기준으로 수정해줘.` Native integration can follow once actual access and remaining operational rules are known. Final review submission remains a separate action.
