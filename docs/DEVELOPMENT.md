@@ -34,6 +34,7 @@ Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`
 
 ```js
 window.__COIN_TOWER__.snapshot(); // 모드·단계·위치·속도·combo·maxCombo·카메라·정지·background 상태
+window.__COIN_TOWER__.background(); // 실제 배경 두 Image의 texture key·alpha·visible·표시 크기
 window.__COIN_TOWER__.freeze(true); // 자동 시간 진행만 정지; 실제 UI/포인터 입력은 유지
 window.__COIN_TOWER__.advance(100); // 게임 시간을 100ms 진행
 window.__COIN_TOWER__.freeze(false);
@@ -42,6 +43,14 @@ window.__COIN_TOWER__.freeze(false);
 `freeze`는 사용자의 일시정지와 별개인 검사용 기능입니다. `advance`도 실제 한 판이 일시정지된 동안에는 게임을 진행하지 않습니다. 착지 시 남은 시간을 정착/다음 동전에 넘기지 않으므로 단계를 각각 진행해야 합니다.
 
 `snapshot().background`는 `from`/`to` 시간대와 0~1의 `progress`를 포함합니다. Scene은 이 진행률에 부드러운 곡선을 적용해 다음 배경을 덮습니다. 배경 시간도 `advance`를 따르며 정지·카운트다운·결과에서 진행하지 않습니다. 두 이미지는 같은 논리 화면 크기로 표시합니다. 시간대 자산 세 장은 필수 로더로 미리 읽으며 추가 요청을 기다리느라 전환을 멈추지 않습니다.
+
+## 시간대 배경 집중 브라우저 검사
+
+`rtk npm run test:e2e -- backgrounds.spec.ts`는 desktop/Pixel 7 Chromium에서 실제 마우스·Space·터치 입력과 개발 시간 제어로 구간에 도달한다. 동전 위치나 점수를 직접 덮어쓰지 않는다. 5·10·15·20·25개 전환의 시작·25%·50%·75%·완료 시점에 모델과 실제 Scene Image의 texture·alpha·표시 크기를 비교한다.
+
+- 페이드 중 수동 정지, 재개 카운트다운, 합성 blur/focus로 인한 재중단, 확인 취소·재시작·HOME, 첫 실패 시 유지·TRY AGAIN을 검사한다. 마지막에는 자동 RAF로 페이드가 진행하고 완료되는지도 확인한다.
+- `test-results/standalone/`의 해당 프로젝트별 디렉터리에 `bg-{5,10,15,20,25}-{start,middle,complete}.png`, 각 시간대의 `bg-{6,11,16,21}-perfect.png`, 재시작·결과 캡처를 저장한다. JSON attachment에는 모델과 실제 렌더 객체 값이 들어간다. 이후 같은 출력 디렉터리의 검사를 실행하면 교체될 수 있다.
+- 이 검사는 개발 훅이 없는 production에서는 의도적으로 제외한다. 실제 포털·기기·사람의 조작 체감·실제 탭 전환 검증을 대신하지 않는다.
 
 ## 5·10·20개 터치 플레이 테스트
 

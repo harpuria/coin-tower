@@ -7,6 +7,22 @@ import { rules } from './rules';
 
 export interface DebugControl {
   snapshot: () => ReturnType<App['session']['snapshot']>;
+  background: () => {
+    base: {
+      key: string;
+      alpha: number;
+      visible: boolean;
+      width: number;
+      height: number;
+    };
+    next: {
+      key: string;
+      alpha: number;
+      visible: boolean;
+      width: number;
+      height: number;
+    };
+  };
   freeze: (value: boolean) => void;
   advance: (milliseconds: number) => void;
 }
@@ -73,6 +89,19 @@ export class CoinTowerScene extends Phaser.Scene {
     ) {
       window.__COIN_TOWER__ = {
         snapshot: () => this.app.session.snapshot(),
+        background: () => {
+          const inspect = (image: Phaser.GameObjects.Image) => ({
+            key: image.texture.key,
+            alpha: image.alpha,
+            visible: image.visible,
+            width: image.displayWidth,
+            height: image.displayHeight,
+          });
+          return {
+            base: inspect(this.backgroundBase),
+            next: inspect(this.backgroundNext),
+          };
+        },
         freeze: (value) => {
           this.debugFrozen = value;
         },

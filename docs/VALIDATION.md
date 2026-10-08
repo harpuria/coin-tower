@@ -2,6 +2,19 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-09 — 시간대 전환 브라우저 검증
+
+- 대상: 배경 전환 구현 `fff8181`에 개발 전용 렌더 조회와 반복 E2E를 추가한 작업본. 런타임의 게임 규칙·페이드 시간·아트는 수정하지 않았다.
+- 환경: macOS / Node 24.16.0 / Playwright 1.63.0 Chromium, Desktop Chrome과 Pixel 7 터치 에뮬레이션. 개발 시간 제어와 실제 마우스·Space·터치로 도달했으며 점수·좌표를 덮어쓰지 않았다.
+- `rtk proxy env PLAYWRIGHT_HTML_OPEN=never npm run test:e2e -- backgrounds.spec.ts --reporter=line`: PC·모바일 2개 시나리오씩 **4개 통과**. 5·10·15·20·25개 경계와 경계 전 유지, 0·300·600·900·1200ms의 실제 Scene texture·alpha·표시 크기, 자동 RAF 전환 완료를 확인했다.
+- 중단·종료: 페이드 중 정지, 카운트다운 동안 보존, 합성 blur/focus 재중단, 계속하기, 재시작 확인 취소·승인, HOME, 실패 중간 상태 유지와 TRY AGAIN의 초기화를 확인했다. 실제 OS 탭 전환은 아니다.
+- 런타임 관측: 집중 검사에서 처리되지 않은 page 오류와 자산 HTTP 오류 없음. PC·모바일 중간/완료·Perfect 캡처를 직접 확인했다. 검은 빈 구간이나 큰 위치 어긋남은 확인한 화면에 보이지 않는다. 구체적 화면 관찰과 가독성 가설은 [플레이 관측](PLAYTEST_NOTES.md)에 구분했다.
+- 초기 실패와 보완: sandbox의 로컬 서버 포트 차단 뒤 허용된 실행으로 진행했다. 최초 4개 검사는 검사 준비 오류로 실패했다. 페이드 대기 후의 이동 반전을 포함해 목표까지 시간을 계산하고, 자동 RAF의 모델·렌더 값을 한 호출에서 읽도록 수정한 뒤 4개 모두 통과했다. 배경 게임 코드 결함 수정은 없었다.
+- `rtk npm run check`: 린트·전체 포맷·단위 검사 6개 파일 65개·타입·standalone 배포 빌드 성공. 이후 `rtk npm run build:crazygames`도 성공했다. production JS에 개발 훅이 없음을 확인했다. 마지막 `dist/`는 CrazyGames 빌드다.
+- `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js PLAYWRIGHT_HTML_OPEN=never npm run test:crazygames -- --reporter=line`: CrazyGames 배포 회귀 **16개 통과**(fixture 14개·공식 SDK local 2개). 자산 로딩·초기화·플레이 이벤트·음소거·영어 UI·자체 전체화면 숨김·작은 화면을 확인했다. 공식 SDK 임시 파일 해시는 기존 `DEPENDENCIES.md`와 일치한다. 실제 포털 Preview나 production의 고적층 배경 경계 검사는 아니다.
+- 관측 산출물은 `test-results/standalone/backgrounds-*/`에 있다. 새 집중 검사는 개발 훅이 필요한 시나리오이며 production에서는 제외한다. 모든 기존 standalone E2E를 이번 세션에 재실행한 것은 아니다.
+- 미검증: 실제 Android/iPhone·Safari/Firefox, 사람의 1.2초 전환 체감·주의 분산·숫자 인식 속도, 실기기 메모리/첫 로딩, 실제 CrazyGames 포털 Preview. 실기기 조정은 사용자 요청대로 보류한다.
+
 ## 2026-10-09 — 시간대 순환과 크로스페이드 구현
 
 - 변경: 새 배경 세 장을 필수 자산 로더에 연결했다. 구간·순서·조정 시간은 `src/game/backgrounds.ts`, 전환 상태·시간은 Session, 두 배경의 합성은 Scene에 둔다. 규칙은 [시간대 배경](design/backgrounds.md)을 따른다.
