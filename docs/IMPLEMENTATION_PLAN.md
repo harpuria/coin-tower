@@ -14,7 +14,8 @@
 - Completed: CrazyGames Basic Launch preparation with SDK v3 initialization, gameplay events, platform mute, English controls/recovery/accessibility, and hidden custom fullscreen in the dedicated build.
 - Current slice complete: unlimited combo display and completion-only browser personal best combo storage. `Session` tracks current and maximum streak separately; the controller finalizes both personal bests once on failure; save schema v2 preserves v1 height/rounds and initializes the previously untracked combo best to zero.
 - Validation: `check` passed (60 unit tests); standalone browser checks passed (20 development, 14 production with 6 development-only skips); CrazyGames checks passed (16 development and 16 production, each including 14 fixtures and 2 unmodified official SDK local checks). See `VALIDATION.md` for evidence and external limits.
-- Next proposed task: decide the result/menu presentation of run and personal best combo records, then implement that agreed UI. Global leaderboard policy/provider and CrazyGames Preview remain separate steps.
+- Design confirmed: result/menu record presentation is ready for implementation in `design/records.md`. Results use two equally weighted metric rows and THIS RUN/BEST columns; the menu uses equal personal-best columns. New-record badges compare each run metric against the pre-completion best and exclude ties.
+- Next proposed task: implement the agreed result/menu UI and per-metric NEW BEST feedback. This UI is not implemented or validated yet. Global leaderboard policy/provider and CrazyGames Preview remain separate steps.
 - Scope: no advertising, accounts, cloud saves, global leaderboard, or portal publication. Physical-device tuning remains deferred at the user's request.
 - Blockers: none for this completed slice. Portal acceptance, physical-device feel, and Safari/Firefox remain unverified. The latest `dist/` is the validated CrazyGames build; running `check`/`build` later replaces it with standalone output.
 
@@ -25,6 +26,7 @@
 - Completed slice 3: deterministic rules, native browser mouse/touch events, production checks, screenshots, asset provenance, and validation/playtest handoff.
 - Completed slice 4: Basic Launch adapter and lifecycle connection, English controls/recovery/accessibility, dedicated build mode, and SDK boundary/browser validation.
 - Completed slice 5: unlimited combo numbers with fixed effect intensity, run maximum retained through NICE/failure/pause, independent completion-only personal bests, v1 migration without data loss, and desktop/mobile browser and production regression evidence.
+- Planned slice 6: implement the record presentation in `design/records.md`; retain finalized run maximum and per-metric record-break flags for results, render both result rows and menu bests, and verify zero/single/large combo values, ties, single/double record breaks, reload, interrupted runs, and small portrait/portal layouts. Existing persistence and SDK contracts still apply; this is pending a separate implementation request.
 
 ## Implementation Entry Points
 
