@@ -195,7 +195,7 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   await place(page, info);
   expect((await snapshot(page)).streak).toBe(0);
   for (let index = 1; index < 6; index++) await place(page, info);
-  await expect(page.locator('#combo-count')).toHaveText('x4');
+  await expect(page.locator('#combo-count')).toHaveText('x5');
   await expect(page.locator('#tap-prompt')).toBeHidden();
   expect((await snapshot(page)).score).toBe(6);
   // 낙하를 시작한 채 입력을 반복해도 같은 동전 하나만 처리한다.
@@ -208,6 +208,7 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   await tapGame(page, info);
   await advance(page, 1000);
   expect((await snapshot(page)).score).toBe(7);
+  await expect(page.locator('#combo-count')).toHaveText('x6');
   await tapGame(page, info);
   await advance(page, rules.settleMs);
   expect((await snapshot(page)).phase).toBe('moving');
@@ -216,6 +217,12 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   for (let index = 8; index < 21; index++) await place(page, info);
   const high = await snapshot(page);
   expect(high.score).toBe(21);
+  expect(high.combo).toBe(13);
+  expect(high.maxCombo).toBe(13);
+  await expect(page.locator('#combo-count')).toHaveText('x13');
+  expect(
+    await page.evaluate((key) => localStorage.getItem(key), saveKey),
+  ).toBeNull();
   expect(high.speed).toBe(rules.maxSpeed);
   expect(high.cameraOffset).toBe(rules.coinHeight * 21);
   await page.screenshot({
@@ -224,14 +231,149 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   });
   await place(page, info, -100);
   await expect(page.locator('#result-score')).toHaveText('21');
+  expect((await snapshot(page)).combo).toBe(0);
+  expect((await snapshot(page)).maxCombo).toBe(13);
+  expect(
+    await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key)!),
+      saveKey,
+    ),
+  ).toEqual({
+    version: 2,
+    data: { best: 21, bestCombo: 13, rounds: 1 },
+  });
   await page.locator('#retry').click();
   const fresh = await snapshot(page);
   expect(fresh.score).toBe(0);
   expect(fresh.streak).toBe(0);
+  expect(fresh.maxCombo).toBe(0);
   expect(fresh.cameraOffset).toBe(0);
   expect(fresh.speed).toBe(rules.baseSpeed);
   expect(fresh.phase).toBe('moving');
+  await page.reload();
+  await expect(page.locator('#title-best')).toHaveText('21');
+  expect(
+    await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key)!).data.bestCombo,
+      saveKey,
+    ),
+  ).toBe(13);
   expect(errors).toEqual([]);
+});
+
+test('x100 fits the combo panel and an unfinished record is discarded on reload', async ({
+  page,
+}, info) => {
+  test.skip(preview, 'development-only deterministic preparation');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await ready(page, true);
+  await page.locator('#play').click();
+  // 준비만 합성 입력으로 진행하고 x100 착지는 실제 마우스·터치를 사용한다.
+  await page.evaluate((settleMs) => {
+    const debug = window.__COIN_TOWER__!;
+    const canvas = document.querySelector('#game canvas')!;
+    for (let index = 0; index < 100; index++) {
+      const run = debug.snapshot();
+      debug.advance((Math.abs(run.activeX - run.targetX) / run.speed) * 1000);
+      canvas.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          button: 0,
+          isPrimary: true,
+        }),
+      );
+      debug.advance(1000);
+      debug.advance(settleMs);
+    }
+  }, rules.settleMs);
+  expect((await snapshot(page)).combo).toBe(99);
+  await place(page, info);
+  await expect(page.locator('#combo-count')).toHaveText('x100');
+  expect((await snapshot(page)).maxCombo).toBe(100);
+  const bounds = await page.locator('#combo').boundingBox();
+  const count = await page.locator('#combo-count').boundingBox();
+  expect(count!.x).toBeGreaterThan(bounds!.x);
+  expect(count!.x + count!.width).toBeLessThan(bounds!.x + bounds!.width);
+  expect(
+    await page
+      .locator('#combo')
+      .evaluate((el) => el.scrollWidth <= el.clientWidth),
+  ).toBe(true);
+  await page.screenshot({
+    path: info.outputPath('combo-x100.png'),
+    fullPage: true,
+  });
+  expect(
+    await page.evaluate((key) => localStorage.getItem(key), saveKey),
+  ).toBeNull();
+  await page.reload();
+  await expect(page.locator('#title-best')).toHaveText('0');
+  expect(
+    await page.evaluate((key) => localStorage.getItem(key), saveKey),
+  ).toBeNull();
+  expect(errors).toEqual([]);
+});
+
+test('v1 migration preserves height and v2 combo best survives a lower completed run', async ({
+  page,
+}, info) => {
+  await page.goto('/');
+  await page.evaluate((key) => {
+    localStorage.setItem(
+      key,
+      JSON.stringify({ version: 1, data: { best: 30, rounds: 12 } }),
+    );
+  }, saveKey);
+  await ready(page);
+  await expect(page.locator('#title-best')).toHaveText('30');
+  await page.locator('#play').click();
+  await tapGame(page, info);
+  await expect(page.locator('#surface')).toHaveAttribute(
+    'data-phase',
+    'moving',
+  );
+  await expect(page.locator('#score')).toHaveText('1');
+  await tapGame(page, info);
+  await expect(page.locator('#result-screen')).toBeVisible();
+  expect(
+    await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key)!),
+      saveKey,
+    ),
+  ).toEqual({
+    version: 2,
+    data: { best: 30, bestCombo: 0, rounds: 13 },
+  });
+  await page.evaluate((key) => {
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        version: 2,
+        data: { best: 30, bestCombo: 8, rounds: 13 },
+      }),
+    );
+  }, saveKey);
+  await ready(page);
+  await page.locator('#play').click();
+  await tapGame(page, info);
+  await expect(page.locator('#score')).toHaveText('1');
+  await expect(page.locator('#surface')).toHaveAttribute(
+    'data-phase',
+    'moving',
+  );
+  await tapGame(page, info);
+  await expect(page.locator('#result-screen')).toBeVisible();
+  expect(
+    await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key)!).data,
+      saveKey,
+    ),
+  ).toEqual({
+    best: 30,
+    bestCombo: 8,
+    rounds: 14,
+  });
 });
 
 test('pause preserves dropping/settling and interrupted countdown starts again', async ({

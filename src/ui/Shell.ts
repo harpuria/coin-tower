@@ -147,6 +147,10 @@ export class Shell {
     this.element('pause').hidden = run.paused;
     this.element('combo').hidden = run.combo < 2;
     this.element('combo-count').textContent = `x${run.combo}`;
+    this.element('combo').style.setProperty(
+      '--combo-digits',
+      String(String(run.combo).length + 1),
+    );
     this.element('tap-prompt').hidden = run.score >= 5 || run.frozen;
     for (const id of ['score', 'result-score'])
       this.element(id).textContent = String(run.score);

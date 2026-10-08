@@ -19,6 +19,7 @@ export class Session {
   speed = rules.baseSpeed as number;
   cameraOffset = 0;
   streak = 0;
+  maxCombo = 0;
   feedback: 'nice' | 'perfect' | null = null;
   feedbackRemaining = 0;
   paused = false;
@@ -35,7 +36,7 @@ export class Session {
     return this.coins.length;
   }
   get combo() {
-    return Math.min(this.streak, 4);
+    return this.streak;
   }
   get targetX() {
     return this.coins.at(-1)?.x ?? rules.width / 2;
@@ -58,6 +59,7 @@ export class Session {
     this.mode = mode;
     this.coins = [];
     this.streak = 0;
+    this.maxCombo = 0;
     this.feedback = null;
     this.feedbackRemaining = 0;
     this.paused = false;
@@ -147,6 +149,7 @@ export class Session {
       }
       this.coins.push({ x: this.activeX, y: this.targetY });
       this.streak = kind === 'perfect' ? this.streak + 1 : 0;
+      this.maxCombo = Math.max(this.maxCombo, this.streak);
       this.feedback = kind;
       this.feedbackRemaining = rules.feedbackMs;
       this.phase = 'settling';
@@ -178,6 +181,7 @@ export class Session {
       cameraOffset: this.cameraOffset,
       streak: this.streak,
       combo: this.combo,
+      maxCombo: this.maxCombo,
       feedback: this.feedback,
       paused: this.paused,
       countdownMs: this.countdownMs,

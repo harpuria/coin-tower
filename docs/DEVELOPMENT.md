@@ -28,7 +28,7 @@
 개발 서버에서 `http://localhost:5173/?debug`를 엽니다. 브라우저 콘솔에 다음 API가 생깁니다. production 빌드에는 없습니다.
 
 ```js
-window.__COIN_TOWER__.snapshot(); // 모드·단계·동전 위치·목표·속도·콤보·카메라·정지 상태
+window.__COIN_TOWER__.snapshot(); // 모드·단계·위치·속도·현재 combo·판의 maxCombo·카메라·정지 상태
 window.__COIN_TOWER__.freeze(true); // 자동 시간 진행만 정지; 실제 UI/포인터 입력은 유지
 window.__COIN_TOWER__.advance(100); // 게임 시간을 100ms 진행
 window.__COIN_TOWER__.freeze(false);
@@ -49,7 +49,7 @@ window.__COIN_TOWER__.freeze(false);
 
 ## 저장과 오류
 
-`coin-tower-web-v1:save`에 완료 기록의 최고 적층 수와 완료 횟수만 저장합니다. 진행 중인 판·콤보·중단 판은 저장하지 않습니다. 설정은 별도 `:settings` 키를 사용합니다. 저장소 접근 실패나 손상 데이터에서는 원본을 덮어쓰지 않고 메모리로 플레이하며 저장 실패를 알립니다.
+`coin-tower-web-v1:save`의 envelope v2에 완료 기록의 최고 적층 수(`best`), 최고 콤보(`bestCombo`), 완료 횟수(`rounds`)를 저장합니다. v1은 최고 적층 수·완료 횟수를 보존하고 최고 콤보를 0으로 추가해 이행합니다. 진행 중인 판·현재 콤보·중단 판은 저장하지 않습니다. 집계·확정 규칙은 [기록 설계](design/records.md)를 따릅니다. 설정은 별도 `:settings` 키를 사용합니다. 저장소 접근 실패나 손상 데이터에서는 원본을 덮어쓰지 않고 메모리로 플레이하며 저장 실패를 알립니다.
 
 필수 asset 로딩 실패는 게임을 시작하지 않고 새로고침 안내를 띄웁니다. 처리되지 않은 오류도 화면 위 복구 안내를 보여 줍니다. asset 경로는 Vite BASE_URL을 기준으로 하므로 하위 경로 배포에서도 상대 경로를 유지합니다.
 
@@ -73,7 +73,7 @@ CrazyGames에 제출할 파일은 **`build:crazygames` 직후의 `dist/` 전체*
 - localhost/127.0.0.1의 실제 SDK는 local 환경입니다. LAN에서 SDK 개발 검사가 필요하면 공식 `?useLocalSdk=true`를 사용합니다. 이 로컬 기능은 CrazyGames 포털 Preview 검증을 대신하지 않습니다.
 - 게임 시작·RETRY·확인된 RESTART와 재개 카운트다운 종료에 `gameplayStart`, 수동 일시정지·결과·플레이 종료에 `gameplayStop`을 보냅니다. 반복 프레임은 중복 이벤트를 보내지 않습니다. 탭 숨김/blur/focus만으로 이벤트를 보내지 않으며 SDK가 처리합니다. 복귀 후 게임은 기존처럼 정지 상태를 유지하고 명시적으로 재개합니다.
 - 초기 `game.settings.muteAudio`와 변경 listener를 적용합니다. 플랫폼 음소거 중 소리 버튼은 비활성화되며 플랫폼 해제 후 기존 사용자 설정으로 돌아갑니다. 플랫폼 상태는 localStorage에 쓰지 않습니다.
-- CrazyGames 빌드는 자체 전체화면 버튼과 호출을 차단합니다. 광고·결제·분석·로그인·클라우드 저장을 활성화하지 않습니다. 최고 기록과 소리 설정의 기존 저장 schema를 유지합니다.
+- CrazyGames 빌드는 자체 전체화면 버튼과 호출을 차단합니다. 광고·결제·분석·로그인·클라우드 저장을 활성화하지 않습니다. standalone과 같은 게임 저장 schema를 사용하며 소리 설정은 별도 키에 보존합니다.
 - `test:crazygames`는 SDK 다운로드 경로를 결정적 fixture로 대체해 초기화 순서·이벤트·음소거·실패 복구·821×462 화면을 검사합니다. 실제 SDK local 검사는 아래처럼 공식 파일을 임시로 받아 별도로 실행합니다. 이 파일을 저장소에 추가하지 않습니다.
 
 ```bash

@@ -88,6 +88,7 @@ export class GameController {
     if (event === 'finished') {
       this.app.save.update((data) => ({
         best: Math.max(data.best, this.run.score),
+        bestCombo: Math.max(data.bestCombo, this.run.maxCombo),
         rounds: data.rounds + 1,
       }));
       this.saved = this.app.save.flush();

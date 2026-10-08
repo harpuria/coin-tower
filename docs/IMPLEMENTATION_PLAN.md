@@ -1,4 +1,4 @@
-# Implementation Plan — Coin Tower CrazyGames Basic Launch
+# Implementation Plan — Coin Tower Unlimited Perfect Combos
 
 ## Goal
 
@@ -6,15 +6,17 @@
 
 [Decided] Prepare that playable for CrazyGames Basic Launch with HTML5 SDK v3 initialization, gameplay events, platform mute, English UI, and hidden custom fullscreen controls on CrazyGames.
 
+[Decided] Display the full Perfect streak and save the completed run's longest streak independently from best height, following `design/records.md`.
+
 ## Status
 
 - Completed: first playable implemented and validated; original art, run rules, mouse/touch, persistence, and interruptions are connected.
-- Current: CrazyGames Basic Launch preparation is implemented and locally validated: SDK v3 initialization, gameplay events, platform mute, English UI, and hidden custom fullscreen controls in a dedicated CrazyGames build. See `VALIDATION.md` for results and external limits.
-- Scope: Basic Launch preparation only; advertising, accounts, cloud saves, and portal publication are not included. Physical-device tuning is deferred at the user's request.
-- Validation: SDK boundary unit tests, deterministic SDK fixtures in desktop/mobile browsers, standalone regression, production builds, and an unmodified official CDN SDK in local mode passed. CrazyGames Preview remains an external verification step.
-- Current design workshop: unlimited Perfect combo display and leaderboard categories for best height and Perfect combo are confirmed. The user chose completion-only records: Perfect combo means the longest consecutive streak within one run, finalized only at the first failure. These changes are not implemented yet. Read `GAME_DESIGN.md` and `design/records.md` before changing combo or persistence behavior.
-- Next proposed task: implement unlimited combo display and completion-only personal best combo storage with the accepted interruption rules. Global leaderboard UI/service decisions and portal Preview remain separate steps.
-- Blockers: none for implementation. Portal acceptance, physical-device feel, and Safari/Firefox remain unverified.
+- Completed: CrazyGames Basic Launch preparation with SDK v3 initialization, gameplay events, platform mute, English controls/recovery/accessibility, and hidden custom fullscreen in the dedicated build.
+- Current slice complete: unlimited combo display and completion-only browser personal best combo storage. `Session` tracks current and maximum streak separately; the controller finalizes both personal bests once on failure; save schema v2 preserves v1 height/rounds and initializes the previously untracked combo best to zero.
+- Validation: `check` passed (60 unit tests); standalone browser checks passed (20 development, 14 production with 6 development-only skips); CrazyGames checks passed (16 development and 16 production, each including 14 fixtures and 2 unmodified official SDK local checks). See `VALIDATION.md` for evidence and external limits.
+- Next proposed task: decide the result/menu presentation of run and personal best combo records, then implement that agreed UI. Global leaderboard policy/provider and CrazyGames Preview remain separate steps.
+- Scope: no advertising, accounts, cloud saves, global leaderboard, or portal publication. Physical-device tuning remains deferred at the user's request.
+- Blockers: none for this completed slice. Portal acceptance, physical-device feel, and Safari/Firefox remain unverified. The latest `dist/` is the validated CrazyGames build; running `check`/`build` later replaces it with standalone output.
 
 ## Slices
 
@@ -22,6 +24,7 @@
 - Completed slice 2: Perfect/combo, pause at every phase, background interruption, confirmation, and 3/2/1 resume with independent UI input.
 - Completed slice 3: deterministic rules, native browser mouse/touch events, production checks, screenshots, asset provenance, and validation/playtest handoff.
 - Completed slice 4: Basic Launch adapter and lifecycle connection, English controls/recovery/accessibility, dedicated build mode, and SDK boundary/browser validation.
+- Completed slice 5: unlimited combo numbers with fixed effect intensity, run maximum retained through NICE/failure/pause, independent completion-only personal bests, v1 migration without data loss, and desktop/mobile browser and production regression evidence.
 
 ## Implementation Entry Points
 

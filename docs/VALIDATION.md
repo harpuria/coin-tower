@@ -2,6 +2,26 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-08 — 무제한 콤보와 완료 시 최장 콤보 저장
+
+- 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스·Pixel 7 터치 에뮬레이션이며 실기기 검사는 아니다.
+- 범위: x4 표시 제한 제거, 판의 최장 콤보 추적, 첫 실패 때 최고 높이·최고 콤보 독립 저장, v1→v2 저장 형식 이행. 결과·메뉴의 콤보 기록 표시와 전역 리더보드는 이번 범위에 포함하지 않는다.
+
+| 검사                   | 실제 결과                                                         |
+| ---------------------- | ----------------------------------------------------------------- |
+| `rtk npm run check`    | 린트·포맷·타입·standalone 빌드 성공, 단위 검사 6개 파일·60개 통과 |
+| `rtk npm run test:e2e` | 개발 브라우저 검사 20개 통과                                      |
+
+- `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`: standalone 배포 브라우저 검사 14개 통과, 개발 시간 제어 전용 6개 의도적 제외. 실제 v1→v2 이행과 기존 v2 최고 콤보 보존도 배포본에서 확인했다.
+- `rtk proxy env CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames`: CrazyGames 개발 회귀 검사 16개 통과(fixture 14개·공식 SDK 원본 local 실행 2개). `rtk npm run build:crazygames` 제출용 빌드도 성공했다.
+- `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames`: CrazyGames 배포 회귀 검사 16개 통과(fixture 14개·공식 SDK 원본 local 실행 2개). 마지막 `dist/`는 이 검사에 사용한 CrazyGames 빌드다. 실제 포털 Preview 검사는 아니다.
+- 규칙 검사: 첫 동전 콤보 제외, Perfect 없는 판 0·한 번인 판 1, x100까지 실제 횟수, `Perfect 8 → NICE → Perfect 5 → 실패`의 기록 8, 현재 콤보 초기화와 판 최장 보존, 정지·background·재개 보존, 확인 취소·중단·새 판 초기화, 첫 실패 한 번만 저장, 두 개인 최고 독립 비교를 확인했다.
+- 저장 검사: 실제 v1 fixture의 높이·판 수를 보존하고 최고 콤보 0을 추가한 v2로 저장·재로드했다. 구버전 손상 데이터와 누락·음수·소수 콤보를 가진 v2, 미래 버전은 원문을 보존한다. 접근 불가·용량 초과 때 플레이와 실패 안내를 유지한다.
+- 런타임 검사: 개발 시간 제어와 실제 마우스/터치로 x5·x6·x13, 실패 후 최고 콤보 13 저장·재로드를 확인했다. x99까지 합성 준비 후 실제 입력으로 x100에 도달하고, 완료 전 저장 키가 없고 새로고침 시 중단 판이 사라짐을 확인했다. 정상 플레이 경로에서 수집한 런타임 오류는 0개다.
+- 화면 관측: PC·모바일의 x13/x100 캡처를 직접 확인했고 x100 패널 경계 검사가 통과했다. 숫자는 패널 안에 들어오며 이동 동전·목표를 덮지 않는다. 더 긴 숫자는 폭에 맞춰 축소한다. 체감 가설과 한계는 [PLAYTEST_NOTES.md](PLAYTEST_NOTES.md)에 있다.
+- 도구 제한: sandbox 내부 첫 브라우저 실행은 `listen EPERM`으로 서버를 열지 못했다. 승인된 서버·Chromium 실행으로 개발 검사를 완료했다. 의도적으로 발생시키는 `recovery fixture`와 `NO_COLOR` 경고는 정상 플레이 오류가 아니다.
+- 미검증: 실제 Android/iPhone·Safari/Firefox, 사람의 연속 콤보 성공률·시선 이동·손가락 가림, CrazyGames 포털 Preview/전역 순위. 실기기 조정은 사용자 요청대로 보류한다.
+
 ## 2026-10-07 — CrazyGames Basic Launch 준비
 
 - 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스와 Pixel 7 터치 에뮬레이션이며 실기기 검사가 아니다.

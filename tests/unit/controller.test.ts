@@ -3,9 +3,22 @@ import type { App } from '../../src/app';
 import { PauseState } from '../../src/core/pause';
 import { Session } from '../../src/game/session';
 import { GameController } from '../../src/game/controller';
+import { Store } from '../../src/core/store';
+import { progressSchema, type Progress } from '../../src/game/save';
+import { rules } from '../../src/game/rules';
 
-function fixture() {
+function fixture(initial?: Progress) {
   const events: string[] = [];
+  let raw = initial ? JSON.stringify({ version: 2, data: initial }) : null;
+  const storage = {
+    getItem: () => raw,
+    setItem: vi.fn((_key: string, value: string) => {
+      raw = value;
+    }),
+    removeItem: () => {
+      raw = null;
+    },
+  };
   const app = {
     ready: true,
     session: new Session(),
@@ -16,11 +29,102 @@ function fixture() {
       gameplayStart: () => events.push('start'),
       gameplayStop: () => events.push('stop'),
     },
-    save: { update: vi.fn(), flush: () => true },
+    save: new Store(storage, 'save', progressSchema),
   };
   const controller = new GameController(app as unknown as App);
-  return { app, controller, events };
+  return { app, controller, events, storage };
 }
+
+function land(game: GameController, offset = 0) {
+  game.run.activeX = game.run.targetX + offset;
+  game.tap();
+  game.update(1000);
+  game.update(rules.settleMs);
+}
+
+it.each([0, 1])('records %i for a run with that many Perfects', (perfects) => {
+  const { app, controller: game } = fixture();
+  game.start();
+  land(game);
+  for (let index = 0; index < perfects; index++) land(game);
+  land(game, -100);
+  expect(app.save.data).toEqual({
+    best: perfects + 1,
+    bestCombo: perfects,
+    rounds: 1,
+  });
+});
+
+it('finalizes independent bests once at failure using the longest streak', () => {
+  const {
+    app,
+    controller: game,
+    storage,
+  } = fixture({
+    best: 30,
+    bestCombo: 4,
+    rounds: 2,
+  });
+  game.start();
+  land(game);
+  for (let index = 0; index < 8; index++) land(game);
+  land(game, 35);
+  for (let index = 0; index < 5; index++) land(game);
+  expect(storage.setItem).not.toHaveBeenCalled();
+  expect(app.save.data).toEqual({ best: 30, bestCombo: 4, rounds: 2 });
+  land(game, -100);
+  expect(app.save.data).toEqual({ best: 30, bestCombo: 8, rounds: 3 });
+  expect(storage.setItem).toHaveBeenCalledTimes(1);
+  game.update(10_000);
+  game.start();
+  game.home();
+  expect(storage.setItem).toHaveBeenCalledTimes(1);
+  expect(new Store(storage, 'save', progressSchema).data).toEqual(
+    app.save.data,
+  );
+  game.start();
+  land(game);
+  land(game, -100);
+  expect(app.save.data).toEqual({ best: 30, bestCombo: 8, rounds: 4 });
+});
+
+it.each(['restart', 'home'] as const)(
+  'discards both run metrics on confirmed %s',
+  (action) => {
+    const { app, controller: game, storage } = fixture();
+    game.start();
+    land(game);
+    for (let index = 0; index < 8; index++) land(game);
+    land(game, 35);
+    game.pause();
+    game.request(action);
+    game.confirm(false);
+    expect(game.run.maxCombo).toBe(8);
+    game.request(action);
+    game.confirm(true);
+    expect(game.run.maxCombo).toBe(0);
+    expect(app.save.data).toEqual(progressSchema.defaults());
+    expect(storage.setItem).not.toHaveBeenCalled();
+  },
+);
+
+it('preserves both combos through background and countdown without saving early', () => {
+  const { app, controller: game, storage } = fixture();
+  game.start();
+  land(game);
+  for (let index = 0; index < 5; index++) land(game);
+  app.onBackground();
+  game.update(5000);
+  game.resume();
+  game.update(rules.resumeMs);
+  expect(game.run.combo).toBe(5);
+  expect(game.run.maxCombo).toBe(5);
+  land(game);
+  expect(game.run.maxCombo).toBe(6);
+  expect(storage.setItem).not.toHaveBeenCalled();
+  land(game, -100);
+  expect(app.save.data.bestCombo).toBe(6);
+});
 
 it('reports actual play transitions once, including countdown, result and retry', () => {
   const { controller: game, events } = fixture();

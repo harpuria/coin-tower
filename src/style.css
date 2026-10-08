@@ -195,7 +195,7 @@ button:focus-visible,
   font-weight: 850;
 }
 .combo strong {
-  font-size: 5cqw;
+  font-size: min(5cqw, calc(24cqw / var(--combo-digits, 2)));
 }
 .tap-prompt {
   position: absolute;
