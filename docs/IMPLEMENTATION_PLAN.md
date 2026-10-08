@@ -1,4 +1,4 @@
-# Implementation Plan — Coin Tower Record Presentation
+# Implementation Plan — Coin Tower Perfect Combo Art
 
 ## Goal
 
@@ -10,16 +10,19 @@
 
 [Decided] Present both records equally in results and the menu, with independent NEW BEST badges for strict improvements over the pre-completion personal best, following `design/records.md`.
 
+[Decided] Generate separate transparent X and 0–9 glyph PNGs matching the original Perfect art, and display PERFECT! over X1/X2/… in gameplay.
+
 ## Status
 
 - Completed: first playable implemented and validated; original art, run rules, mouse/touch, persistence, and interruptions are connected.
 - Completed: CrazyGames Basic Launch preparation with SDK v3 initialization, gameplay events, platform mute, English controls/recovery/accessibility, and hidden custom fullscreen in the dedicated build.
 - Completed: unlimited combo display and completion-only browser personal best combo storage. `Session` tracks current and maximum streak separately; the controller finalizes both personal bests once on failure; save schema v2 preserves v1 height/rounds and initializes the previously untracked combo best to zero.
-- Current slice complete: result comparison rows and equal menu personal-best cards, with independent NEW BEST badges. The controller retains finalized run values, updated personal bests, and record-break flags computed before save updates; new runs and menu transitions clear the result snapshot. Ties receive no badge; combo values include x0 and x1. The save schema is unchanged.
-- Validation: `check` passed (65 unit tests); standalone browser checks passed (24 development, 16 production with 8 development-only skips); CrazyGames checks passed (16 development and 16 production, each including 14 fixtures and 2 unmodified official SDK local checks). See `VALIDATION.md` for evidence and external limits.
-- Next proposed task: decide global leaderboard periods, ties, and participation/identity rules in `design/records.md` before selecting and integrating a provider. CrazyGames Preview remains a separate external validation step.
+- Completed: result comparison rows and equal menu personal-best cards, with independent NEW BEST badges. The controller retains finalized run values, updated personal bests, and record-break flags computed before save updates; new runs and menu transitions clear the result snapshot. Ties receive no badge; combo values include x0 and x1. The save schema is unchanged.
+- Current slice complete: generated X/0–9 art is exported as eleven alpha PNGs; the shell composes the count under the original Perfect image, starting at X1 and fading against Session time. Screenshots and bounds cover X1/X2/X10/X100, including small portrait/portal viewports. Rules, persistence, services, and SDK contracts are unchanged. See `ART_DIRECTION.md` and `ASSET_SOURCES.md` for style and provenance.
+- Validation: `check` passed (65 unit tests); standalone browser checks passed (24 development, 16 production with 8 development-only skips); the corrected production Clock scenario passed 6 repeated runs; the 5/10/20 touch observation passed 2 viewport cases. CrazyGames production passed 16 checks, including 14 fixtures and 2 unmodified official SDK local checks. See `VALIDATION.md` for evidence and external limits.
+- Next proposed task: collect PC player feedback on reading Perfect and the count at 5/10/20 coins, then tune size/spacing if the observations support it. Global leaderboard policy/provider and CrazyGames Preview remain separate steps.
 - Scope: no advertising, accounts, cloud saves, global leaderboard, or portal publication. Physical-device tuning remains deferred at the user's request.
-- Blockers: none for this completed slice. Portal acceptance, physical-device feel, and Safari/Firefox remain unverified. The latest `dist/` is the validated CrazyGames build; running `check`/`build` later replaces it with standalone output.
+- Blockers: none for the completed asset slice. Human readability, portal acceptance, physical-device feel, and Safari/Firefox remain unverified. The latest `dist/` is the validated CrazyGames build; `check`/`build` later replaces it with standalone output.
 
 ## Slices
 
@@ -29,6 +32,7 @@
 - Completed slice 4: Basic Launch adapter and lifecycle connection, English controls/recovery/accessibility, dedicated build mode, and SDK boundary/browser validation.
 - Completed slice 5: unlimited combo numbers with fixed effect intensity, run maximum retained through NICE/failure/pause, independent completion-only personal bests, v1 migration without data loss, and desktop/mobile browser and production regression evidence.
 - Completed slice 6: equal result comparison rows and menu personal-best cards, independent strict-improvement badges, finalized maximum retained for results, and x0/x1/x100, ties, single/double record breaks, reset/reload, persistence regressions, and small portrait/portal layout validation.
+- Completed slice 7: eleven gold X/0–9 alpha PNGs matching the original Perfect style, proportional composition from X1 through X100 and beyond, game-time fade/pause/reset, desktop/mobile and production checks, 5/10/20 touch regression, and generation provenance.
 
 ## Implementation Entry Points
 

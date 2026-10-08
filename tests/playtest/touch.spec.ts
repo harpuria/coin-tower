@@ -197,7 +197,7 @@ test('observe touch and Perfect at 5, 10, and 20 successful coins', async ({
         (rules.height * rules.targetFraction -
           rules.spawnGap -
           51 -
-          (330 + 80)) *
+          rules.height * (0.283 + 0.047)) *
         scale,
       feedbackAfterSettleMs: rules.feedbackMs - rules.settleMs,
       firstCenterMs,

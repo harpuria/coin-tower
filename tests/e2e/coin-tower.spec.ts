@@ -36,6 +36,40 @@ async function place(page: Page, info: TestInfo, offset = 0) {
     await advance(page, rules.settleMs);
 }
 
+async function expectComboArt(page: Page, value: number) {
+  await expect(page.locator('#combo')).toBeVisible();
+  await expect(page.locator('#combo-count')).toHaveText(`x${value}`);
+  const glyphs = page.locator('.combo-glyphs img');
+  await expect(glyphs).toHaveCount(String(value).length + 1);
+  expect(
+    await glyphs.evaluateAll(async (images) => {
+      await Promise.all(
+        images.map((image) => (image as HTMLImageElement).decode()),
+      );
+      return images.map((image) => {
+        const glyph = image as HTMLImageElement;
+        return {
+          file: glyph.src.split('/').pop(),
+          height: glyph.naturalHeight,
+        };
+      });
+    }),
+  ).toEqual(
+    [...`x${value}`].map((glyph) => ({ file: `${glyph}.png`, height: 192 })),
+  );
+  const bounds = (await page.locator('#combo').boundingBox())!;
+  const row = (await page.locator('.combo-glyphs').boundingBox())!;
+  const canvas = (await page.locator('#game canvas').boundingBox())!;
+  const scale = canvas.height / rules.height;
+  expect(row.x).toBeGreaterThan(bounds.x);
+  expect(row.x + row.width).toBeLessThan(bounds.x + bounds.width);
+  expect(row.y).toBeGreaterThanOrEqual(canvas.y + 360 * scale);
+  expect(row.y + row.height).toBeLessThan(
+    canvas.y +
+      (rules.height * rules.targetFraction - rules.spawnGap - 51) * scale,
+  );
+}
+
 test('real mouse/touch start, drop, first miss, retry, home, and saved best', async ({
   page,
 }, info) => {
@@ -201,7 +235,16 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   expect((await snapshot(page)).phase).toBe('moving');
   await place(page, info);
   expect((await snapshot(page)).streak).toBe(0);
-  for (let index = 1; index < 6; index++) await place(page, info);
+  for (let index = 1; index < 6; index++) {
+    await place(page, info);
+    if (index <= 2) {
+      await expectComboArt(page, index);
+      await page.screenshot({
+        path: info.outputPath(`combo-x${index}.png`),
+        fullPage: true,
+      });
+    }
+  }
   await expect(page.locator('#combo-count')).toHaveText('x5');
   await expect(page.locator('#tap-prompt')).toBeHidden();
   expect((await snapshot(page)).score).toBe(6);
@@ -221,7 +264,16 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   expect((await snapshot(page)).phase).toBe('moving');
   await place(page, info, 35);
   await expect(page.locator('#combo')).toBeHidden();
-  for (let index = 8; index < 21; index++) await place(page, info);
+  for (let index = 8; index < 21; index++) {
+    await place(page, info);
+    if ((await snapshot(page)).combo === 10) {
+      await expectComboArt(page, 10);
+      await page.screenshot({
+        path: info.outputPath('combo-x10.png'),
+        fullPage: true,
+      });
+    }
+  }
   const high = await snapshot(page);
   expect(high.score).toBe(21);
   expect(high.combo).toBe(13);
@@ -268,7 +320,7 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   expect(errors).toEqual([]);
 });
 
-test('x100 fits the combo panel and an unfinished record is discarded on reload', async ({
+test('x100 glyphs fit below Perfect and an unfinished record is discarded on reload', async ({
   page,
 }, info) => {
   test.skip(preview, 'development-only deterministic preparation');
@@ -296,10 +348,10 @@ test('x100 fits the combo panel and an unfinished record is discarded on reload'
   }, rules.settleMs);
   expect((await snapshot(page)).combo).toBe(99);
   await place(page, info);
-  await expect(page.locator('#combo-count')).toHaveText('x100');
+  await expectComboArt(page, 100);
   expect((await snapshot(page)).maxCombo).toBe(100);
   const bounds = await page.locator('#combo').boundingBox();
-  const count = await page.locator('#combo-count').boundingBox();
+  const count = await page.locator('.combo-glyphs').boundingBox();
   expect(count!.x).toBeGreaterThan(bounds!.x);
   expect(count!.x + count!.width).toBeLessThan(bounds!.x + bounds!.width);
   expect(
@@ -311,6 +363,39 @@ test('x100 fits the combo panel and an unfinished record is discarded on reload'
     path: info.outputPath('combo-x100.png'),
     fullPage: true,
   });
+  for (const viewport of [
+    { width: 360, height: 640 },
+    { width: 390, height: 844 },
+    { width: 821, height: 462 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expect
+      .poll(async () => {
+        const canvas = (await page.locator('#game canvas').boundingBox())!;
+        const surface = (await page.locator('#surface').boundingBox())!;
+        return Math.abs(canvas.height - surface.height);
+      })
+      .toBeLessThan(1);
+    await expectComboArt(page, 100);
+    await page.screenshot({
+      path: info.outputPath(`combo-x100-${viewport.width}.png`),
+      fullPage: true,
+    });
+  }
+  await advance(page, 240);
+  await expect
+    .poll(async () =>
+      Number(await page.locator('#combo').evaluate((el) => el.style.opacity)),
+    )
+    .toBeCloseTo(180 / 280);
+  await page.locator('#pause').click();
+  await expect(page.locator('#combo')).toBeHidden();
+  await page.locator('#continue').click();
+  await expect(page.locator('#combo')).toBeHidden();
+  await advance(page, 3000);
+  await expectComboArt(page, 100);
+  await advance(page, 180);
+  await expect(page.locator('#combo')).toBeHidden();
   expect(
     await page.evaluate((key) => localStorage.getItem(key), saveKey),
   ).toBeNull();
@@ -601,9 +686,20 @@ test('single Perfect result and both new records survive menu and reload without
   await ready(page);
   await page.clock.install();
   await page.clock.pauseAt(new Date(Date.now() + 1000));
+  // Phaser의 초기 프레임 보정에 고정 대기 시간을 맞추지 않고 실제 단계 종료를 기다린다.
+  const finishDrop = async () => {
+    for (let frame = 0; frame < 120; frame++) {
+      if (
+        (await page.locator('#surface').getAttribute('data-phase')) === 'moving'
+      )
+        return;
+      await page.clock.runFor(16);
+    }
+    throw new Error('Drop did not finish within 120 controlled frames');
+  };
   await page.locator('#play').click();
   await tapGame(page, info);
-  await page.clock.runFor(580);
+  await finishDrop();
   await expect(page.locator('#score')).toHaveText('1');
   await expect(page.locator('#surface')).toHaveAttribute(
     'data-phase',
@@ -611,12 +707,17 @@ test('single Perfect result and both new records survive menu and reload without
   );
   await page.clock.runFor(1250);
   await tapGame(page, info);
-  await page.clock.runFor(580);
+  await finishDrop();
   await expect(page.locator('#score')).toHaveText('2');
   await expect(page.locator('#surface')).toHaveAttribute(
     'data-phase',
     'moving',
   );
+  await expectComboArt(page, 1);
+  await page.screenshot({
+    path: info.outputPath('production-ready-combo-x1.png'),
+    fullPage: true,
+  });
   await page.clock.runFor(300);
   await tapGame(page, info);
   await page.clock.runFor(320);

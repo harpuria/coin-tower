@@ -7,6 +7,8 @@ import type { GameController } from '../game/controller';
 export class Shell {
   private controller = new AbortController();
   private root: HTMLElement;
+  private displayedCombo = -1;
+  private comboFrame = 0;
   constructor(
     private app: App,
     private game: GameController,
@@ -34,7 +36,7 @@ export class Shell {
           <div id="hud" class="layer" hidden>
             <div class="hud-stats"><div class="blue-panel"><span>BEST</span><strong id="best">0</strong></div><div class="blue-panel"><span>COINS</span><strong id="score">0</strong></div></div>
             <button id="pause" class="icon-button pause-button" aria-label="Pause">Ⅱ</button>
-            <div id="combo" class="blue-panel combo" hidden>COMBO <strong id="combo-count">x2</strong></div>
+            <div id="combo" class="combo" hidden><strong id="combo-count" class="sr-only">x1</strong><span class="combo-glyphs" aria-hidden="true"></span></div>
             <p id="tap-prompt" class="tap-prompt">Click or tap to drop</p>
           </div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
@@ -77,6 +79,21 @@ export class Shell {
     const element = this.element(id);
     element.textContent = value;
     element.style.setProperty('--record-digits', String(value.length));
+  }
+  /** 숫자 이미지는 게임 시간의 Perfect 잔여 시간과 함께 사라진다. */
+  private renderComboFeedback() {
+    cancelAnimationFrame(this.comboFrame);
+    this.comboFrame = 0;
+    const run = this.app.session;
+    const element = this.element('combo');
+    element.hidden =
+      run.mode !== 'playing' ||
+      run.frozen ||
+      run.feedback !== 'perfect' ||
+      run.feedbackRemaining <= 0;
+    element.style.opacity = String(Math.min(1, run.feedbackRemaining / 280));
+    if (!element.hidden)
+      this.comboFrame = requestAnimationFrame(() => this.renderComboFeedback());
   }
   private on(id: string, handler: () => void) {
     this.element(id).addEventListener('click', handler, {
@@ -164,8 +181,21 @@ export class Shell {
       Math.ceil(run.countdownMs / 1000),
     );
     this.element('pause').hidden = run.paused;
-    this.element('combo').hidden = run.combo < 2;
-    this.element('combo-count').textContent = `x${run.combo}`;
+    this.renderComboFeedback();
+    if (this.displayedCombo !== run.combo) {
+      this.displayedCombo = run.combo;
+      this.element('combo-count').textContent = `x${run.combo}`;
+      const glyphs = [...`x${run.combo}`].map((glyph) => {
+        const image = document.createElement('img');
+        image.src = `${import.meta.env.BASE_URL}assets/coin-tower/combo/${glyph}.png`;
+        image.alt = '';
+        image.draggable = false;
+        return image;
+      });
+      this.element('combo')
+        .querySelector('.combo-glyphs')!
+        .replaceChildren(...glyphs);
+    }
     this.element('combo').style.setProperty(
       '--combo-digits',
       String(String(run.combo).length + 1),
@@ -227,6 +257,7 @@ export class Shell {
       : 'FULLSCREEN';
   }
   destroy() {
+    cancelAnimationFrame(this.comboFrame);
     this.controller.abort();
     this.app.onState = () => {};
   }

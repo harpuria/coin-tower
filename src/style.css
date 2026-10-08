@@ -198,17 +198,25 @@ button:focus-visible,
 }
 .combo {
   position: absolute;
-  top: 15.7%;
-  left: 28%;
-  width: 43%;
-  height: 5.7%;
-  flex-direction: row;
-  gap: 3cqw;
-  font-size: 3.2cqw;
-  font-weight: 850;
+  top: 28.3%;
+  left: 20%;
+  width: 60%;
+  height: 4.7%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.combo strong {
-  font-size: min(5cqw, calc(24cqw / var(--combo-digits, 2)));
+.combo-glyphs {
+  display: flex;
+  align-items: center;
+  gap: 0.4cqw;
+  height: min(8.3cqw, calc(42cqw / var(--combo-digits, 2)));
+  max-height: 100%;
+}
+.combo-glyphs img {
+  display: block;
+  height: 100%;
+  width: auto;
 }
 .tap-prompt {
   position: absolute;

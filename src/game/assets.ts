@@ -39,6 +39,8 @@ const regions: Record<string, readonly [number, number, number, number]> = {
 export function queueAssets(load: Phaser.Loader.LoaderPlugin) {
   load.setPath(`${import.meta.env.BASE_URL}assets/coin-tower/`);
   for (const [key, file] of Object.entries(images)) load.image(key, file);
+  for (const glyph of 'x0123456789')
+    load.image(`combo-${glyph}`, `combo/${glyph}.png`);
   load.audio(assetKeys.stack, 'stack.wav');
 }
 export function installAssetFrames(textures: Phaser.Textures.TextureManager) {

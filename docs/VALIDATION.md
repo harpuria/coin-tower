@@ -2,6 +2,22 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-08 — Perfect 콤보 이미지 글자
+
+- 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스·Pixel 7 터치 에뮬레이션이며 실기기 검사는 아니다.
+- 범위: 기존 Perfect 스타일의 투명 X·0~9 PNG 11개 생성·분리, Perfect 아래 이미지 숫자 조합, X1부터 표시, 자릿수 축소와 피드백 시간·정지 상태 연동. 원본 Perfect 파일·판정·속도·콤보 집계·저장 schema·SDK 계약은 유지했다.
+- 파일: 공통 높이 192px, 폭 145~182px, PNG 총 539,802 bytes(약 527KiB), RGBA 픽셀 합계 약 1.4MiB. 엔진·브라우저의 캐시 복사와 관리 비용은 별도다. 프롬프트·참조·알파 분리·이용 조건은 [ASSET_SOURCES.md](ASSET_SOURCES.md)와 [제작 기록](art/combo-glyphs.md)에 있다.
+- `rtk npm run check`: 린트·포맷·타입·standalone 배포 빌드 성공, 단위 검사 6개 파일·65개 통과.
+- `rtk npm run test:e2e -- --grep 'deterministic real-input|x100 glyphs|single Perfect'`: 집중 검사 6개 통과. 실제 마우스·터치로 X1·X2·X10·X100, PNG 디코딩·크기·배치, 피드백 시간에 따른 불투명도, 정지·카운트다운 숨김과 재개, NICE·시간 종료 시 숨김, 완료·새로고침을 확인했다.
+- `rtk npm run test:e2e`: 전체 개발 브라우저 검사 24개 통과. 새 이미지 피드백과 기존 결과·메뉴·저장·오류 복구·입력·중단·화면 회귀를 포함한다.
+- 배포 첫 실행에서 모바일 Clock 검사가 고정 580ms 후에도 `settling`인 상태에서 멈췄다. 실제 `moving` 단계까지 16ms씩 진행하도록 검사 준비를 보완했다. `rtk proxy env E2E_PREVIEW=1 npm run test:e2e -- --grep 'single Perfect' --repeat-each 3`: PC·모바일 각 3회, 6개 통과. 게임 시간·속도·판정 코드는 변경하지 않았다.
+- `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`: 재검사에서 standalone 배포 브라우저 16개 통과, 개발 시간 제어 전용 8개 의도적 제외. 개발 훅 없이 X1 PNG·결과 기록·메뉴·새로고침을 확인했다.
+- `rtk npm run playtest:touch`: 360×640·390×844의 5·10·20개 관측 2개 통과. 최소 간격 계산을 숫자까지 포함한 영역 기준으로 갱신했고, 실제 브라우저 터치 12회·Perfect·입력 무시·예약 없음 회귀를 확인했다. 실기기 지연이나 사람의 가독성 검사는 아니다.
+- `rtk npm run build:crazygames`: 새 PNG를 포함한 제출용 빌드 성공. 검사에 사용한 공식 SDK 원본 파일의 SHA-256은 기존 `DEPENDENCIES.md`의 값과 일치한다.
+- `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js npm run test:crazygames`: CrazyGames 배포 회귀 16개 통과(fixture 14개·공식 SDK local 2개). 필수 자산 로딩·기존 SDK 이벤트·음소거·영어 UI·자체 전체화면 숨김·작은 포털 화면을 확인했다. 마지막 `dist/`는 이 검사에 사용한 CrazyGames 빌드이며 실제 포털 Preview 검사는 아니다.
+- 화면: 데스크톱·모바일의 X2, 360×640·390×844·821×462의 X100 캡처를 직접 확인했다. 같은 높이의 글자와 기존 Perfect 색·테두리, 두 줄 구분, 다음 이동 동전·탑 상단·일시정지 버튼의 비가림을 관측했다. 공간 경계는 브라우저에서도 단언했다.
+- 미검증: 실제 Android/iPhone·Safari/Firefox, 사람의 숫자 인식 속도·다음 입력 체감, 실제 CrazyGames 포털 Preview. 실기기 조정은 사용자 요청대로 보류한다. 가설의 상태와 방법은 [PLAYTEST_NOTES.md](PLAYTEST_NOTES.md)에 있다.
+
 ## 2026-10-08 — 결과·메뉴의 두 기록과 항목별 NEW BEST
 
 - 환경: macOS / Node 24.16.0 / npm 11.13.0 / Playwright 1.63.0 Chromium. 데스크톱 마우스·Pixel 7 터치 에뮬레이션이며 실기기 검사는 아니다.

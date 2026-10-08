@@ -47,7 +47,7 @@ export class CoinTowerScene extends Phaser.Scene {
       .setDisplaySize(188, 115);
     this.logo = this.add.image(360, 190, assetKeys.logo, 'art');
     this.feedback = this.add
-      .image(360, 330, assetKeys.perfect)
+      .image(360, 280, assetKeys.perfect)
       .setDepth(5)
       .setVisible(false);
     this.sparkles = this.add.graphics().setDepth(4);

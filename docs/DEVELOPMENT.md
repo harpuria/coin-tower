@@ -21,6 +21,8 @@
 
 현재 입력은 HTML 게임 영역의 **native pointerdown**으로 통합합니다. 주 포인터의 왼쪽 버튼/터치 시작만 받고, HTML 메뉴 버튼은 캔버스의 형제 요소로 분리합니다. Phaser mouse/touch 이벤트를 다시 처리하면 입력이 중복될 수 있습니다.
 
+Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`의 X·0~9 PNG를 조합합니다. `Shell`은 횟수가 바뀔 때만 글자 노드를 교체하고, 피드백을 표시하는 동안 RAF에서 Session의 잔여 시간을 읽어 불투명도를 맞춥니다. 별도의 게임 시간을 진행하지 않으며 정지·카운트다운·종료 때 숨기고 RAF를 해제합니다. 모든 글자는 필수 자산 로더에서 미리 읽습니다. 제작 사양·출처는 [ART_DIRECTION.md](ART_DIRECTION.md)와 [ASSET_SOURCES.md](ASSET_SOURCES.md)를 따릅니다.
+
 카메라·낙하·피드백은 Session의 게임 시간을 사용합니다. 장면 자체를 pause하면 재개 카운트다운도 멈추므로 이 게임의 `pausableScenes`는 비워 둡니다. 모델이 게임 시간을 멈추고 공통 PauseState는 소리를 멈춥니다. 자세한 이유는 [ADR 0002](adr/0002-run-simulation-and-interruptions.md)에 있습니다.
 
 ## 개발 전용 시간 제어
@@ -43,7 +45,7 @@ window.__COIN_TOWER__.freeze(false);
 - 준비: `/?debug`의 시간 제어와 합성 pointer 입력으로 성공 5·10·20개 상태를 만듭니다. 이 준비를 사람의 플레이나 자연스러운 Perfect 빈도로 해석하지 않습니다.
 - 관측: 실시간 왕복 이동의 RAF 간격을 모으고, 정확한 중앙에 시간을 고정한 상태에서 `page.touchscreen.tap`으로 낙하 및 낙하 중 추가 터치를 보냅니다. 점수·Perfect·입력 예약 없음은 단언하고, 가독성은 화면으로 관찰합니다.
 - 산출물: `test-results/touch-playtest/`의 프로젝트별 `observations.json`과 `5/10/20-{moving-perfect,center-pass,landing-perfect,next-moving-perfect}.png`. 일반 E2E 또는 같은 명령 재실행 시 교체될 수 있습니다.
-- 해석: 판정 시간 폭과 이미지 간격은 규칙·렌더 배치에서 계산합니다. 이벤트 capture→bubble 및 다음 RAF 시간은 브라우저 내부 계측으로 하드웨어·OS 지연이나 화면 표시 완료 시간이 아닙니다. RAF 간격도 이 호스트의 결과이며 실제 휴대폰 FPS 보장은 아닙니다.
+- 해석: 판정 시간 폭과 이미지 간격은 규칙·렌더 배치에서 계산합니다. 최소 세로 간격은 Perfect와 아래 숫자를 포함한 영역의 하단을 기준으로 합니다. 이벤트 capture→bubble 및 다음 RAF 시간은 브라우저 내부 계측으로 하드웨어·OS 지연이나 화면 표시 완료 시간이 아닙니다. RAF 간격도 이 호스트의 결과이며 실제 휴대폰 FPS 보장은 아닙니다.
 
 실제 기기에서는 같은 위치를 반복 탭하며 5·10·20개 구간의 너무 빠름/늦음, 실패 납득 가능성, Perfect를 읽느라 다음 탭을 놓치는지, 손가락이 동전·목표를 가리는지를 기록합니다. 기종·브라우저·판 수와 함께 사용자 피드백을 `PLAYTEST_NOTES.md`에 구분해 추가합니다.
 
