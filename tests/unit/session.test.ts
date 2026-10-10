@@ -12,6 +12,22 @@ function land(run: Session, x = run.targetX) {
 
 describe('landing outcomes', () => {
   it.each([-1, 1])(
+    'allows 45 percent drift while keeping Perfect at 10 percent (%s)',
+    (side) => {
+      expect(rules.successFraction).toBe(0.45);
+      expect(rules.perfectFraction).toBe(0.1);
+      expect(landingKind(360 + side * 166 * 0.4, 360, false)).toBe('nice');
+      expect(landingKind(360 + side * 166 * 0.45, 360, false)).toBe('nice');
+      expect(landingKind(360 + side * (166 * 0.45 + 0.001), 360, false)).toBe(
+        'miss',
+      );
+      expect(landingKind(360 + side * 166 * 0.1, 360, false)).toBe('perfect');
+      expect(landingKind(360 + side * (166 * 0.1 + 0.001), 360, false)).toBe(
+        'nice',
+      );
+    },
+  );
+  it.each([-1, 1])(
     'includes both pedestal boundaries and rejects the outside (%s)',
     (side) => {
       expect(landingKind(360 + side * rules.platformRadius, 360, true)).toBe(

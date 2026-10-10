@@ -242,7 +242,7 @@ test('background mid-fade restart home and first failure preserve/reset correctl
   await page.locator('#play').click();
   await reachFive();
   await advance(page, rules.settleMs);
-  await land(page, info, rules.diameter * 0.4);
+  await land(page, info, rules.diameter * (rules.successFraction + 0.05));
   const result = await snapshot(page);
   expect(result.mode).toBe('result');
   expect(result.score).toBe(5);

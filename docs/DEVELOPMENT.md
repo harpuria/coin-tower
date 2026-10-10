@@ -44,6 +44,13 @@ window.__COIN_TOWER__.freeze(false);
 
 `snapshot().background`는 `from`/`to` 시간대와 0~1의 `progress`를 포함합니다. Scene은 이 진행률에 부드러운 곡선을 적용해 다음 배경을 덮습니다. 배경 시간도 `advance`를 따르며 정지·카운트다운·결과에서 진행하지 않습니다. 두 이미지는 같은 논리 화면 크기로 표시합니다. 시간대 자산 세 장은 필수 로더로 미리 읽으며 추가 요청을 기다리느라 전환을 멈추지 않습니다.
 
+## 착지 허용 범위 집중 브라우저 검사
+
+`rtk npm run test:e2e -- landing.spec.ts`는 desktop/Pixel 7 Chromium에서 실제 마우스·Space·터치 입력과 개발 시간 제어를 사용한다. 새 판에서 첫 동전을 중앙에 놓고, 다음 동전의 좌우 성공 경계·경계 바로 밖·이전 범위에서는 실패했던 치우침·Perfect 경계와 바로 밖을 각각 확인한다. 점수·동전 위치를 직접 덮어쓰지 않는다.
+
+- 성공 동전의 실제 치우침 유지, 점수·NICE/Perfect·콤보·첫 실패 종료도 확인한다. `test-results/standalone/landing-*/landing-*.png`에 각 경우의 캡처를 저장한다.
+- 정확한 좌표 관찰은 개발 훅을 사용하므로 production에서는 제외한다. 단위 경계 회귀는 `tests/unit/session.test.ts`에 있다. 최종 판정 값은 [게임 디자인](GAME_DESIGN.md#플레이-테스트용-시작값)을 따른다.
+
 ## 시간대 배경 집중 브라우저 검사
 
 `rtk npm run test:e2e -- backgrounds.spec.ts`는 desktop/Pixel 7 Chromium에서 실제 마우스·Space·터치 입력과 개발 시간 제어로 구간에 도달한다. 동전 위치나 점수를 직접 덮어쓰지 않는다. 5·10·15·20·25개 전환의 시작·25%·50%·75%·완료 시점에 모델과 실제 Scene Image의 texture·alpha·표시 크기를 비교한다.

@@ -2,6 +2,16 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-11 — 일반 성공 범위 확대와 Perfect 유지
+
+- 변경: 일반 성공 허용 중심 거리를 동전 폭의 45%로 넓혔다. Perfect 10%·이동 속도·첫 실패 종료·저장 방식은 유지한다. 기존 배경 검사의 실패 준비 위치는 새 허용 범위 밖으로 옮겼다.
+- `rtk npm run check`: 린트·포맷·단위 검사 6개 파일 67개·타입·standalone 배포 빌드 성공. 양쪽 성공/Perfect 경계와 경계 바로 밖을 고정 수치로 확인하는 단위 검사를 추가했다.
+- 전체 개발 브라우저 검사: Chromium PC·Pixel 7 터치 에뮬레이션의 30개 중 29개 통과, PC 집중 착지 검사 1개 중단. 검사 중 소스 주석을 수정해 Vite가 페이지를 재로딩했고 개발 관측 훅이 사라졌다. trace의 중복 문서 요청·Vite 연결과 초기 메뉴 복귀를 확인했다. 모바일 착지 검사와 기존 입력·콤보·기록·중단·배경 검사는 통과했다.
+- `rtk proxy env PLAYWRIGHT_HTML_OPEN=never npm run test:e2e -- landing.spec.ts --reporter=line`: 소스 수정 없이 PC·모바일 집중 착지 재검사 **2개 통과**. 양쪽 35%·45% 치우침의 NICE, 45.01% 실패, 10% Perfect, 10.01% NICE를 실제 마우스·Space·터치로 확인했다. 수집한 page 오류는 없다. 개발 시간 제어를 사용하며 점수·좌표를 덮어쓰지 않는다. production에서는 정밀 경계용 개발 훅이 없어 제외한다.
+- `rtk npm run build:crazygames`: TypeScript·CrazyGames 배포 빌드 성공. production JS에 개발 훅이 없음을 확인했다. 마지막 `dist/`는 확대된 허용 범위의 CrazyGames 빌드다.
+- `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-crazygames-v3.js PLAYWRIGHT_HTML_OPEN=never npm run test:crazygames -- --reporter=line`: 배포 회귀 **16개 통과**(fixture 14개·공식 SDK local 2개). SDK 파일 해시는 `DEPENDENCIES.md`와 일치한다. 실제 포털 Preview나 production의 정밀 착지 경계 검사와는 구분한다.
+- 산출물: `test-results/standalone/landing-*/landing-*.png`. PC 양쪽 성공 경계와 모바일 Perfect/X1 캡처를 직접 확인했다. 재실행하면 교체된다. 화면 관측과 체감의 한계는 [플레이 관측](PLAYTEST_NOTES.md)을 따른다. 실제 Android/iPhone·Safari/Firefox와 사람의 공정성·쾌감은 미검증이며 실기기 조정은 보류한다.
+
 ## 2026-10-09 — 시간대 전환 브라우저 검증
 
 - 대상: 배경 전환 구현 `fff8181`에 개발 전용 렌더 조회와 반복 E2E를 추가한 작업본. 런타임의 게임 규칙·페이드 시간·아트는 수정하지 않았다.

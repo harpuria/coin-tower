@@ -1,4 +1,4 @@
-/** 웹 비교 플레이에 사용하는 원본의 시작값. 의도와 조정 기준은 GAME_DESIGN.md를 따른다. */
+/** 원본 시작값과 합의한 웹 조정값. 의도와 조정 기준은 GAME_DESIGN.md를 따른다. */
 export const rules = {
   width: 720,
   height: 1280,
@@ -7,7 +7,7 @@ export const rules = {
   platformY: 924,
   platformRadius: 255,
   laneHalfWidth: 232,
-  successFraction: 0.3,
+  successFraction: 0.45,
   perfectFraction: 0.1,
   baseSpeed: 350,
   speedPerCoin: 15,
