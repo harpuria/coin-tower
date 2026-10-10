@@ -6,6 +6,8 @@
 
 ## Status
 
+- Feedback assessment (2026-10-10): user reports an unfair-looking failure despite substantial coin overlap. Current center-distance rule explains the case; exact run coordinates/build are unknown. Wider normal-success tolerance is proposed in [playtest notes](PLAYTEST_NOTES.md). No gameplay value, test or build changed; proposal acceptance and comparative play remain pending.
+
 - Completed: first playable, original mobile art, mouse/touch, deterministic run simulation, interruptions, and completion-only local records.
 - Completed: CrazyGames HTML5 SDK v3 initialization, gameplay events, platform mute, English UI, and hidden custom fullscreen controls in the dedicated build.
 - Completed: unlimited Perfect combo, save schema v2 migration, independent browser bests, result/menu comparison and NEW BEST badges, gold X/0–9 feedback art. Retain current Perfect/X layout after PC feedback; physical-device tuning remains deferred.
@@ -55,4 +57,4 @@
 
 ## Next Request
 
-Get PC play feedback on whether time-of-day changes and the current fade duration distract from Perfect/next-drop timing. Example follow-up: `$game-implement 아래 PC 플레이 피드백으로 배경 전환 시간과 Perfect 가독성 조정 필요성을 평가해줘.` The current CrazyGames `dist/` contents can then be uploaded through `Submit a game` for portal Preview. Native integration can follow once actual access and remaining operational rules are known. Final review submission remains a separate action.
+If the user adopts the proposed wider normal-success tolerance, implement that tuning and verify both boundaries and visible partial-overlap cases. Example follow-up: `$game-implement 일반 성공 허용 범위를 동전 폭의 45%로 넓히고 Perfect는 유지해서 브라우저에서 검증해줘.` PC feedback on background fade feel remains outstanding. Current CrazyGames `dist/` is unchanged by this assessment and remains available for portal Preview; native integration depends on actual access and operational decisions. Final review submission remains a separate action.
