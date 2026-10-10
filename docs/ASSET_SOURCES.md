@@ -37,6 +37,7 @@ PNG는 수정 없이 복사했다. 원본과 아래 파일의 SHA-256이 일치�
 ## 효과음과 기타
 
 - `public/assets/coin-tower/stack.wav`: phaser-web-template 0.2.0, commit `b953c81b31cfdb36f73c6462d707a45ec2b8a46d`의 `public/assets/demo/collect.wav`를 재사용한 합성 효과음. 템플릿은 직접 합성한 WAV라고 기록한다. 현재 착지 소리용 임시 음원이며 BGM은 없다.
+  - 착지 연출 개선에서도 파일 원본은 유지한다. 일반/Perfect에 다른 재생 속도와 상대 음량을 적용하며 조정값은 `src/game/feedback.ts`를 따른다. 별도 금속음 녹음·AI 생성이나 외부 음원 추가는 하지 않았다.
 - `public/favicon.svg`: 이 프로젝트 초기화 중 작성한 SVG.
 - 신규 생성 이미지는 위 콤보 숫자와 시간대 배경이다. 외부 폰트·제삼자 음원은 추가하지 않았다.
 

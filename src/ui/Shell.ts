@@ -2,6 +2,7 @@ import type { App } from '../app';
 import { gameConfig } from '../config/game';
 import { fullscreenAvailable, toggleFullscreen } from '../core/screen';
 import type { GameController } from '../game/controller';
+import { landingVisual } from '../game/feedback';
 
 /** 네이티브 HTML 버튼을 게임 화면 위에 배치해 입력과 접근성을 함께 유지한다. */
 export class Shell {
@@ -92,6 +93,14 @@ export class Shell {
       run.feedback !== 'perfect' ||
       run.feedbackRemaining <= 0;
     element.style.opacity = String(Math.min(1, run.feedbackRemaining / 280));
+    const visual = landingVisual(
+      run.feedback,
+      run.feedbackRemaining,
+      this.app.settings.data.reducedMotion,
+    );
+    // 패널 대신 글자 묶음만 확대해 중앙 정렬과 자릿수별 폭 제한을 유지한다.
+    element.querySelector<HTMLElement>('.combo-glyphs')!.style.transform =
+      `scale(${visual.pop})`;
     if (!element.hidden)
       this.comboFrame = requestAnimationFrame(() => this.renderComboFeedback());
   }

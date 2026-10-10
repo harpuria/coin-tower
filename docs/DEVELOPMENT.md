@@ -26,6 +26,8 @@ PC에서는 게임 문서에 포커스가 있을 때 Space로 시작/낙하를 �
 
 Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`의 X·0~9 PNG를 조합합니다. `Shell`은 횟수가 바뀔 때만 글자 노드를 교체하고, 피드백을 표시하는 동안 RAF에서 Session의 잔여 시간을 읽어 불투명도를 맞춥니다. 별도의 게임 시간을 진행하지 않으며 정지·카운트다운·종료 때 숨기고 RAF를 해제합니다. 모든 글자는 필수 자산 로더에서 미리 읽습니다. 제작 사양·출처는 [ART_DIRECTION.md](ART_DIRECTION.md)와 [ASSET_SOURCES.md](ASSET_SOURCES.md)를 따릅니다.
 
+착지 반동·입자·Perfect/X 팝과 일반/Perfect 효과음 차이의 조정값은 `src/game/feedback.ts`에 있습니다. Scene과 Shell은 같은 표시 계산을 사용하며 Session의 `feedbackRemaining`으로 시간을 맞춥니다. `AudioService.sfx`는 controller가 넘기는 rate/gain을 적용하고 중단 시 일회성 소리를 정리합니다. 현재 음원은 기존 임시 WAV를 재사용합니다. 동작 줄이기는 초기 OS 설정 또는 저장된 `reducedMotion`을 따릅니다. 규칙·체감 목표는 [착지 연출](design/feedback.md)을 읽습니다.
+
 카메라·낙하·피드백은 Session의 게임 시간을 사용합니다. 장면 자체를 pause하면 재개 카운트다운도 멈추므로 이 게임의 `pausableScenes`는 비워 둡니다. 모델이 게임 시간을 멈추고 공통 PauseState는 소리를 멈춥니다. 자세한 이유는 [ADR 0002](adr/0002-run-simulation-and-interruptions.md)에 있습니다.
 
 ## 개발 전용 시간 제어
@@ -43,6 +45,8 @@ window.__COIN_TOWER__.freeze(false);
 `freeze`는 사용자의 일시정지와 별개인 검사용 기능입니다. `advance`도 실제 한 판이 일시정지된 동안에는 게임을 진행하지 않습니다. 착지 시 남은 시간을 정착/다음 동전에 넘기지 않으므로 단계를 각각 진행해야 합니다.
 
 `snapshot().background`는 `from`/`to` 시간대와 0~1의 `progress`를 포함합니다. Scene은 이 진행률에 부드러운 곡선을 적용해 다음 배경을 덮습니다. 배경 시간도 `advance`를 따르며 정지·카운트다운·결과에서 진행하지 않습니다. 두 이미지는 같은 논리 화면 크기로 표시합니다. 시간대 자산 세 장은 필수 로더로 미리 읽으며 추가 요청을 기다리느라 전환을 멈추지 않습니다.
+
+`window.__COIN_TOWER__.feedback()`는 착지 피드백 잔여 시간, 실제 최상단 Scene 동전의 좌표·표시 크기, NICE/PERFECT 표시 크기·가시성, 접점 Graphics의 가시성·불투명도를 읽습니다. `advance(42)`의 일반 최대 눌림, `advance(54)`의 Perfect 최대 눌림, `advance(90)`의 Perfect 팝 최대점을 관찰할 수 있습니다. 모두 착지 직후부터의 경과 시간입니다. 숫자 팝은 `.combo-glyphs`의 실제 CSS transform에서 함께 확인합니다. 이 관측 API도 production에서 제외합니다.
 
 ## 착지 허용 범위 집중 브라우저 검사
 

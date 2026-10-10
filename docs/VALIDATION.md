@@ -2,6 +2,16 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-11 — 착지 손맛과 Perfect 차별화 구현
+
+- 변경: 새 동전의 짧은 눌림·복원, 접점 빛·입자, Perfect/X의 8% 팝, 일반/Perfect의 기존 WAV 재생 속도 차이. 연출 시간은 Session의 기존 피드백 잔여 시간에서 계산하고 판정·좌표·속도·정착 시간·저장은 수정하지 않았다. 소리 서비스가 일회성 효과음을 소유해 중단 시 정리한다.
+- 브라우저 관측: macOS / Node 24.16.0 / Playwright 1.63.0 Chromium. PC Space·Pixel 7 실제 브라우저 터치·동작 줄이기 환경에서 개발 시간 제어로 성공·중단·재개·초기화를 진행했다. Scene 실제 표시 크기·입자 가시성과 HTML transform, Web Audio node 값을 읽고 PNG를 캡처했다. 점수나 동전 위치를 덮어쓰지 않았다. 회귀 스위트 실행과는 구분한다.
+- 확인한 흐름: 첫 동전 NICE/콤보 0, 치우친 NICE, Perfect/X1, 반동 복원과 기존 280ms 뒤 다음 동전, 효과 도중 정지·카운트다운·계속하기, RESTART·HOME, 사용자 음소거, 동작 줄이기. 구체적 측정과 체감 가설은 [플레이 관측](PLAYTEST_NOTES.md)을 따른다.
+- 오디오: 일반 0.88/Perfect 1.24의 실제 Web Audio 재생 속도, 상대 효과음 gain, 음소거 시 master mute gain 0을 관측했다. 착지 직후 Escape로 정지한 추가 관측에서 source 시작 1회·stop 1회를 확인했고 카운트다운·재개 후에도 각각 1회로 유지됐다. 처음에는 `start()` 호출 순간의 AudioParam 기본값을 읽어 1로 보였으며, 오디오 갱신 뒤 실제 node 값을 읽도록 관측 코드를 보완했다. 음색을 직접 청취한 검증은 아니다.
+- PC·모바일에서 실제 입력으로 103개까지 진행해 5·10·20개와 X10·X100의 최대 팝을 관측했다. PC·모바일 X100은 두 줄 영역 안에 표시되고 360×640의 X1도 잘리지 않는다. 마지막 관측의 page 오류·자산 HTTP 오류는 각 환경에서 0개다. 관측 산출물은 ignore된 `test-results/feedback-observation/`의 PNG·`observations.json`이다. 관측용 Node 스크립트는 임시 파일로 실행했으며 새 테스트 파일은 추가하지 않았다.
+- `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build:crazygames`: 린트·전체 포맷·TypeScript·CrazyGames 배포 빌드 성공. production JS에서 개발 관측 훅 제외를 확인했다. 현재 `dist/`는 새 연출을 포함한 CrazyGames 빌드다. 이번 연출 변경에서 단위/E2E/SDK 회귀 스위트는 추가하거나 재실행하지 않았다. 아래 67개 단위·이전 브라우저 검사 통과는 연출 변경 전 체크포인트의 결과다.
+- 미검증: 실제 Android/iPhone·Safari/Firefox, 실제 소리 청취·사람의 쾌감·반복 피로·주의 분산, 실제 CrazyGames 플랫폼 mute/포털 Preview. 현재 임시 음원은 전용 금속음 자산으로 교체한 것이 아니다.
+
 ## 2026-10-11 — 일반 성공 범위 확대와 Perfect 유지
 
 - 변경: 일반 성공 허용 중심 거리를 동전 폭의 45%로 넓혔다. Perfect 10%·이동 속도·첫 실패 종료·저장 방식은 유지한다. 기존 배경 검사의 실패 준비 위치는 새 허용 범위 밖으로 옮겼다.

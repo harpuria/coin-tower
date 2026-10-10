@@ -1,5 +1,6 @@
 import type { App } from '../app';
 import { assetKeys } from './assets';
+import { feedbackRules } from './feedback';
 import type { RunAction } from './session';
 
 export interface RunResult {
@@ -96,7 +97,13 @@ export class GameController {
   update(deltaMs: number) {
     if (this.background) this.run.pause();
     const event = this.run.update(deltaMs);
-    if (event === 'landed') this.app.audio?.sfx(assetKeys.stack);
+    if (event === 'landed') {
+      const feedback = feedbackRules[this.run.feedback!];
+      this.app.audio?.sfx(assetKeys.stack, {
+        rate: feedback.soundRate,
+        gain: feedback.soundGain,
+      });
+    }
     if (event === 'finished') {
       const previous = this.app.save.data;
       // 갱신 전 개인 최고와 비교한 결과를 보존해 동점을 경신으로 표시하지 않는다.

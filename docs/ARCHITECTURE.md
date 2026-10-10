@@ -27,6 +27,8 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 배경 시간대·전환 경과 시간도 Session이 소유합니다. Scene은 불투명한 이전 배경 위에 다음 배경의 불투명도를 올려 그리며 별도 tween 시간을 진행하지 않습니다. 중단·결과에서 모델 시간이 멈추면 배경 전환도 멈춥니다.
 
+착지 반동·접점 입자·PERFECT/X 팝도 `Session.feedbackRemaining`에서 경과 시간을 계산합니다. `game/feedback.ts`는 조정값과 표시 계산을 제공하고 Scene과 Shell이 같은 계산을 사용합니다. 표시용 변형은 모델의 동전 좌표·판정·정착 시간을 바꾸지 않습니다. 별도 tween이나 CSS 애니메이션 시계는 진행하지 않습니다.
+
 ## 용어
 
 | 용어         | 뜻                                                                            |
@@ -77,6 +79,7 @@ App의 숨김·blur는 게임의 `onBackground`를 호출합니다. controller�
 ## 오디오, 입력, 화면
 
 - `AudioService`는 master/mute를 sound manager에, music/sfx 음량을 각 sound에 적용합니다. asset 키는 호출하는 쪽이 넘깁니다.
+- `sfx(key, { rate?, gain? })`는 재생 속도·높이와 기존 효과음 음량에 곱할 상대 음량을 선택적으로 받습니다. 게임별 값은 controller가 전달합니다. 서비스는 재생 중인 일회성 효과음의 수명을 소유하며 완료·폐기 시 정리합니다. 중단 시 효과음은 끝내고 BGM은 일시정지하므로 재개 후 이전 착지음 조각이 다시 울리지 않습니다.
 - 최종 음소거는 사용자 설정 OR 플랫폼 강제 음소거 OR 일시정지입니다. SDK settings listener는 별도 플래그만 바꾸며 저장 설정에 쓰지 않습니다.
 - BGM은 사용자 동작 이후 시작하고 일시정지 동안 멈춥니다. 설정을 바꾸면 즉시 반영합니다.
 - 현재 낙하 입력은 `#game`의 native 주 pointerdown 한 번으로 받습니다. 터치에서 파생된 별도 마우스 이벤트를 추가로 처리하지 않으며 메뉴는 캔버스의 형제 HTML 요소여서 낙하로 전파되지 않습니다. 게임 영역은 `touch-action: none`입니다. `Shell`의 document keydown은 게임 문서의 Space로 시작/낙하를 연결하고, `#game` keydown은 기존 Enter 입력만 받습니다. Space는 버튼·링크·편집 요소·게임 root 밖의 컨트롤과 반복/수정키/IME 입력을 제외합니다. PLAY·TRY AGAIN·CONTINUE 뒤 `#game`으로 포커스를 옮깁니다. 모델의 정지·단계 입력 거부를 유지하며 listener는 Shell의 AbortController로 정리합니다.

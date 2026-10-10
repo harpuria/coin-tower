@@ -5,6 +5,7 @@ import type { Settings } from './settings';
 export class AudioService {
   private music?: Phaser.Sound.BaseSound;
   private musicKey?: string;
+  private effects = new Set<Phaser.Sound.BaseSound>();
   private suspended = false;
   private platformMuted = false;
   constructor(
@@ -38,15 +39,29 @@ export class AudioService {
     this.music?.destroy();
     this.music = this.musicKey = undefined;
   }
-  sfx(key: string) {
-    if (!this.suspended && this.sound.game.cache.audio.has(key))
-      this.sound.play(key, { volume: this.settings.sfx });
+  sfx(key: string, options: { rate?: number; gain?: number } = {}) {
+    if (this.suspended || !this.sound.game.cache.audio.has(key)) return;
+    const effect = this.sound.add(key, {
+      rate: options.rate ?? 1,
+      volume: this.settings.sfx * (options.gain ?? 1),
+    });
+    this.effects.add(effect);
+    const release = () => {
+      this.effects.delete(effect);
+      effect.destroy();
+    };
+    effect.once(Phaser.Sound.Events.COMPLETE, release);
+    if (!effect.play()) release();
   }
   suspend(value: boolean) {
     this.suspended = value;
     this.apply(this.settings);
-    if (value) this.sound.pauseAll();
-    else {
+    if (value) {
+      // 짧은 효과음은 정지 시 끝내 재개 카운트다운 뒤 조각이 다시 울리지 않게 한다.
+      for (const effect of this.effects) effect.destroy();
+      this.effects.clear();
+      this.sound.pauseAll();
+    } else {
       this.sound.resumeAll();
       if (this.music && !this.music.isPlaying) this.music.play();
     }
@@ -56,6 +71,8 @@ export class AudioService {
     this.apply(this.settings);
   }
   destroy() {
+    for (const effect of this.effects) effect.destroy();
+    this.effects.clear();
     this.stopMusic();
   }
 }
