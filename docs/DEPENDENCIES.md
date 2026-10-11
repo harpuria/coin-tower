@@ -25,7 +25,7 @@ CI는 `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` 모두
 - [공식 릴리스](https://github.com/phaserjs/phaser/releases/tag/v4.2.1)와 npm `latest`가 모두 4.2.1(2026-07-09)입니다.
 - 현행 LTS 채널은 없어 최신 안정판을 정확한 버전으로 고정했습니다.
 - v4는 렌더러가 크게 바뀌었습니다. Phaser 3 예제의 렌더링 관련 코드는 설치된 타입/소스로 확인한 뒤 사용합니다.
-- 2026-10-11 착지 연출: 설치된 4.2.1의 `Graphics.strokeEllipse`/`fillTriangle`, `SoundConfig.rate`, `WebAudioSound`의 재생 속도 적용과 완료·destroy 수명을 확인했다. Scene Image 크기 변경과 HTML 숫자 transform, Web Audio의 실제 0.88/1.24 재생 속도는 Chromium에서 관찰했다. 새 패키지·lockfile·라이선스 변경은 없다.
+- 2026-10-11 착지 연출: 설치된 4.2.1의 `Graphics.strokeEllipse`/`fillTriangle`/`fillPoints`와 재사용 `Math.Vector2` 꼭짓점, `SoundConfig.rate`, `WebAudioSound`의 재생 속도 적용과 완료·destroy 수명을 확인했다. Scene Image 크기 변경과 HTML 숫자 transform, Web Audio의 실제 0.88/1.24 재생 속도는 Chromium에서 관찰했다. 새 패키지·lockfile·라이선스 변경은 없다.
 
 ## Asset과 서비스
 

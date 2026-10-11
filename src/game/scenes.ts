@@ -57,6 +57,10 @@ export class CoinTowerScene extends Phaser.Scene {
   private feedback!: Phaser.GameObjects.Image;
   private sparkles!: Phaser.GameObjects.Graphics;
   private stacked: Phaser.GameObjects.Image[] = [];
+  private starPoints = Array.from(
+    { length: 8 },
+    () => new Phaser.Math.Vector2(),
+  );
   private debugFrozen = false;
   constructor(
     private app: App,
@@ -252,41 +256,53 @@ export class CoinTowerScene extends Phaser.Scene {
     reducedMotion: boolean,
   ) {
     const graphics = this.sparkles;
-    const count = feedbackRules[perfect ? 'perfect' : 'nice'].particles;
+    const config = feedbackRules[perfect ? 'perfect' : 'nice'];
     // 동전 중앙을 덮지 않고 접점 좌우에 짧은 빛과 입자를 둔다.
     for (const side of [-1, 1]) {
       const edgeX = x + side * rules.diameter * 0.51;
-      graphics.lineStyle(perfect ? 3 : 2, perfect ? 0xfff4c3 : 0xffd35c, 1);
-      graphics.lineBetween(edgeX - 10, y, edgeX + 10, y);
-      if (perfect) graphics.lineBetween(edgeX, y - 6, edgeX, y + 6);
+      const length = perfect ? 14 : 6;
+      graphics.lineStyle(
+        perfect ? 3 : 1.5,
+        config.highlight,
+        perfect ? 1 : 0.7,
+      );
+      graphics.lineBetween(edgeX - length, y, edgeX + length, y);
+      if (perfect) graphics.lineBetween(edgeX, y - 9, edgeX, y + 9);
     }
     if (reducedMotion) return;
-    graphics.lineStyle(perfect ? 2.5 : 1.5, 0xffd35c, 0.55);
-    graphics.strokeEllipse(x, y, 130 + t * 85, 15 + t * 18);
-    for (let i = 0; i < count; i++) {
+    if (perfect) {
+      // Perfect만 두 겹의 밝은 링을 퍼뜨려 일반 착지의 작은 점과 구분한다.
+      graphics.lineStyle(3, config.highlight, 1);
+      graphics.strokeEllipse(x, y, 180 + t * 100, 22 + t * 30);
+      graphics.lineStyle(2, config.color, 0.7);
+      graphics.strokeEllipse(x, y, 164 + t * 76, 16 + t * 22);
+    }
+    for (let i = 0; i < config.particles; i++) {
       const side = i % 2 === 0 ? -1 : 1;
       const lane = Math.floor(i / 2);
-      const px = x + side * (rules.diameter * 0.55 + t * (26 + lane * 8));
-      const py = y - 8 - t * (20 + lane * 12) + t * t * 16;
-      const size = (perfect ? 5.5 : 3.5) * (1 - t * 0.5);
-      graphics.fillStyle(i % 3 === 0 ? 0xfff6d3 : 0xffd35c, 1);
-      if (perfect && i % 3 === 0) {
-        graphics.fillTriangle(
-          px,
-          py - size * 1.6,
-          px - size,
-          py,
-          px + size,
-          py,
-        );
-        graphics.fillTriangle(
-          px,
-          py + size * 1.6,
-          px - size,
-          py,
-          px + size,
-          py,
-        );
+      const px =
+        x +
+        side *
+          (rules.diameter * 0.55 + t * (config.particleSpread + lane * 10));
+      const py = y - 8 - t * (config.particleRise + lane * 14) + t * t * 16;
+      const size = config.particleSize * (1 - t * 0.45);
+      graphics.fillStyle(
+        perfect && lane % 2 === 0 ? config.highlight : config.color,
+        1,
+      );
+      if (perfect) {
+        const inset = size * 0.28;
+        // Phaser 4의 Vector2 타입을 재사용해 프레임마다 별 꼭짓점을 할당하지 않는다.
+        const points = this.starPoints;
+        points[0]!.set(px, py - size);
+        points[1]!.set(px + inset, py - inset);
+        points[2]!.set(px + size, py);
+        points[3]!.set(px + inset, py + inset);
+        points[4]!.set(px, py + size);
+        points[5]!.set(px - inset, py + inset);
+        points[6]!.set(px - size, py);
+        points[7]!.set(px - inset, py - inset);
+        graphics.fillPoints(points, true);
       } else graphics.fillCircle(px, py, size);
     }
   }

@@ -2,6 +2,16 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-11 — NICE/Perfect 시각 구분 조정
+
+- 사용자 피드백: 효과음 차이는 느껴지지만 이미지상 비슷하며 반동은 유지하고 싶다는 보고. [사용자 관측과 평가](PLAYTEST_NOTES.md)를 따른다.
+- 변경: NICE의 링을 제거하고 작은 따뜻한 금색 원형 입자 4개·160ms로 줄였다. Perfect는 흰빛·금색 네 갈래 별 8개와 두 겹 접점 링을 260ms 표시한다. 반동·Perfect/X 팝·효과음·판정·게임 시간·저장은 수정하지 않았다. 새 아트 파일·의존성은 추가하지 않았다.
+- 런타임 관측: Chromium PC Space·Pixel 7 터치 에뮬레이션으로 21개까지 실제 입력, 개발 시간 제어로 42·54·90·180·280ms와 5·10·20개 화면을 관찰했다. 같은 90ms의 NICE/Perfect, 360×640, 동작 줄이기, 정지·카운트다운·계속하기·RESTART·HOME·사용자 음소거를 캡처했다. 점수·동전 좌표를 덮어쓰지 않았다.
+- 결과: 일반/Perfect의 입자 형태와 링 유무가 화면에서 구분된다. 반동의 최대 높이 95.88/93.84 논리 px와 팝 1.08, 280ms 뒤 다음 동전은 유지됐다. 정지 시 잔여 시간과 표시 크기를 보존하고 문구·입자를 숨기며, 재시작·HOME에서 초기화한다. 4개 관측 환경(PC·터치·동작 줄이기·빠른 Escape 정지)의 page/자산 HTTP 오류는 0개다. 사람의 구분 속도·쾌감 검증은 아니다.
+- 정적 확인: `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build:crazygames` 성공. 현재 `dist/`는 조정된 CrazyGames 빌드이며 production JS에 개발 관측 훅이 없음을 확인했다. 첫 빌드에서 `Graphics.fillPoints`에 전달한 일반 좌표 객체가 Phaser 4의 Vector2 타입과 맞지 않아 실패했다. 재사용 Vector2 꼭짓점으로 보완한 뒤 TypeScript·CrazyGames 빌드는 통과했다.
+- 산출물: `test-results/feedback-differentiation/`의 비교 PNG와 `observations.json`. 관측용 임시 스크립트를 실행했으며 단위/E2E/SDK 회귀 스위트는 추가하거나 실행하지 않았다. 이전 자동 검사 통과를 이번 조정의 결과로 간주하지 않는다.
+- 미검증: 실제 Android/iPhone·Safari/Firefox, 실제 CrazyGames Preview와 사용자 무음 비교 플레이. 효과가 더 쉽게 구분되는지와 주의 분산은 사용자의 재확인이 필요하다.
+
 ## 2026-10-11 — 착지 손맛과 Perfect 차별화 구현
 
 - 변경: 새 동전의 짧은 눌림·복원, 접점 빛·입자, Perfect/X의 8% 팝, 일반/Perfect의 기존 WAV 재생 속도 차이. 연출 시간은 Session의 기존 피드백 잔여 시간에서 계산하고 판정·좌표·속도·정착 시간·저장은 수정하지 않았다. 소리 서비스가 일회성 효과음을 소유해 중단 시 정리한다.
