@@ -6,7 +6,7 @@
 
 ## Status
 
-- Design direction confirmed (2026-10-12): start collectible progression with Star Shards and coin skins, keeping basic play/retry free and gameplay rules unchanged. See [economy design](design/economy.md). Earning rules, prices/content, UI and persistence remain open; no economy or ad implementation is authorized by this direction choice. This does not replace the native leaderboard work or its external access gates.
+- Design direction confirmed (2026-10-12): start collectible progression with Star Shards and coin skins, keeping basic play/retry free and gameplay rules unchanged. The user selected proportional earnings: initially one shard per successfully stacked coin, with no Perfect bonus. See [economy design](design/economy.md). Prices/content, unlock flow, reward finalization, UI and persistence remain open; implementation has not been requested. This does not replace the native leaderboard work or its external access gates.
 
 - Completed tuning and runtime observation (2026-10-11): user reports NICE/Perfect sounds differ but visuals feel similar; retain existing rebound. NICE now has smaller warm round particles without rings; Perfect has bright four-point stars and double contact rings. Desktop/touch observations cover matched-time captures, 5/10/20 stacks, interruptions/reset, reduced motion and a small viewport. Human visual distinction still needs confirmation; see `design/feedback.md` and `PLAYTEST_NOTES.md`.
 
@@ -60,4 +60,4 @@
 
 ## Next Request
 
-The user reports no major issue with the current presentation and has selected collectible progression as the next design topic. Resolve Star Shard earning first in [economy design](design/economy.md), followed by initial skins/prices, UI and persistence before requesting implementation. Example: `$game-workshop design docs/design/economy.md 기준으로 별조각 획득 방식과 첫 스킨의 수집 속도를 정해줘.` The current CrazyGames `dist/` remains available for portal Preview; native leaderboard integration still depends on access and operational decisions. Final review submission remains a separate action.
+The user reports no major issue with the current presentation and has selected collectible progression and proportional Star Shard earnings. Resolve initial skins/prices and collection pace in [economy design](design/economy.md), followed by unlock flow, reward finalization, UI and persistence before requesting implementation. Example: `$game-workshop design docs/design/economy.md 기준으로 첫 동전 스킨 구성과 가격·수집 속도를 정해줘.` The current CrazyGames `dist/` remains available for portal Preview; native leaderboard integration still depends on access and operational decisions. Final review submission remains a separate action.
