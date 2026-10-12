@@ -20,7 +20,7 @@ Use case: stylized-concept. Create ONE production game UI lettering asset for Co
 ## 표시와 입력
 
 - 문구는 정확히 TAP TO PLAY 한 줄이며 흰 얼굴·파란 베벨·짙은 파란 외곽선으로 기존 TOWER와 연결한다. 버튼 판·별·왕관·추가 안내는 없다.
-- `assets.ts`의 필수 이미지 목록에 등록하고 Shell의 HTML 이미지로 표시한다. `src/style.css`의 `.start-image`는 폭 80cqw의 시작 영역 안에서 원본 투명 여백을 표시상 제외한다. 원본 픽셀·알파는 유지한다.
+- `assets.ts`의 필수 이미지 목록에 등록하고 Shell의 HTML 이미지로 표시한다. 사용자 요청으로 최초 표시의 가로·세로를 각각 50%로 줄였다(2026-10-12). `src/style.css`의 `.start-image img`가 표시 크기를 정하며, 글자의 실제 폭은 약 40cqw다. 중앙 위치와 폭 80cqw·높이 20cqw의 입력 영역은 유지한다. 원본 픽셀·알파는 유지한다.
 - 화면의 파란 PLAY 판은 제거했다. 포커스·Enter/Space·접근성 이름을 보존하기 위해 판 없는 HTML button을 사용하며 접근성 이름은 Tap to play다. 메인 화면의 일반 캔버스 클릭/터치·문서 Space 시작도 유지한다. 시작과 첫 낙하는 별도 입력이다.
 - 실제 화면 관측과 한계는 [검증 기록](../VALIDATION.md)을 따른다.
 

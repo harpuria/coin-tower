@@ -2,6 +2,13 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-12 — TAP TO PLAY 표시 50% 축소
+
+- 사용자 요청에 따라 CSS 이미지 폭을 102.74%→51.37%, 가로 위치를 -1.51%→24.245%로 조정했다. 가로·세로 표시가 각각 절반이며 글자 중심과 기존 입력 영역은 유지된다. 원본 PNG는 그대로다.
+- `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build:crazygames`(TypeScript 포함)를 통과했다. 현재 `dist/`에 축소 표시를 반영했다. 테스트 스위트를 추가하거나 실행하지 않았다.
+- Chromium PC 1280×900·Pixel 7 에뮬레이션·360×640·821×462에서 메뉴 화면을 관측했다. 이전 관측과 입력 영역이 동일하고 이미지 폭은 기존의 0.5배다. 이미지 클릭/터치·Space·포커스된 Enter로 시작 시 score 0, 별도 낙하 후 score 1을 관측했다. 메뉴 복귀와 SOUND 조작도 유지되며 페이지/자산 HTTP 오류는 0건이다.
+- 산출물: `test-results/main-screen-half/`의 PNG·`observations.json`. 실제 모바일 기기·Safari/Firefox·축소 문구의 사람 가독성은 미확인이다.
+
 ## 2026-10-12 — 메인 화면 정리·TAP TO PLAY 이미지
 
 - 범위: 메인 화면 BEST ON THIS BROWSER 제목·PLAY 아래 조작 설명을 제거했다. 파란 PLAY 판은 없애고 생성한 TAP TO PLAY 이미지 글자를 표시한다. 두 개인 최고·별조각·설정·결과 버튼·인게임 입력은 유지한다.
