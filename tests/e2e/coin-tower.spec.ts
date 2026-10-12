@@ -298,8 +298,8 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
       saveKey,
     ),
   ).toEqual({
-    version: 2,
-    data: { best: 21, bestCombo: 13, rounds: 1 },
+    version: 3,
+    data: { best: 21, bestCombo: 13, rounds: 1, shards: 21 },
   });
   await page.locator('#retry').click();
   const fresh = await snapshot(page);
@@ -434,8 +434,8 @@ test('v1 migration preserves height and v2 combo best survives a lower completed
       saveKey,
     ),
   ).toEqual({
-    version: 2,
-    data: { best: 30, bestCombo: 0, rounds: 13 },
+    version: 3,
+    data: { best: 30, bestCombo: 0, rounds: 13, shards: 1 },
   });
   await page.evaluate((key) => {
     localStorage.setItem(
@@ -465,6 +465,7 @@ test('v1 migration preserves height and v2 combo best survives a lower completed
     best: 30,
     bestCombo: 8,
     rounds: 14,
+    shards: 1,
   });
 });
 

@@ -25,6 +25,8 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 `App`은 `game/`의 schema와 `Session`을 조립만 하고, 점수·보상 규칙은 `game/`에 둡니다. `Session`은 한 판의 결정적 상태, `GameController`는 행동·완료 저장·오디오 연결을 소유하며 `CoinTowerScene`은 상태를 그립니다.
 게임은 외부 SDK를 직접 부르지 않고 `app.platform`을 거칩니다.
 
+별조각 지급 비율과 보상 계산은 `game/economy.ts`가 소유합니다. controller는 Session의 한 번뿐인 완료 이벤트에서 두 개인 기록과 별조각을 같은 진행 envelope에 갱신·flush합니다. 화면 렌더링·재시작·중단·광고 adapter에서 별도로 보상을 지급하지 않습니다. 결과의 획득량·정산 후 누적량은 메모리 완료 결과에, 장기 보유량은 진행 저장에 둡니다.
+
 배경 시간대·전환 경과 시간도 Session이 소유합니다. Scene은 불투명한 이전 배경 위에 다음 배경의 불투명도를 올려 그리며 별도 tween 시간을 진행하지 않습니다. 중단·결과에서 모델 시간이 멈추면 배경 전환도 멈춥니다.
 
 착지 반동·접점 입자·PERFECT/X 팝도 `Session.feedbackRemaining`에서 경과 시간을 계산합니다. `game/feedback.ts`는 조정값과 표시 계산을 제공하고 Scene과 Shell이 같은 계산을 사용합니다. 표시용 변형은 모델의 동전 좌표·판정·정착 시간을 바꾸지 않습니다. 별도 tween이나 CSS 애니메이션 시계는 진행하지 않습니다.

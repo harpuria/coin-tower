@@ -19,12 +19,13 @@ describe('versioned persistence', () => {
   it('saves and reloads a validated independent snapshot', () => {
     const storage = new MemoryStorage();
     const store = new Store(storage, 'save', progressSchema);
-    store.update(() => ({ best: 4, bestCombo: 2, rounds: 1 }));
+    store.update(() => ({ best: 4, bestCombo: 2, rounds: 1, shards: 4 }));
     expect(store.flush()).toBe(true);
     expect(new Store(storage, 'save', progressSchema).data).toEqual({
       best: 4,
       bestCombo: 2,
       rounds: 1,
+      shards: 4,
     });
     const copy = store.data as { best: number; rounds: number };
     copy.best = 50;
@@ -43,7 +44,7 @@ describe('versioned persistence', () => {
     const storage = new MemoryStorage();
     storage.setItem('save', raw);
     const store = new Store(storage, 'save', progressSchema);
-    store.update(() => ({ best: 1, bestCombo: 0, rounds: 1 }));
+    store.update(() => ({ best: 1, bestCombo: 0, rounds: 1, shards: 1 }));
     expect(store.flush()).toBe(false);
     expect(storage.getItem('save')).toBe(raw);
     expect(store.reset()).toBe(true);
@@ -59,10 +60,15 @@ describe('versioned persistence', () => {
       version: 3,
       migrations: {
         1: (value) => ({ best: value }),
-        2: (value) => ({ ...(value as object), bestCombo: 0, rounds: 0 }),
+        2: (value) => ({
+          ...(value as object),
+          bestCombo: 0,
+          rounds: 0,
+          shards: 0,
+        }),
       },
     });
-    expect(store.data).toEqual({ best: 8, bestCombo: 0, rounds: 0 });
+    expect(store.data).toEqual({ best: 8, bestCombo: 0, rounds: 0, shards: 0 });
     expect(store.flush()).toBe(true);
     expect(JSON.parse(storage.getItem('save')!).version).toBe(3);
   });
@@ -81,9 +87,9 @@ describe('versioned persistence', () => {
   });
   it('keeps gameplay usable when storage access is denied', () => {
     const store = new Store(undefined, 'save', progressSchema);
-    expect(store.update(() => ({ best: 2, bestCombo: 1, rounds: 1 }))).toBe(
-      false,
-    );
+    expect(
+      store.update(() => ({ best: 2, bestCombo: 1, rounds: 1, shards: 2 })),
+    ).toBe(false);
     expect(store.data.best).toBe(2);
     expect(store.flush()).toBe(false);
     expect(store.reset()).toBe(false);
@@ -94,7 +100,7 @@ describe('versioned persistence', () => {
       throw new Error('QuotaExceeded');
     };
     const store = new Store(storage, 'save', progressSchema);
-    store.update(() => ({ best: 1, bestCombo: 0, rounds: 1 }));
+    store.update(() => ({ best: 1, bestCombo: 0, rounds: 1, shards: 1 }));
     expect(store.flush()).toBe(false);
     expect(store.status).toBe('unavailable');
   });
@@ -112,11 +118,16 @@ describe('versioned persistence', () => {
     );
     const store = new Store(storage, 'save', progressSchema);
     expect(store.status).toBe('ready');
-    expect(store.data).toEqual({ best: 30, bestCombo: 0, rounds: 12 });
+    expect(store.data).toEqual({
+      best: 30,
+      bestCombo: 0,
+      rounds: 12,
+      shards: 0,
+    });
     expect(store.flush()).toBe(true);
     expect(JSON.parse(storage.getItem('save')!)).toEqual({
-      version: 2,
-      data: { best: 30, bestCombo: 0, rounds: 12 },
+      version: 3,
+      data: { best: 30, bestCombo: 0, rounds: 12, shards: 0 },
     });
     expect(new Store(storage, 'save', progressSchema).data).toEqual(store.data);
   });

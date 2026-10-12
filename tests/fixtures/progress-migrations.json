@@ -1,0 +1,32 @@
+[
+  {
+    "name": "v1-height-and-rounds",
+    "source": { "version": 1, "data": { "best": 30, "rounds": 12 } },
+    "expected": {
+      "version": 3,
+      "data": { "best": 30, "bestCombo": 0, "rounds": 12, "shards": 0 }
+    }
+  },
+  {
+    "name": "v2-preserve-independent-records",
+    "source": {
+      "version": 2,
+      "data": { "best": 53, "bestCombo": 8, "rounds": 19 }
+    },
+    "expected": {
+      "version": 3,
+      "data": { "best": 53, "bestCombo": 8, "rounds": 19, "shards": 0 }
+    }
+  },
+  {
+    "name": "v3-preserve-collected-shards",
+    "source": {
+      "version": 3,
+      "data": { "best": 53, "bestCombo": 8, "rounds": 20, "shards": 75 }
+    },
+    "expected": {
+      "version": 3,
+      "data": { "best": 53, "bestCombo": 8, "rounds": 20, "shards": 75 }
+    }
+  }
+]

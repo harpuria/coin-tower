@@ -143,6 +143,50 @@ button:focus-visible,
   left: 10%;
   text-align: center;
 }
+.shard-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4cqw 3cqw;
+  border: 1px solid #a6e9ff99;
+  border-radius: 2cqw;
+  background: linear-gradient(110deg, #103c71ed, #116c8fed);
+  color: #e3faff;
+  text-shadow: 0 1px 3px #082b65;
+  font-variant-numeric: tabular-nums;
+}
+.shard-panel span {
+  font-size: 2.8cqw;
+  font-weight: 750;
+}
+.shard-panel strong {
+  display: block;
+  font-size: min(5cqw, calc(32cqw / var(--record-digits, 1)));
+  line-height: 1.1;
+}
+.title-shards {
+  top: 44%;
+  left: 18%;
+  width: 64%;
+  min-height: 9cqw;
+  gap: 2cqw;
+}
+.title-shards strong {
+  max-width: 50%;
+}
+.shard-reward {
+  top: 67.5%;
+  left: 10%;
+  width: 80%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  text-align: center;
+  gap: 1cqw;
+}
+.shard-reward strong {
+  font-size: min(4.8cqw, calc(30cqw / var(--record-digits, 1)));
+}
 .start-prompt p {
   font-size: 3.5cqw;
   color: #fff;
@@ -293,7 +337,7 @@ button:focus-visible,
 }
 .result-caption {
   position: absolute;
-  top: 62%;
+  top: 61%;
   width: 100%;
   text-align: center;
   font-size: 4cqw;

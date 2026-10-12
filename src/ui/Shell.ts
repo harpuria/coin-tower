@@ -32,6 +32,7 @@ export class Shell {
                 <div class="blue-panel"><span>BEST COMBO</span><strong id="title-best-combo">x0</strong></div>
               </div>
             </section>
+            <div class="title-shards shard-panel" aria-label="Star Shards balance"><span>STAR SHARDS</span><strong id="title-shards">0</strong></div>
             <div class="start-prompt"><button id="play" class="game-button primary">PLAY</button><p>Click, tap or press Space to stack coins</p></div>
           </div>
           <div id="hud" class="layer" hidden>
@@ -52,6 +53,11 @@ export class Shell {
               </table>
             </div>
             <p class="result-caption">One more try. A little higher.</p>
+            <section class="shard-reward shard-panel" aria-label="Star Shards reward">
+              <span class="shard-label">STAR<br />SHARDS</span>
+              <div><span>EARNED</span><strong id="result-shards-earned">+0</strong></div>
+              <div><span>TOTAL</span><strong id="result-shards-total">0</strong></div>
+            </section>
             <div class="result-actions"><button id="retry" class="game-button primary">TRY AGAIN</button><button id="home" class="game-button">MENU</button></div>
           </section>
           <section id="pause-overlay" class="layer veil" aria-label="Pause menu" hidden>
@@ -59,7 +65,7 @@ export class Shell {
             <div class="pause-actions"><button id="continue" class="game-button primary">CONTINUE</button><button id="restart" class="game-button">RESTART</button><button id="pause-home" class="game-button">MENU</button></div>
           </section>
           <section id="confirm-overlay" class="layer veil" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
-            <div class="confirm-card"><h2 id="confirm-title">End this run?</h2><p>This run will not be saved.<br />Your best score will be kept.</p><button id="confirm-yes" class="game-button primary">CONFIRM</button><button id="confirm-no" class="game-button">CANCEL</button></div>
+            <div class="confirm-card"><h2 id="confirm-title">End this run?</h2><p>No Star Shards earned for this run.<br />Your best scores and collected shards will be kept.</p><button id="confirm-yes" class="game-button primary">CONFIRM</button><button id="confirm-no" class="game-button">CANCEL</button></div>
           </section>
           <div id="countdown-overlay" class="layer countdown" hidden><span>GET READY</span><strong id="countdown" aria-live="polite">3</strong></div>
           <div class="utility"><button id="mute" class="utility-button" aria-label="Mute sound" aria-pressed="false">SOUND ON</button><button id="fullscreen" class="utility-button" hidden>FULLSCREEN</button></div>
@@ -262,6 +268,9 @@ export class Shell {
     this.element('best').textContent = String(progress.best);
     this.record('title-best', String(progress.best));
     this.record('title-best-combo', `x${progress.bestCombo}`);
+    this.record('title-shards', String(progress.shards));
+    this.record('result-shards-earned', `+${result?.shardsEarned ?? 0}`);
+    this.record('result-shards-total', String(result?.shardsTotal ?? 0));
     this.record('result-score', String(result?.score ?? 0));
     this.record('result-best', String(result?.best ?? 0));
     this.record('result-combo', `x${result?.combo ?? 0}`);
@@ -279,7 +288,7 @@ export class Shell {
     this.element('storage-notice').textContent =
       app.save.status === 'ready' && this.game.saved
         ? ''
-        : 'Scores cannot be saved. You can keep playing.';
+        : 'Scores cannot be saved. Star Shards are temporary. You can keep playing.';
     this.element('mode-label').textContent = run.paused
       ? 'PAUSED'
       : run.countdownMs > 0

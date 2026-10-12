@@ -7,7 +7,7 @@ import { Store } from '../../src/core/store';
 import { progressSchema, type Progress } from '../../src/game/save';
 import { rules } from '../../src/game/rules';
 
-function fixture(initial?: Progress) {
+function fixture(initial?: Omit<Progress, 'shards'>) {
   const events: string[] = [];
   let raw = initial ? JSON.stringify({ version: 2, data: initial }) : null;
   const storage = {
@@ -67,6 +67,8 @@ it.each([
       bestCombo: Math.max(previous.bestCombo, 2),
       newBest: previous.newBest,
       newBestCombo: previous.newBestCombo,
+      shardsEarned: 3,
+      shardsTotal: 3,
     });
     const completed = game.result;
     game.update(10_000);
@@ -93,6 +95,7 @@ it.each([0, 1])('records %i for a run with that many Perfects', (perfects) => {
     best: perfects + 1,
     bestCombo: perfects,
     rounds: 1,
+    shards: perfects + 1,
   });
 });
 
@@ -112,9 +115,19 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   land(game, 35);
   for (let index = 0; index < 5; index++) land(game);
   expect(storage.setItem).not.toHaveBeenCalled();
-  expect(app.save.data).toEqual({ best: 30, bestCombo: 4, rounds: 2 });
+  expect(app.save.data).toEqual({
+    best: 30,
+    bestCombo: 4,
+    rounds: 2,
+    shards: 0,
+  });
   land(game, -100);
-  expect(app.save.data).toEqual({ best: 30, bestCombo: 8, rounds: 3 });
+  expect(app.save.data).toEqual({
+    best: 30,
+    bestCombo: 8,
+    rounds: 3,
+    shards: 15,
+  });
   expect(game.result).toEqual({
     score: 15,
     combo: 8,
@@ -122,6 +135,8 @@ it('finalizes independent bests once at failure using the longest streak', () =>
     bestCombo: 8,
     newBest: false,
     newBestCombo: true,
+    shardsEarned: 15,
+    shardsTotal: 15,
   });
   expect(storage.setItem).toHaveBeenCalledTimes(1);
   game.update(10_000);
@@ -134,7 +149,12 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   game.start();
   land(game);
   land(game, -100);
-  expect(app.save.data).toEqual({ best: 30, bestCombo: 8, rounds: 4 });
+  expect(app.save.data).toEqual({
+    best: 30,
+    bestCombo: 8,
+    rounds: 4,
+    shards: 16,
+  });
 });
 
 it.each(['restart', 'home'] as const)(

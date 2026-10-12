@@ -1,5 +1,6 @@
 import type { App } from '../app';
 import { assetKeys } from './assets';
+import { shardReward } from './economy';
 import { feedbackRules } from './feedback';
 import type { RunAction } from './session';
 
@@ -10,6 +11,8 @@ export interface RunResult {
   bestCombo: number;
   newBest: boolean;
   newBestCombo: boolean;
+  shardsEarned: number;
+  shardsTotal: number;
 }
 
 /** 한 판의 행동을 공통 저장·오디오·수명 서비스에 연결한다. */
@@ -106,6 +109,7 @@ export class GameController {
     }
     if (event === 'finished') {
       const previous = this.app.save.data;
+      const reward = shardReward(this.run.score, previous.shards);
       // 갱신 전 개인 최고와 비교한 결과를 보존해 동점을 경신으로 표시하지 않는다.
       const result: RunResult = {
         score: this.run.score,
@@ -114,12 +118,15 @@ export class GameController {
         bestCombo: Math.max(previous.bestCombo, this.run.maxCombo),
         newBest: this.run.score > previous.best,
         newBestCombo: this.run.maxCombo > previous.bestCombo,
+        shardsEarned: reward.earned,
+        shardsTotal: reward.total,
       };
       this.result = result;
       this.app.save.update((data) => ({
         best: result.best,
         bestCombo: result.bestCombo,
-        rounds: data.rounds + 1,
+        rounds: Math.min(Number.MAX_SAFE_INTEGER, data.rounds + 1),
+        shards: result.shardsTotal,
       }));
       this.saved = this.app.save.flush();
     }
