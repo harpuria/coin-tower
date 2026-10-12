@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coin Tower — 기록·별조각 아이콘 미리보기</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 32px;
+      background: #102b48;
+      color: #effaff;
+      font-family: system-ui, sans-serif;
+    }
+    main {
+      max-width: 1080px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 24px;
+    }
+    p {
+      color: #bed9e9;
+      line-height: 1.6;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    article {
+      min-width: 0;
+      border: 1px solid #5a88a5;
+      border-radius: 16px;
+      padding: 16px;
+      background: #153954;
+    }
+    h2 {
+      font-size: 17px;
+      text-align: center;
+    }
+    .sample {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      min-height: 136px;
+      margin: 12px 0;
+      border-radius: 14px;
+    }
+    .blue {
+      background: url('../../public/assets/coin-tower/hud_panel.png') center /
+        118% 160% no-repeat;
+    }
+    .teal {
+      background: linear-gradient(110deg, #103c71, #116c8f);
+      border: 1px solid #a6e9ff99;
+    }
+    .check {
+      background-color: #fff;
+      background-image: conic-gradient(
+        #d8dce1 25%,
+        #fff 0 50%,
+        #d8dce1 0 75%,
+        #fff 0
+      );
+      background-size: 20px 20px;
+    }
+    img {
+      object-fit: contain;
+      width: var(--size);
+      height: var(--size);
+    }
+    figcaption {
+      font-size: 12px;
+      color: #c7e5f3;
+      text-align: center;
+    }
+    figure {
+      margin: 0;
+    }
+    .check img {
+      width: 160px;
+      height: 160px;
+    }
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <main>
+    <h1>Coin Tower — 기록·별조각 아이콘</h1>
+    <p>
+      게임 적용 전 자산 비교용입니다. 기존 파란 패널과 별조각 청록색 패널에서
+      48·96px 크기를 비교합니다. 아래 체크무늬는 투명도 확인용 배경입니다.
+    </p>
+    <div class="grid">
+      <article>
+        <h2>BEST COINS</h2>
+        <div class="sample blue">
+          <figure>
+            <img
+              style="--size: 48px"
+              src="../../public/assets/coin-tower/icons/best-coins.png"
+              alt="왕관이 있는 금화 탑"
+            />
+            <figcaption>48px</figcaption>
+          </figure>
+          <figure>
+            <img
+              style="--size: 96px"
+              src="../../public/assets/coin-tower/icons/best-coins.png"
+              alt=""
+            />
+            <figcaption>96px</figcaption>
+          </figure>
+        </div>
+        <div class="sample teal">
+          <img
+            style="--size: 64px"
+            src="../../public/assets/coin-tower/icons/best-coins.png"
+            alt="청록색 패널의 금화 탑"
+          />
+        </div>
+        <div class="sample check">
+          <img
+            src="../../public/assets/coin-tower/icons/best-coins.png"
+            alt="금화 탑 투명도 확인"
+          />
+        </div>
+      </article>
+      <article>
+        <h2>BEST COMBO</h2>
+        <div class="sample blue">
+          <figure>
+            <img
+              style="--size: 48px"
+              src="../../public/assets/coin-tower/icons/best-combo.png"
+              alt="연결된 금빛 섬광 세 개"
+            />
+            <figcaption>48px</figcaption>
+          </figure>
+          <figure>
+            <img
+              style="--size: 96px"
+              src="../../public/assets/coin-tower/icons/best-combo.png"
+              alt=""
+            />
+            <figcaption>96px</figcaption>
+          </figure>
+        </div>
+        <div class="sample teal">
+          <img
+            style="--size: 64px"
+            src="../../public/assets/coin-tower/icons/best-combo.png"
+            alt="청록색 패널의 금빛 콤보"
+          />
+        </div>
+        <div class="sample check">
+          <img
+            src="../../public/assets/coin-tower/icons/best-combo.png"
+            alt="금빛 콤보 투명도 확인"
+          />
+        </div>
+      </article>
+      <article>
+        <h2>STAR SHARDS</h2>
+        <div class="sample blue">
+          <figure>
+            <img
+              style="--size: 48px"
+              src="../../public/assets/coin-tower/icons/star-shards.png"
+              alt="청록색 별 결정과 조각"
+            />
+            <figcaption>48px</figcaption>
+          </figure>
+          <figure>
+            <img
+              style="--size: 96px"
+              src="../../public/assets/coin-tower/icons/star-shards.png"
+              alt=""
+            />
+            <figcaption>96px</figcaption>
+          </figure>
+        </div>
+        <div class="sample teal">
+          <img
+            style="--size: 64px"
+            src="../../public/assets/coin-tower/icons/star-shards.png"
+            alt="청록색 패널의 별 결정"
+          />
+        </div>
+        <div class="sample check">
+          <img
+            src="../../public/assets/coin-tower/icons/star-shards.png"
+            alt="별 결정 투명도 확인"
+          />
+        </div>
+      </article>
+    </div>
+  </main>
+</html>

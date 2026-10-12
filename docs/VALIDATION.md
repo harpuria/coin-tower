@@ -2,6 +2,14 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-12 — 기록·별조각 아이콘 이미지 제작
+
+- 요청 범위: BEST COIN, BEST COMBO, STAR SHARDS 이미지부터 제작. 기존 금화·Perfect를 참조해 서로 다른 형태의 투명 PNG 3종을 `public/assets/coin-tower/icons/`에 저장했다. 실제 출력은 각 1254×1254 RGBA다.
+- 파일 관측: PNG 크기·알파 0~255·파일 해시를 읽었다. 생성 원본과 같은 파일이며 픽셀 후처리 없음. 배경의 투명 픽셀과 내부 대부분 알파 253을 유지했다.
+- 화면 관측: Chromium에서 기존 파란 패널·청록색 패널 위에 48/64/96px로 표시하고 체크무늬 위 160px도 비교했다. 금화 탑의 층·왕관, 금빛 섬광의 연결, 청록색 결정의 큰 실루엣은 구분된다. 세부 요소와 아이콘별 광학적 크기는 실제 UI 적용 때 다시 관찰한다.
+- 산출물: [자산 비교 페이지](art/ui-icons-preview.html), `test-results/ui-icons/preview.png`, `metadata.json`. 프롬프트·출처·크기 예산은 [제작 기록](art/ui-icons.md)에 있다.
+- 게임 코드·런타임 manifest·기존 이미지·배포 빌드는 변경하지 않았으며 테스트 스위트는 실행하지 않았다. 이번 관측은 자산 미리보기이고 게임 내 적용·가독성 검증은 후속이다.
+
 ## 2026-10-12 — 별조각 수집·표시·브라우저 저장
 
 - 범위: `STAR SHARDS` 결과 EARNED/TOTAL·메뉴 보유량, 성공 동전당 기본 보상, 첫 실패 시 한 번 정산, 중단 제외, 기존 기록과 함께 저장 형식 v3로 보존. 구버전 fixture는 `tests/fixtures/progress-migrations.json`에 있다. 스킨·상점·광고 연동은 추가하지 않았다.
