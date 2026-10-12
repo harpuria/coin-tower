@@ -2,11 +2,13 @@
 
 ## Goal
 
-[Decided] Implement Star Shard collection first: completed-run rewards, result/menu display and browser persistence under [economy design](design/economy.md). Skins, shop/purchases and ads remain later work. The collection slice is implemented; its observation and limitations are below.
+[Decided] Implement Star Shard collection first: completed-run rewards, result/menu display and browser persistence under [economy design](design/economy.md). The collection slice is implemented; its observation and limitations are below. The user selected coin skins as the first spending content; detailed design is in progress and runtime purchases are not implemented. Ads remain later work.
 
 [Decided] Use CrazyGames native leaderboards only, with one weekly best-height board and existing all-time browser height/combo records. Game rules are authoritative in [records.md](design/records.md); technical rationale is in [ADR 0004](adr/0004-crazygames-native-leaderboard.md). No external leaderboard or authentication backend is planned.
 
 ## Status
+
+- Design in progress (2026-10-13): user selected coin skins first, deferring pedestal/effect bundles. Permanent direct purchases, three paid skins and preview are proposals; catalog, prices/pacing, purchase/selection flow and persistence require further design. See [economy design](design/economy.md). This is a workshop decision, not a runtime implementation checkpoint.
 
 - Completed TAP TO PLAY sizing adjustment (2026-10-12): displayed width and height are 50% of the initial version, retaining the center and original input area. PC/touch Chromium observation preserved image/Space/Enter start and separate first drop across the existing viewport sizes. Lint, format, TypeScript and CrazyGames build passed; current dist includes the smaller lettering. No test suite was added or run. See [asset record](art/tap-to-play.md) and [validation](VALIDATION.md).
 
@@ -69,5 +71,7 @@
 - Cloud personal records remain deferred; using a weekly leaderboard does not synchronize browser bests/settings. Revisit applicable progress-save requirements before Full Launch.
 
 ## Next Request
+
+Continue the coin-skin workshop by deciding the target pace of the first purchase, then catalog, purchase/selection and persistence rules. Example: `$game-workshop design docs/design/economy.md 기준으로 첫 동전 스킨 구매까지의 목표 판 수와 가격을 정해줘.` Runtime skin implementation needs the remaining rules and a separate implementation request.
 
 Icon integration, panel-free presentation and the TAP TO PLAY main screen are complete; the current CrazyGames `dist/` includes all three. Recommend a focused human PC play review of whether current score, personal best combo and shard balance are recognizable without slowing the next drop. Example: `$game-implement PC 플레이 피드백으로 메뉴·결과·HUD 아이콘과 숫자의 가독성을 조정해줘.` Real-device tuning remains deferred. Collection motivation and economy pace remain inconclusive before human play and eventual skin goals. Native leaderboard integration still depends on access and operational decisions. Final review submission remains a separate action.
