@@ -36,27 +36,27 @@ export class Shell {
             <section class="title-records" aria-labelledby="title-records-heading">
               <h2 id="title-records-heading">BEST ON THIS BROWSER</h2>
               <div class="title-record-columns">
-                <div class="blue-panel icon-stat" title="Best coins"><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="title-best">0</strong></div>
-                <div class="blue-panel icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="title-best-combo">x0</strong></div>
+                <div class="stat-readout icon-stat" title="Best coins"><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="title-best">0</strong></div>
+                <div class="stat-readout icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="title-best-combo">x0</strong></div>
               </div>
             </section>
-            <div class="title-shards shard-panel icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
+            <div class="title-shards shard-readout icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
             <div class="start-prompt"><button id="play" class="game-button primary">PLAY</button><p>Click, tap or press Space to stack coins</p></div>
           </div>
           <div id="hud" class="layer" hidden>
             <section class="hud-records" aria-label="Browser bests and collected Star Shards">
-              <div class="blue-panel icon-stat" title="Best coins"><span class="hud-best-label" aria-hidden="true">BEST</span><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="best">0</strong></div>
-              <div class="blue-panel icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="hud-best-combo">x0</strong></div>
-              <div class="shard-panel icon-stat" title="Collected Star Shards"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="hud-shards">0</strong></div>
+              <div class="stat-readout icon-stat" title="Best coins"><span class="hud-best-label" aria-hidden="true">BEST</span><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="best">0</strong></div>
+              <div class="stat-readout icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="hud-best-combo">x0</strong></div>
+              <div class="shard-readout icon-stat" title="Collected Star Shards"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="hud-shards">0</strong></div>
             </section>
-            <div class="hud-stats blue-panel"><span>COINS</span><strong id="score">0</strong></div>
+            <div class="hud-stats stat-readout"><span>COINS</span><strong id="score">0</strong></div>
             <button id="pause" class="icon-button pause-button" aria-label="Pause">Ⅱ</button>
             <div id="combo" class="combo" hidden><strong id="combo-count" class="sr-only">x1</strong><span class="combo-glyphs" aria-hidden="true"></span></div>
             <p id="tap-prompt" class="tap-prompt">Click, tap or press Space to drop</p>
           </div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
             <img class="result-heading" src="${asset}game_over.png" alt="GAME OVER" />
-            <div class="result-stats blue-panel">
+            <div class="result-stats stat-readout">
               <table aria-label="Run records">
                 <thead><tr><th scope="col"><span class="sr-only">RECORD</span></th><th scope="col">THIS RUN</th><th scope="col">BEST</th></tr></thead>
                 <tbody>
@@ -66,7 +66,7 @@ export class Shell {
               </table>
             </div>
             <p class="result-caption">One more try. A little higher.</p>
-            <section class="shard-reward shard-panel" aria-label="Star Shards reward">
+            <section class="shard-reward shard-readout" aria-label="Star Shards reward">
               <span class="shard-label"><span class="sr-only">STAR SHARDS</span>${icon('shards')}</span>
               <div><span>EARNED</span><strong id="result-shards-earned">+0</strong></div>
               <div><span>TOTAL</span><strong id="result-shards-total">0</strong></div>

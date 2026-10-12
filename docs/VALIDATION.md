@@ -2,6 +2,17 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-12 — 버튼형 박스를 제거한 아이콘·숫자 표시
+
+- 사용자 채택: 버튼 안에 아이콘이 어색하다는 피드백에 따라 `game-workshop`으로 [표시 원칙](ART_DIRECTION.md#기록재화의-화면-표시-원칙)을 확정한 뒤 구현했다. 메뉴·결과·HUD에서 기록·별조각·현재 COINS의 박스/테두리/채움을 제거했다. 비교 열·항목별 NEW BEST·EARNED/TOTAL·실제 조작 버튼은 유지했다.
+- 구현: Shell의 표시 클래스와 CSS만 변경했다. 기록은 금색, 별조각은 밝은 청록색 숫자에 짙은 외곽선·짧은 그림자를 주며 아이콘을 조금 키우고 숫자 간격을 줄였다. 메뉴의 별조각이 장식 동전에 겹쳐 보여 패널용 패딩을 없애고 기록·잔액을 위쪽으로 정렬했다. 이미지 원본·게임/저장 규칙·공통 서비스는 바꾸지 않았다.
+- 정적 검사·배포 빌드: `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build:crazygames`(TypeScript 포함)를 실행했다. 이번 작업에서 테스트 스위트를 추가하거나 실행하지 않았다.
+- 개발 관측: Chromium PC Space·Pixel 7 터치 입력과 개발 시간 제어로 21개·최장 x20을 만들었다. 1/6/11/16/21개에서 실제 Scene 배경 morning/noon/evening/night/morning과 HUD를 캡처했다. 위치·점수는 덮어쓰지 않았다. 정지/재개 뒤 종료 시 두 NEW BEST·+21/21, TRY AGAIN에서 초기화, 후속 1개 완료 뒤 메뉴 잔액 22를 관측했다.
+- 화면: PC 1280×900·Pixel 7·360×640·821×462에서 메뉴·HUD·결과, x0/x20/x100, 잔액 9,999,999→10,000,000과 안전 정수 최댓값 fixture를 관측했다. 표시 영역 computed style은 배경 none/투명·border 0px였다. 관측한 아이콘/숫자 쌍의 겹침과 할당 영역 이탈, 이미지 디코딩 실패는 없었다. 두 NEW BEST가 있는 Pixel 7 결과의 기록/격려 문구 간격 약 15.17px, 작은 가로 결과의 보상/버튼 간격 약 6.09px다. 긴 극단값은 축소 표시이며 사람의 가독성을 입증하지 않는다.
+- 배포 관측: CrazyGames SDK fixture와 실제 시간·Space/터치로 로컬 production preview의 메뉴·플레이·결과·메뉴·새로고침을 관측했다. 아이콘 3종 로드, +1 지급·잔액 1 복원, SDK init/start/stop·자체 전체화면 숨김·개발 훅 제외를 확인했다. 실제 포털/공식 SDK 검증은 아니다.
+- 개발·배포 PC/터치의 페이지·자산 HTTP 오류 0건. 현재 CrazyGames `dist/`는 박스 없는 아이콘 표시를 포함한다. 산출물은 `test-results/icon-readouts/`의 PNG·`observations.json`·`production-observations.json`이며 임시 관측 스크립트를 사용했다.
+- 제한: 실제 기기·Safari/Firefox·스크린리더·사람의 정보 인식/편안함·최저 사양 성능은 미확인이다. 별도 단위/E2E 회귀 통과를 주장하지 않는다.
+
 ## 2026-10-12 — 메뉴·결과·인게임 아이콘 적용
 
 - 변경: 생성한 아이콘 3종을 필수 로더·Shell에 연결했다. 메뉴는 두 개인 최고와 별조각 잔액, 결과는 기록별 아이콘과 THIS RUN/BEST·NEW BEST 및 별조각 EARNED/TOTAL, HUD는 저장된 두 개인 최고·잔액과 별도 COINS를 표시한다. PNG 픽셀·저장 schema·보상 규칙은 바꾸지 않았다.

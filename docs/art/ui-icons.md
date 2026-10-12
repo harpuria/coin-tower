@@ -61,10 +61,11 @@ Create ONE isolated production-ready transparent PNG currency icon for STAR SHAR
 
 - `src/game/assets.ts`의 필수 이미지 로더와 `src/ui/Shell.ts`에 연결했다. 메뉴의 두 개인 최고, 결과의 두 행과 별조각 보상, 인게임의 두 개인 최고·별조각 잔액에 사용한다. 현재 점수는 COINS, 결과의 비교 열은 THIS RUN/BEST, 재화는 EARNED/TOTAL을 유지한다.
 - `src/style.css`의 `.stat-icon`이 표시만 조정한다. 알파 >8 영역의 경계(금화 238,50–1037,1200 / 콤보 169,160–1182,1048 / 별조각 160,162–1129,1137)를 참고해 원본을 비례 확대·이동하고 정사각 표시 영역으로 투명 여백을 제외했다. 원본 PNG나 해시는 바뀌지 않았다.
-- 표시 영역은 메뉴 기록 10cqw, 메뉴·결과 별조각 7cqw, 결과 기록 8cqw, 인게임 5.5cqw다. 메뉴 숫자 간격 2cqw, HUD 1cqw이며 실루엣 비율은 보존한다. 수정 위치는 위 CSS 선택자다.
+- 표시 영역은 메뉴 기록 11cqw, 메뉴·결과 별조각 8cqw, 결과 기록 9cqw, 인게임 6.5cqw다. 메뉴 숫자 간격 1.2cqw, HUD 0.7cqw이며 실루엣 비율은 보존한다. 수정 위치는 위 CSS 선택자다.
+- 사용자 피드백 후 기록·재화의 패널 이미지·채움·테두리를 제거했다. 현재 COINS와 NEW BEST도 박스 없이 표시하며 숫자에 짙은 외곽선과 짧은 그림자를 준다. 메뉴 기록 영역의 패딩을 줄이고 별조각을 위로 옮겨 장식 동전을 가리지 않도록 정렬했다. 표시 원칙은 [아트 방향](../ART_DIRECTION.md#기록재화의-화면-표시-원칙)을 따른다.
 - HUD는 오른쪽 53% 영역의 두 줄이다. 왼쪽은 BEST 동전/콤보, 오른쪽은 COINS/보유 별조각이다. 첫 배치에서 가려졌던 좌측 로고를 보존하도록 수정했다. 별조각은 진행 중 예상 지급량이 아닌 이미 정산된 잔액이다.
 - 이미지에는 빈 alt와 aria-hidden을 적용하고 실제 항목명은 숨긴 텍스트로 유지한다. 결과 표의 행·열 의미, 항목별 NEW BEST, 실제 버튼 입력은 유지한다.
-- 개발·배포 Chromium의 실제 입력과 화면 관측은 [검증 기록](../VALIDATION.md), 산출물은 `test-results/icon-integration/`에 있다. 실제 기기와 사람의 항목 인식 속도는 미확인이다.
+- 개발·배포 Chromium의 실제 입력과 화면 관측은 [검증 기록](../VALIDATION.md), 현재 산출물은 `test-results/icon-readouts/`이며 첫 패널 버전은 `test-results/icon-integration/`에 있다. 실제 기기와 사람의 항목 인식 속도는 미확인이다.
 
 ## 이용 조건
 

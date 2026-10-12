@@ -83,25 +83,38 @@ button:focus-visible,
 .layer button {
   pointer-events: auto;
 }
-.blue-panel,
 .game-button {
   background: var(--panel-art) center / 118% 160% no-repeat;
   text-shadow: 0 2px 2px #082b65;
   filter: drop-shadow(0 4px 5px #08234438);
 }
-.blue-panel {
+.stat-readout,
+.shard-readout {
+  text-shadow:
+    0.25cqw 0 #12304d,
+    -0.25cqw 0 #12304d,
+    0 0.25cqw #12304d,
+    0 -0.25cqw #12304d,
+    0 0.5cqw 0.5cqw #082344c9;
+}
+.stat-readout strong,
+.shard-readout strong {
+  -webkit-text-stroke: 0.4cqw #12304d;
+  paint-order: stroke fill;
+}
+.stat-readout {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   padding: 2cqw 5cqw;
 }
-.blue-panel span {
+.stat-readout span {
   font-size: 3.3cqw;
   font-weight: 750;
   color: #fff3d0;
 }
-.blue-panel strong {
+.stat-readout strong {
   font-size: 7.5cqw;
   line-height: 1.05;
   color: #ffe36e;
@@ -112,8 +125,8 @@ button:focus-visible,
   position: relative;
   display: inline-block;
   flex: 0 0 auto;
-  width: var(--stat-icon-size, 10cqw);
-  height: var(--stat-icon-size, 10cqw);
+  width: var(--stat-icon-size, 11cqw);
+  height: var(--stat-icon-size, 11cqw);
   overflow: hidden;
   vertical-align: middle;
 }
@@ -143,7 +156,7 @@ button:focus-visible,
 .icon-stat {
   flex-direction: row;
   justify-content: center;
-  gap: 2cqw;
+  gap: 1.2cqw;
 }
 .icon-stat strong {
   min-width: 0;
@@ -151,7 +164,7 @@ button:focus-visible,
 }
 .title-records {
   position: absolute;
-  top: 31%;
+  top: 29.5%;
   left: 11%;
   width: 78%;
 }
@@ -159,17 +172,19 @@ button:focus-visible,
   font-size: 2.8cqw;
   text-align: center;
   margin: 0 0 1cqw;
-  text-shadow: 0 2px 3px #174878;
+  text-shadow:
+    0 1px 2px #12304d,
+    0 0 4px #12304d;
 }
 .title-record-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1cqw;
 }
-.title-record-columns .blue-panel {
-  min-height: 14cqw;
-  padding: 1cqw 2cqw;
-  gap: 2cqw;
+.title-record-columns .stat-readout {
+  min-height: 11cqw;
+  padding: 0 2cqw;
+  gap: 1.2cqw;
 }
 .title-record-columns strong {
   font-size: min(8cqw, calc(28cqw / var(--record-digits, 1)));
@@ -181,38 +196,32 @@ button:focus-visible,
   left: 10%;
   text-align: center;
 }
-.shard-panel {
+.shard-readout {
   position: absolute;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 1.4cqw 3cqw;
-  border: 1px solid #a6e9ff99;
-  border-radius: 2cqw;
-  background: linear-gradient(110deg, #103c71ed, #116c8fed);
   color: #e3faff;
-  text-shadow: 0 1px 3px #082b65;
   font-variant-numeric: tabular-nums;
 }
-.shard-panel span {
+.shard-readout span {
   font-size: 2.8cqw;
   font-weight: 750;
 }
-.shard-panel strong {
+.shard-readout strong {
   display: block;
   font-size: min(5cqw, calc(32cqw / var(--record-digits, 1)));
   line-height: 1.1;
 }
-.shard-panel.icon-stat {
-  justify-content: center;
-}
 .title-shards {
-  top: 44%;
+  top: 38.4%;
   left: 18%;
   width: 64%;
-  min-height: 9cqw;
-  gap: 2cqw;
-  --stat-icon-size: 7cqw;
+  min-height: 8cqw;
+  padding: 0 3cqw;
+  gap: 1.2cqw;
+  --stat-icon-size: 8cqw;
 }
 .title-shards strong {
   max-width: 80%;
@@ -230,7 +239,7 @@ button:focus-visible,
   font-size: min(4.8cqw, calc(30cqw / var(--record-digits, 1)));
 }
 .shard-reward .stat-icon {
-  --stat-icon-size: 7cqw;
+  --stat-icon-size: 8cqw;
 }
 .start-prompt p {
   font-size: 3.5cqw;
@@ -270,8 +279,8 @@ button:focus-visible,
 .hud-records .icon-stat {
   position: relative;
   padding: 1cqw;
-  gap: 1cqw;
-  --stat-icon-size: 5.5cqw;
+  gap: 0.7cqw;
+  --stat-icon-size: 6.5cqw;
 }
 .hud-records .icon-stat:nth-child(2) {
   grid-row: 2;
@@ -396,10 +405,7 @@ button:focus-visible,
   height: 12cqw;
 }
 .result-stats .stat-icon {
-  --stat-icon-size: 8cqw;
-}
-.result-stats tbody tr + tr {
-  border-top: 1px solid #c2deff45;
+  --stat-icon-size: 9cqw;
 }
 .result-stats strong {
   display: block;
@@ -408,13 +414,11 @@ button:focus-visible,
 .result-stats .record-badge {
   display: block;
   width: fit-content;
-  margin: 0.8cqw auto 0;
-  padding: 0.3cqw 0.8cqw;
-  border: 1px solid #ffdf75;
-  border-radius: 1cqw;
-  background: #123c6e;
+  margin: 0.4cqw auto 0;
+  padding: 0;
   color: #ffe570;
   font-size: 2.5cqw;
+  line-height: 1;
   white-space: nowrap;
 }
 .result-caption {
