@@ -2,6 +2,17 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-12 — 메뉴·결과·인게임 아이콘 적용
+
+- 변경: 생성한 아이콘 3종을 필수 로더·Shell에 연결했다. 메뉴는 두 개인 최고와 별조각 잔액, 결과는 기록별 아이콘과 THIS RUN/BEST·NEW BEST 및 별조각 EARNED/TOTAL, HUD는 저장된 두 개인 최고·잔액과 별도 COINS를 표시한다. PNG 픽셀·저장 schema·보상 규칙은 바꾸지 않았다.
+- 정적 검사·빌드: `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build:crazygames`(TypeScript 포함)를 실행했다. 단위/E2E/SDK 테스트 스위트를 추가하거나 실행하지 않았다.
+- 개발 화면 관측: 로컬 Chromium PC Space·Pixel 7 터치 API와 개발 시간 제어로 실제 11개·최장 x10을 만들었다. 동전 위치나 점수를 덮어쓰지 않았다. 진행 중 개인 최고 0/x0·잔액 0, 정지·재개 뒤 실패 시 결과 11/x10와 두 NEW BEST·+11/11, 메뉴 11/x10·잔액 11을 관측했다.
+- 배치 조정: 첫 상단 가로줄 배치가 좌측 작은 로고를 가려 오른쪽 53%의 두 줄로 수정했다. 별조각 아이콘과 숫자가 패널 양끝으로 벌어진 것도 중앙 정렬로 수정했다. 원본의 투명 여백을 CSS 표시 영역으로 제외하고 메뉴 10cqw·결과 8cqw·HUD 5.5cqw 등으로 맞췄다.
+- 화면 범위: desktop 1280×900·Pixel 7·360×640·821×462. x0/x10/x100, 잔액 9,999,999→10,000,000, 안전 정수 최댓값 저장 fixture를 표시했다. 관측한 아이콘/숫자 쌍의 겹침·패널 이탈과 이미지 로딩 실패는 없었다. 작은 가로 결과의 보상/버튼 간격은 약 4.09px, 두 NEW BEST가 있는 모바일 결과의 비교 패널/격려 문구 간격은 약 5.92px다. 극단적으로 긴 값은 크게 축소되므로 읽기 쉬움을 보장하지 않는다.
+- 배포 관측: CrazyGames production preview에서 SDK fixture와 실제 시간·Space/터치를 사용했다. 메뉴·플레이·결과·새로고침에서 모든 아이콘 디코딩, +1 지급·잔액 1 복원, init/start/stop, 자체 전체화면 숨김과 개발 훅 제외를 관측했다. 공식 SDK·실제 포털 검증은 아니다.
+- 개발·배포의 PC/터치 관측에서 페이지/자산 HTTP 오류 0건. 산출물은 `test-results/icon-integration/`의 PNG·`observations.json`·`production-observations.json`이다. 관측 스크립트는 임시 파일이며 테스트 스위트에 추가하지 않았다. 현재 CrazyGames `dist/`는 아이콘을 포함한다.
+- 제한: 실기기·Safari/Firefox·사람의 항목 이해와 읽기 속도·최저 사양 성능은 미확인이다. 원본 아이콘 합계 약 2.34MiB와 디코드 RGBA 약 18MiB를 유지하며 브라우저/Phaser 캐시 비용은 별도다. 접근성 이름과 표 구조는 유지했으나 실제 스크린리더로 조작하지 않았다.
+
 ## 2026-10-12 — 기록·별조각 아이콘 이미지 제작
 
 - 요청 범위: BEST COIN, BEST COMBO, STAR SHARDS 이미지부터 제작. 기존 금화·Perfect를 참조해 서로 다른 형태의 투명 PNG 3종을 `public/assets/coin-tower/icons/`에 저장했다. 실제 출력은 각 1254×1254 RGBA다.

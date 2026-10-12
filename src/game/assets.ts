@@ -13,6 +13,9 @@ export const assetKeys = {
   nice: 'nice',
   gameOver: 'gameOver',
   paused: 'paused',
+  bestCoinsIcon: 'bestCoinsIcon',
+  bestComboIcon: 'bestComboIcon',
+  starShardsIcon: 'starShardsIcon',
   stack: 'stack',
 } as const;
 
@@ -29,6 +32,9 @@ const images = {
   nice: 'nice.png',
   gameOver: 'game_over.png',
   paused: 'paused.png',
+  bestCoinsIcon: 'icons/best-coins.png',
+  bestComboIcon: 'icons/best-combo.png',
+  starShardsIcon: 'icons/star-shards.png',
 } as const;
 
 /** 원본 PNG를 수정하지 않고 모바일과 같은 투명 여백을 텍스처 frame으로 제외한다. */

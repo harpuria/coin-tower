@@ -36,7 +36,7 @@ PNG는 수정 없이 복사했다. 원본과 아래 파일의 SHA-256이 일치�
 
 ## 기록·별조각 아이콘
 
-- 파일: `public/assets/coin-tower/icons/best-coins.png`, `best-combo.png`, `star-shards.png`. 상태: 생성 완료·UI 적용 전 아트. 기존 이미지·게임 화면은 변경하지 않았다.
+- 파일: `public/assets/coin-tower/icons/best-coins.png`, `best-combo.png`, `star-shards.png`. 상태: 메뉴·결과·인게임 UI에서 사용하며 필수 자산 로더에 등록했다. 원본 픽셀은 보존하고 CSS로 표시 크기와 투명 여백만 조정한다.
 - 출처: 2026-10-12 OpenAI 내장 `image_gen.imagegen`으로 AI 생성. 모델 상세 버전·seed는 비공개. 참조는 기존 `coin.png`와 `perfect.png`다.
 - 지시: 왕관이 있는 금화 탑, 연결된 금빛 Perfect 섬광, 청록색 별 결정의 서로 다른 실루엣을 기존 광택·베벨 스타일로 제작. 글자·배경 없이 실제 알파 투명도로 생성했다.
 - 출력·후처리: 각 1254×1254 RGBA PNG. 생성 원본을 바이트 그대로 복사했으며 후처리 없음. 전체 프롬프트·원본 경로·해시·파일 크기·축소 관측은 [제작 기록](art/ui-icons.md)에 있다.

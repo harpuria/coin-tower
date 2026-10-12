@@ -16,6 +16,14 @@ export class Shell {
   ) {
     this.root = document.querySelector<HTMLElement>('#app')!;
     const asset = `${import.meta.env.BASE_URL}assets/coin-tower/`;
+    const icon = (kind: 'coins' | 'combo' | 'shards') => {
+      const file = {
+        coins: 'best-coins',
+        combo: 'best-combo',
+        shards: 'star-shards',
+      }[kind];
+      return `<span class="stat-icon stat-icon-${kind}" aria-hidden="true"><img src="${asset}icons/${file}.png" alt="" draggable="false" /></span>`;
+    };
     // CSS의 상대 URL이 배포 CSS 파일 위치를 기준으로 해석되지 않도록 고정한다.
     const panel = new URL(`${asset}hud_panel.png`, document.baseURI).href;
     this.root.style.setProperty('--panel-art', `url("${panel}")`);
@@ -28,15 +36,20 @@ export class Shell {
             <section class="title-records" aria-labelledby="title-records-heading">
               <h2 id="title-records-heading">BEST ON THIS BROWSER</h2>
               <div class="title-record-columns">
-                <div class="blue-panel"><span>BEST COINS</span><strong id="title-best">0</strong></div>
-                <div class="blue-panel"><span>BEST COMBO</span><strong id="title-best-combo">x0</strong></div>
+                <div class="blue-panel icon-stat" title="Best coins"><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="title-best">0</strong></div>
+                <div class="blue-panel icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="title-best-combo">x0</strong></div>
               </div>
             </section>
-            <div class="title-shards shard-panel" aria-label="Star Shards balance"><span>STAR SHARDS</span><strong id="title-shards">0</strong></div>
+            <div class="title-shards shard-panel icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
             <div class="start-prompt"><button id="play" class="game-button primary">PLAY</button><p>Click, tap or press Space to stack coins</p></div>
           </div>
           <div id="hud" class="layer" hidden>
-            <div class="hud-stats"><div class="blue-panel"><span>BEST</span><strong id="best">0</strong></div><div class="blue-panel"><span>COINS</span><strong id="score">0</strong></div></div>
+            <section class="hud-records" aria-label="Browser bests and collected Star Shards">
+              <div class="blue-panel icon-stat" title="Best coins"><span class="hud-best-label" aria-hidden="true">BEST</span><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="best">0</strong></div>
+              <div class="blue-panel icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="hud-best-combo">x0</strong></div>
+              <div class="shard-panel icon-stat" title="Collected Star Shards"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="hud-shards">0</strong></div>
+            </section>
+            <div class="hud-stats blue-panel"><span>COINS</span><strong id="score">0</strong></div>
             <button id="pause" class="icon-button pause-button" aria-label="Pause">Ⅱ</button>
             <div id="combo" class="combo" hidden><strong id="combo-count" class="sr-only">x1</strong><span class="combo-glyphs" aria-hidden="true"></span></div>
             <p id="tap-prompt" class="tap-prompt">Click, tap or press Space to drop</p>
@@ -47,14 +60,14 @@ export class Shell {
               <table aria-label="Run records">
                 <thead><tr><th scope="col"><span class="sr-only">RECORD</span></th><th scope="col">THIS RUN</th><th scope="col">BEST</th></tr></thead>
                 <tbody>
-                  <tr><th scope="row">COINS<span id="new-best-coins" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-score">0</strong></td><td><strong id="result-best">0</strong></td></tr>
-                  <tr><th scope="row">PERFECT COMBO<span id="new-best-combo" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-combo">x0</strong></td><td><strong id="result-best-combo">x0</strong></td></tr>
+                  <tr><th scope="row"><span class="sr-only">COINS</span>${icon('coins')}<span id="new-best-coins" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-score">0</strong></td><td><strong id="result-best">0</strong></td></tr>
+                  <tr><th scope="row"><span class="sr-only">PERFECT COMBO</span>${icon('combo')}<span id="new-best-combo" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-combo">x0</strong></td><td><strong id="result-best-combo">x0</strong></td></tr>
                 </tbody>
               </table>
             </div>
             <p class="result-caption">One more try. A little higher.</p>
             <section class="shard-reward shard-panel" aria-label="Star Shards reward">
-              <span class="shard-label">STAR<br />SHARDS</span>
+              <span class="shard-label"><span class="sr-only">STAR SHARDS</span>${icon('shards')}</span>
               <div><span>EARNED</span><strong id="result-shards-earned">+0</strong></div>
               <div><span>TOTAL</span><strong id="result-shards-total">0</strong></div>
             </section>
@@ -264,8 +277,10 @@ export class Shell {
     this.element('tap-prompt').hidden = run.score >= 5 || run.frozen;
     const progress = app.save.data;
     const result = this.game.result;
-    this.element('score').textContent = String(run.score);
-    this.element('best').textContent = String(progress.best);
+    this.record('score', String(run.score));
+    this.record('best', String(progress.best));
+    this.record('hud-best-combo', `x${progress.bestCombo}`);
+    this.record('hud-shards', String(progress.shards));
     this.record('title-best', String(progress.best));
     this.record('title-best-combo', `x${progress.bestCombo}`);
     this.record('title-shards', String(progress.shards));

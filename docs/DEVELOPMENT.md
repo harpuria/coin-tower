@@ -27,6 +27,8 @@ PC에서는 게임 문서에 포커스가 있을 때 Space로 시작/낙하를 �
 
 Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`의 X·0~9 PNG를 조합합니다. `Shell`은 횟수가 바뀔 때만 글자 노드를 교체하고, 피드백을 표시하는 동안 RAF에서 Session의 잔여 시간을 읽어 불투명도를 맞춥니다. 별도의 게임 시간을 진행하지 않으며 정지·카운트다운·종료 때 숨기고 RAF를 해제합니다. 모든 글자는 필수 자산 로더에서 미리 읽습니다. 제작 사양·출처는 [ART_DIRECTION.md](ART_DIRECTION.md)와 [ASSET_SOURCES.md](ASSET_SOURCES.md)를 따릅니다.
 
+기록·별조각 아이콘 3종은 `assets.ts`에서 필수 이미지로 미리 읽고 Shell의 HTML 이미지로 표시합니다. `src/style.css`의 `.stat-icon`은 원본 픽셀을 바꾸지 않고 투명 여백·표시 크기를 맞춥니다. 메뉴·결과·HUD는 같은 아이콘을 재사용하며 `record()`의 자릿수 변수로 숫자를 축소합니다. HUD의 기록과 별조각은 저장 서비스 값이며 진행 중 점수와 현재 콤보는 별도로 유지합니다. 실제 배치와 크기 편집 위치는 [제작·적용 기록](art/ui-icons.md#런타임-적용--2026-10-12)에 있습니다.
+
 착지 반동·입자·Perfect/X 팝과 일반/Perfect 효과음 차이의 조정값은 `src/game/feedback.ts`에 있습니다. Scene과 Shell은 같은 표시 계산을 사용하며 Session의 `feedbackRemaining`으로 시간을 맞춥니다. `AudioService.sfx`는 controller가 넘기는 rate/gain을 적용하고 중단 시 일회성 소리를 정리합니다. 현재 음원은 기존 임시 WAV를 재사용합니다. 동작 줄이기는 초기 OS 설정 또는 저장된 `reducedMotion`을 따릅니다. 규칙·체감 목표는 [착지 연출](design/feedback.md)을 읽습니다.
 
 카메라·낙하·피드백은 Session의 게임 시간을 사용합니다. 장면 자체를 pause하면 재개 카운트다운도 멈추므로 이 게임의 `pausableScenes`는 비워 둡니다. 모델이 게임 시간을 멈추고 공통 PauseState는 소리를 멈춥니다. 자세한 이유는 [ADR 0002](adr/0002-run-simulation-and-interruptions.md)에 있습니다.

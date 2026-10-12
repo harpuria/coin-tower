@@ -121,7 +121,7 @@
 
 [결정] 적층 높이에 따른 시간대 배경을 테스트한다. 구간과 부드러운 전환 규칙은 [시간대 배경](design/backgrounds.md)을 따른다. 현재 시간대 순환·크로스페이드가 구현됐으며 실제 관찰 결과와 한계는 [검증 기록](VALIDATION.md)에 구분한다.
 
-[결정] 기존 금화·받침대·하늘 유적 배경·로고·빈 HUD 판·NICE/PERFECT/GAME OVER/PAUSED 이미지를 재사용한다. 숫자와 버튼 문자는 현재 상태에 맞게 표시한다. 동전·목표를 가리는 노란 후광이나 실패 판정 원을 추가하지 않는다. 버튼은 실제 문자와 터치 영역이 맞아야 한다.
+[결정] 기존 금화·받침대·하늘 유적 배경·로고·빈 HUD 판·NICE/PERFECT/GAME OVER/PAUSED 이미지를 재사용한다. 기록·별조각 아이콘을 메뉴·결과·인게임에 적용한다. 화면별 의미는 [기록 표시](design/records.md#결과메뉴의-기록-표시)와 [별조각 표시](design/economy.md#플레이어가-보는-결과와-저장), 아트 배치는 [아트 방향](ART_DIRECTION.md)을 따른다. 숫자와 버튼 문자는 현재 상태에 맞게 표시한다. 동전·목표를 가리는 노란 후광이나 실패 판정 원을 추가하지 않는다. 버튼은 실제 문자와 터치 영역이 맞아야 한다.
 
 웹에서 가져온 자산의 출처·원본 일치 정보·효과음 상태는 [ASSET_SOURCES.md](ASSET_SOURCES.md)에 기록했다. 웹 콤보 숫자 제작은 [ART_DIRECTION.md](ART_DIRECTION.md), 원본 시각 기준과 생성 지시는 [모바일 ART_DIRECTION.md](../../coin-tower-mobile/docs/ART_DIRECTION.md)를 참고한다.
 
