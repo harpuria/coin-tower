@@ -84,7 +84,7 @@ App의 숨김·blur는 게임의 `onBackground`를 호출합니다. controller�
 - `sfx(key, { rate?, gain? })`는 재생 속도·높이와 기존 효과음 음량에 곱할 상대 음량을 선택적으로 받습니다. 게임별 값은 controller가 전달합니다. 서비스는 재생 중인 일회성 효과음의 수명을 소유하며 완료·폐기 시 정리합니다. 중단 시 효과음은 끝내고 BGM은 일시정지하므로 재개 후 이전 착지음 조각이 다시 울리지 않습니다.
 - 최종 음소거는 사용자 설정 OR 플랫폼 강제 음소거 OR 일시정지입니다. SDK settings listener는 별도 플래그만 바꾸며 저장 설정에 쓰지 않습니다.
 - BGM은 사용자 동작 이후 시작하고 일시정지 동안 멈춥니다. 설정을 바꾸면 즉시 반영합니다.
-- 현재 낙하 입력은 `#game`의 native 주 pointerdown 한 번으로 받습니다. 터치에서 파생된 별도 마우스 이벤트를 추가로 처리하지 않으며 메뉴는 캔버스의 형제 HTML 요소여서 낙하로 전파되지 않습니다. 게임 영역은 `touch-action: none`입니다. `Shell`의 document keydown은 게임 문서의 Space로 시작/낙하를 연결하고, `#game` keydown은 기존 Enter 입력만 받습니다. Space는 버튼·링크·편집 요소·게임 root 밖의 컨트롤과 반복/수정키/IME 입력을 제외합니다. PLAY·TRY AGAIN·CONTINUE 뒤 `#game`으로 포커스를 옮깁니다. 모델의 정지·단계 입력 거부를 유지하며 listener는 Shell의 AbortController로 정리합니다.
+- 현재 낙하 입력은 `#game`의 native 주 pointerdown 한 번으로 받습니다. 터치에서 파생된 별도 마우스 이벤트를 추가로 처리하지 않으며 메뉴는 캔버스의 형제 HTML 요소여서 낙하로 전파되지 않습니다. 게임 영역은 `touch-action: none`입니다. `Shell`의 document keydown은 게임 문서의 Space로 시작/낙하를 연결하고, `#game` keydown은 기존 Enter 입력만 받습니다. Space는 버튼·링크·편집 요소·게임 root 밖의 컨트롤과 반복/수정키/IME 입력을 제외합니다. TAP TO PLAY·TRY AGAIN·CONTINUE 뒤 `#game`으로 포커스를 옮깁니다. 모델의 정지·단계 입력 거부를 유지하며 listener는 Shell의 AbortController로 정리합니다.
 - 고정 논리 해상도 + `FIT`. 전체화면 대상은 캔버스와 오버레이를 감싼 `#stage`입니다.
 - CrazyGames 빌드에서는 초기화 성공 여부와 관계없이 자체 전체화면 버튼을 숨기고 호출도 차단합니다.
 

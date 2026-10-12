@@ -2,6 +2,17 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-12 — 메인 화면 정리·TAP TO PLAY 이미지
+
+- 범위: 메인 화면 BEST ON THIS BROWSER 제목·PLAY 아래 조작 설명을 제거했다. 파란 PLAY 판은 없애고 생성한 TAP TO PLAY 이미지 글자를 표시한다. 두 개인 최고·별조각·설정·결과 버튼·인게임 입력은 유지한다.
+- 자산: 내장 image_gen으로 기존 logo/Perfect를 참조해 한 번 생성한 투명 PNG를 그대로 복사했다. 실제 2172×724 RGBA·812,872 bytes, 알파 0~255. CSS 표시 영역에서 투명 여백만 제외했고 원본 픽셀은 편집하지 않았다. 철자·흰 얼굴/파란 베벨·투명 배경을 게임 화면에서 관측했다. 전체 프롬프트·출처·해시는 [제작 기록](art/tap-to-play.md)에 있다.
+- 접근성/입력: 판 없는 네이티브 버튼의 이름은 Tap to play다. Chromium PC 마우스·Pixel 7 터치의 이미지 선택, 캔버스 선택, 문서 Space, 포커스된 이미지 Enter로 시작한 후 250ms 진행해 moving/score 0을 관측했다. 별도 마우스/터치 또는 Space 입력으로 첫 동전을 쌓아 score 1이 됐다. 이미지 시작 뒤 포커스는 game으로 이동했다. 메뉴의 SOUND 조작은 시작하지 않았고 중단 확인 후 메뉴로 복귀해 같은 시작 화면을 표시했다.
+- 화면 범위: PC 1280×900·Pixel 7·360×640·821×462. 제목·하단 설명 노드는 없고 시작 영역 computed background none/투명·border 0px다. 시작 이미지·받침대·하단 설정의 비겹침을 화면으로 관측했다. 작은 가로 화면에서 시작 영역/설정 버튼 사이 약 15.83px 간격이었다.
+- 정적 검사·빌드: `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build:crazygames`(TypeScript 포함)를 실행했다. 기존 SDK 검사 한 곳의 PLAY 문자 기대값을 새 접근성 이름으로 맞췄으나 테스트 스위트를 추가하거나 실행하지 않았다.
+- CrazyGames 배포 preview: SDK fixture·실제 시간·마우스/터치로 이미지 시작→별도 낙하→실패 결과→메뉴/새로고침을 관측했다. 새 PNG 디코딩, +1/잔액 1 복원, init/start/stop, 자체 전체화면 숨김·개발 훅 제외를 확인했다. 실제 포털/공식 SDK 검증은 아니다.
+- 개발·배포 PC/터치의 페이지/자산 HTTP 오류 0건. 산출물: `test-results/main-screen/`의 PNG·`observations.json`·`production-observations.json`. 현재 CrazyGames dist는 새 시작 화면과 PNG를 포함한다.
+- 제한: 실제 기기·Safari/Firefox·스크린리더 조작·처음 보는 사람의 시작 발견 속도·최저 사양 로딩 비용은 미확인이다. 이미지의 원본 RGBA 약 6.0MiB와 브라우저/Phaser 캐시 비용은 별도다.
+
 ## 2026-10-12 — 버튼형 박스를 제거한 아이콘·숫자 표시
 
 - 사용자 채택: 버튼 안에 아이콘이 어색하다는 피드백에 따라 `game-workshop`으로 [표시 원칙](ART_DIRECTION.md#기록재화의-화면-표시-원칙)을 확정한 뒤 구현했다. 메뉴·결과·HUD에서 기록·별조각·현재 COINS의 박스/테두리/채움을 제거했다. 비교 열·항목별 NEW BEST·EARNED/TOTAL·실제 조작 버튼은 유지했다.

@@ -84,7 +84,7 @@ test('awaits v3 initialization, keeps English UI and hides custom fullscreen', a
   await page.evaluate(() => window.__CG_TEST__.finish());
   await expect(page.locator('#play')).toBeEnabled();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.locator('#play')).toHaveText('PLAY');
+  await expect(page.locator('#play')).toHaveAccessibleName('Tap to play');
   await expect(page.locator('#app')).not.toContainText(/[가-힣]/);
   if (process.env.E2E_PREVIEW === '1') {
     expect(await page.evaluate(() => window.__COIN_TOWER__)).toBeUndefined();

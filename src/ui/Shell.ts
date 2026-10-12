@@ -33,15 +33,14 @@ export class Shell {
         <div id="surface">
           <div id="game" tabindex="0" aria-label="Game area. Click, tap or press Space to drop a coin."></div>
           <div id="title-screen" class="layer title-screen">
-            <section class="title-records" aria-labelledby="title-records-heading">
-              <h2 id="title-records-heading">BEST ON THIS BROWSER</h2>
+            <section class="title-records" aria-label="Personal bests">
               <div class="title-record-columns">
                 <div class="stat-readout icon-stat" title="Best coins"><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="title-best">0</strong></div>
                 <div class="stat-readout icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="title-best-combo">x0</strong></div>
               </div>
             </section>
             <div class="title-shards shard-readout icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
-            <div class="start-prompt"><button id="play" class="game-button primary">PLAY</button><p>Click, tap or press Space to stack coins</p></div>
+            <div class="start-prompt"><button id="play" class="start-image" aria-label="Tap to play"><img src="${asset}tap_to_play.png" alt="" draggable="false" /></button></div>
           </div>
           <div id="hud" class="layer" hidden>
             <section class="hud-records" aria-label="Browser bests and collected Star Shards">
