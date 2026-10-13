@@ -19,17 +19,21 @@
 
 ## 실행과 관찰
 
+### 배포 이미지
+
+원본 PNG는 보존하고 런타임에는 같은 위치의 최적화 WebP를 사용합니다. `src/game/art-manifest.json`에서 해상도·인코딩·플랫폼 제외를 조정하고 `rtk npm run assets:optimize`로 갱신합니다. 일반 Node 빌드는 커밋된 파생 파일을 사용하며 오래된 해시·설정 또는 20MB 이상 CrazyGames 산출물은 빌드를 실패시킵니다. 파일 추가·재생성·배포 구조는 [최적화 안내](art/optimized-assets.md)를 따릅니다. 기존 아트 문서의 PNG 크기·해시는 보존 원본 기준입니다.
+
 `rtk npm run dev` 후 `http://localhost:5173`을 엽니다. 휴대폰에서는 같은 네트워크의 Network 주소를 사용합니다. 자동 재생 제한에 따라 첫 소리는 사용자 입력 뒤에만 재생합니다. 현재 BGM은 없고 템플릿에서 가져온 짧은 착지 효과음만 사용합니다.
 
-메인 화면의 `#play`는 파란 판 없이 `tap_to_play.png`를 표시하는 네이티브 버튼입니다. 표시 문구는 TAP TO PLAY이며 접근성 이름은 Tap to play입니다. 클릭/키보드 활성화는 시작만 수행하고 포커스를 게임 영역으로 옮깁니다. 일반 캔버스 클릭·터치와 문서 Space도 메뉴 시작을 지원합니다. 필수 이미지 로더가 완료될 때까지 시작을 비활성화합니다.
+메인 화면의 `#play`는 파란 판 없이 원본 `tap_to_play.png`의 배포용 WebP를 표시하는 네이티브 버튼입니다. 표시 문구는 TAP TO PLAY이며 접근성 이름은 Tap to play입니다. 클릭/키보드 활성화는 시작만 수행하고 포커스를 게임 영역으로 옮깁니다. 일반 캔버스 클릭·터치와 문서 Space도 메뉴 시작을 지원합니다. 필수 이미지 로더가 완료될 때까지 시작을 비활성화합니다.
 
 현재 입력은 HTML 게임 영역의 **native pointerdown**으로 통합합니다. 주 포인터의 왼쪽 버튼/터치 시작만 받고, HTML 메뉴 버튼은 캔버스의 형제 요소로 분리합니다. Phaser mouse/touch 이벤트를 다시 처리하면 입력이 중복될 수 있습니다.
 
-메뉴의 `#skins-menu`는 상점 아이콘과 SHOP 글자로 스킨 목록을 엽니다. `#mute`·`#fullscreen`은 현재 소리/전체화면 상태에 맞는 PNG로 표시합니다. 필수 자산은 `src/game/assets.ts`, 상태·접근성 이름·title은 `Shell`, 크기·클릭 영역·눌림 반응은 CSS의 `.utility-button`·`.utility-caption`에서 조정합니다. 플랫폼 음소거와 CrazyGames의 자체 전체화면 숨김은 유지합니다. 출처·용량·표시 사양은 [제작 기록](art/utility-icons.md)을 따릅니다.
+메뉴의 `#skins-menu`는 상점 아이콘과 SHOP 글자로 스킨 목록을 엽니다. `#mute`·`#fullscreen`은 현재 소리/전체화면 상태에 맞는 WebP로 표시합니다. 필수 자산은 `src/game/assets.ts`, 상태·접근성 이름·title은 `Shell`, 크기·클릭 영역·눌림 반응은 CSS의 `.utility-button`·`.utility-caption`에서 조정합니다. 플랫폼 음소거와 CrazyGames의 자체 전체화면 숨김은 유지합니다. 출처·용량·표시 사양은 [제작 기록](art/utility-icons.md)을 따릅니다.
 
 PC에서는 게임 문서에 포커스가 있을 때 Space로 시작/낙하를 받습니다. 게임 영역 클릭 없이 첫 화면에서 시작할 수 있으며 시작과 첫 낙하는 별도 입력입니다. 반복 keydown은 무시하고 게임 단축키의 페이지 스크롤은 막습니다. 포커스된 버튼·링크·입력 필드에는 단축키를 적용하지 않습니다. TAP TO PLAY·TRY AGAIN·CONTINUE 뒤 게임 영역에 포커스를 돌려주며, 기존 Enter는 게임 영역 포커스에서만 동작합니다. 정지·카운트다운·결과·로딩·오류 상태는 게임 단축키로 진행하지 않습니다.
 
-Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`의 X·0~9 PNG를 조합합니다. `Shell`은 횟수가 바뀔 때만 글자 노드를 교체하고, 피드백을 표시하는 동안 RAF에서 Session의 잔여 시간을 읽어 불투명도를 맞춥니다. 별도의 게임 시간을 진행하지 않으며 정지·카운트다운·종료 때 숨기고 RAF를 해제합니다. 모든 글자는 필수 자산 로더에서 미리 읽습니다. 제작 사양·출처는 [ART_DIRECTION.md](ART_DIRECTION.md)와 [ASSET_SOURCES.md](ASSET_SOURCES.md)를 따릅니다.
+Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`의 X·0~9 원본에서 생성한 WebP를 조합합니다. `Shell`은 횟수가 바뀔 때만 글자 노드를 교체하고, 피드백을 표시하는 동안 RAF에서 Session의 잔여 시간을 읽어 불투명도를 맞춥니다. 별도의 게임 시간을 진행하지 않으며 정지·카운트다운·종료 때 숨기고 RAF를 해제합니다. 모든 글자는 필수 자산 로더에서 미리 읽습니다. 제작 사양·출처는 [ART_DIRECTION.md](ART_DIRECTION.md)와 [ASSET_SOURCES.md](ASSET_SOURCES.md)를 따릅니다.
 
 기록·별조각 아이콘 3종은 `assets.ts`에서 필수 이미지로 미리 읽고 Shell의 HTML 이미지로 표시합니다. `src/style.css`의 `.stat-icon`은 원본 픽셀을 바꾸지 않고 투명 여백·표시 크기를 맞춥니다. 기록·재화는 `.stat-readout`·`.shard-readout`의 외곽선/그림자로 표시하고 패널 이미지는 실제 버튼에만 사용합니다. 메뉴·결과·HUD는 같은 아이콘을 재사용하며 `record()`의 자릿수 변수로 숫자를 축소합니다. HUD의 기록과 별조각은 저장 서비스 값이며 진행 중 점수와 현재 콤보는 별도로 유지합니다. 실제 배치와 크기 편집 위치는 [제작·적용 기록](art/ui-icons.md#런타임-적용--2026-10-12)에 있습니다.
 

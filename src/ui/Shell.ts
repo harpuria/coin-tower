@@ -1,6 +1,7 @@
 import type { App } from '../app';
 import { gameConfig } from '../config/game';
 import { fullscreenAvailable, toggleFullscreen } from '../core/screen';
+import { artUrl } from '../game/art';
 import type { GameController } from '../game/controller';
 import { landingVisual } from '../game/feedback';
 import { skins, skinById } from '../game/skins';
@@ -16,17 +17,16 @@ export class Shell {
     private game: GameController,
   ) {
     this.root = document.querySelector<HTMLElement>('#app')!;
-    const asset = `${import.meta.env.BASE_URL}assets/coin-tower/`;
     const icon = (kind: 'coins' | 'combo' | 'shards') => {
       const file = {
         coins: 'best-coins',
         combo: 'best-combo',
         shards: 'star-shards',
       }[kind];
-      return `<span class="stat-icon stat-icon-${kind}" aria-hidden="true"><img src="${asset}icons/${file}.png" alt="" draggable="false" /></span>`;
+      return `<span class="stat-icon stat-icon-${kind}" aria-hidden="true"><img src="${artUrl(`icons/${file}.png`)}" alt="" draggable="false" /></span>`;
     };
     // CSS의 상대 URL이 배포 CSS 파일 위치를 기준으로 해석되지 않도록 고정한다.
-    const panel = new URL(`${asset}hud_panel.png`, document.baseURI).href;
+    const panel = new URL(artUrl('hud_panel.png'), document.baseURI).href;
     this.root.style.setProperty('--panel-art', `url("${panel}")`);
     this.root.innerHTML = `
       <h1 class="sr-only">Coin Tower</h1>
@@ -41,8 +41,8 @@ export class Shell {
               </div>
             </section>
             <div class="title-shards shard-readout icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
-            <div class="start-prompt"><button id="play" class="start-image" aria-label="Tap to play"><img src="${asset}tap_to_play.png" alt="" draggable="false" /></button></div>
-            <button id="skins-menu" class="utility-button skins-menu" aria-label="Shop" title="Shop"><img src="${asset}icons/shop.png" alt="" draggable="false" /><span class="utility-caption" aria-hidden="true">SHOP</span></button>
+            <div class="start-prompt"><button id="play" class="start-image" aria-label="Tap to play"><img src="${artUrl('tap_to_play.png')}" alt="" draggable="false" /></button></div>
+            <button id="skins-menu" class="utility-button skins-menu" aria-label="Shop" title="Shop"><img src="${artUrl('icons/shop.png')}" alt="" draggable="false" /><span class="utility-caption" aria-hidden="true">SHOP</span></button>
           </div>
           <div id="hud" class="layer" hidden>
             <section class="hud-records" aria-label="Browser bests and collected Star Shards">
@@ -56,7 +56,7 @@ export class Shell {
             <p id="tap-prompt" class="tap-prompt">Click, tap or press Space to drop</p>
           </div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
-            <img class="result-heading" src="${asset}game_over.png" alt="GAME OVER" />
+            <img class="result-heading" src="${artUrl('game_over.png')}" alt="GAME OVER" />
             <div class="result-stats stat-readout">
               <table aria-label="Run records">
                 <thead><tr><th scope="col"><span class="sr-only">RECORD</span></th><th scope="col">THIS RUN</th><th scope="col">BEST</th></tr></thead>
@@ -75,7 +75,7 @@ export class Shell {
             <div class="result-actions"><button id="retry" class="game-button primary">TRY AGAIN</button><button id="home" class="game-button">MENU</button></div>
           </section>
           <section id="pause-overlay" class="layer veil" aria-label="Pause menu" hidden>
-            <img class="pause-heading" src="${asset}paused.png" alt="PAUSED" />
+            <img class="pause-heading" src="${artUrl('paused.png')}" alt="PAUSED" />
             <div class="pause-actions"><button id="continue" class="game-button primary">CONTINUE</button><button id="restart" class="game-button">RESTART</button><button id="pause-home" class="game-button">MENU</button></div>
           </section>
           <section id="confirm-overlay" class="layer veil" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
@@ -89,7 +89,7 @@ export class Shell {
                 (
                   skin,
                 ) => `<article class="skin-card" aria-label="${skin.name} coin">
-              <span class="skin-preview" aria-hidden="true"><img src="${asset}${skin.file}" alt="" draggable="false" /></span>
+              <span class="skin-preview" aria-hidden="true"><img src="${artUrl(skin.file)}" alt="" draggable="false" /></span>
               <h3>${skin.name.toUpperCase()}</h3><p id="skin-state-${skin.id}" class="skin-state"></p>
               <button id="skin-${skin.id}" class="game-button" aria-describedby="skin-state-${skin.id}"></button>
             </article>`,
@@ -102,7 +102,7 @@ export class Shell {
             <div class="confirm-card"><h2 id="skin-confirm-title">Unlock this skin?</h2><p id="skin-confirm-description"></p><button id="skin-confirm-yes" class="game-button primary">BUY</button><button id="skin-confirm-no" class="game-button">CANCEL</button></div>
           </section>
           <div id="countdown-overlay" class="layer countdown" hidden><span>GET READY</span><strong id="countdown" aria-live="polite">3</strong></div>
-          <div class="utility"><button id="mute" class="utility-button" aria-label="Mute sound" title="Mute sound" aria-pressed="false"><img id="sound-icon" src="${asset}icons/sound-on.png" alt="" draggable="false" /></button><button id="fullscreen" class="utility-button" aria-label="Enter fullscreen" title="Enter fullscreen" hidden><img id="fullscreen-icon" src="${asset}icons/fullscreen-enter.png" alt="" draggable="false" /></button></div>
+          <div class="utility"><button id="mute" class="utility-button" aria-label="Mute sound" title="Mute sound" aria-pressed="false"><img id="sound-icon" src="${artUrl('icons/sound-on.png')}" alt="" draggable="false" /></button><button id="fullscreen" class="utility-button" aria-label="Enter fullscreen" title="Enter fullscreen" hidden><img id="fullscreen-icon" ${app.platform.hideFullscreen ? '' : `src="${artUrl('icons/fullscreen-enter.png')}"`} alt="" draggable="false" /></button></div>
           <p id="storage-notice" role="status" class="storage-notice"></p>
           <div id="loading-overlay" class="layer blocking"><p>Getting the coins ready…</p></div>
           <div id="error-overlay" class="layer blocking" role="alert" hidden><p id="error-message"></p><button id="reload" class="game-button">RELOAD</button></div>
@@ -324,7 +324,7 @@ export class Shell {
       this.element('combo-count').textContent = `x${run.combo}`;
       const glyphs = [...`x${run.combo}`].map((glyph) => {
         const image = document.createElement('img');
-        image.src = `${import.meta.env.BASE_URL}assets/coin-tower/combo/${glyph}.png`;
+        image.src = artUrl(`combo/${glyph}.png`);
         image.alt = '';
         image.draggable = false;
         return image;
@@ -377,7 +377,7 @@ export class Shell {
     const soundIcon = this.element<HTMLImageElement>('sound-icon');
     const soundFile = muted ? 'sound-off' : 'sound-on';
     if (soundIcon.dataset.state !== soundFile) {
-      soundIcon.src = `${import.meta.env.BASE_URL}assets/coin-tower/icons/${soundFile}.png`;
+      soundIcon.src = artUrl(`icons/${soundFile}.png`);
       soundIcon.dataset.state = soundFile;
     }
     this.element('mute').setAttribute(
@@ -403,8 +403,11 @@ export class Shell {
     this.element('fullscreen').title = fullscreenLabel;
     const fullscreenIcon = this.element<HTMLImageElement>('fullscreen-icon');
     const fullscreenFile = fullscreen ? 'fullscreen-exit' : 'fullscreen-enter';
-    if (fullscreenIcon.dataset.state !== fullscreenFile) {
-      fullscreenIcon.src = `${import.meta.env.BASE_URL}assets/coin-tower/icons/${fullscreenFile}.png`;
+    if (
+      !app.platform.hideFullscreen &&
+      fullscreenIcon.dataset.state !== fullscreenFile
+    ) {
+      fullscreenIcon.src = artUrl(`icons/${fullscreenFile}.png`);
       fullscreenIcon.dataset.state = fullscreenFile;
     }
   }

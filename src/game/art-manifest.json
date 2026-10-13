@@ -1,0 +1,48 @@
+{
+  "encoding": { "lossless": true, "quality": 100, "method": 6, "exact": true },
+  "files": [
+    { "source": "coin.png" },
+    { "source": "pedestal.png" },
+    { "source": "sky_ruins.png" },
+    { "source": "backgrounds/sky_ruins_noon.png" },
+    { "source": "backgrounds/sky_ruins_evening.png" },
+    { "source": "backgrounds/sky_ruins_night.png" },
+    { "source": "hud_panel.png" },
+    { "source": "logo.png" },
+    { "source": "tap_to_play.png" },
+    { "source": "perfect.png" },
+    { "source": "nice.png" },
+    { "source": "game_over.png" },
+    { "source": "paused.png" },
+    { "source": "icons/best-coins.png", "maxEdge": 384 },
+    { "source": "icons/best-combo.png", "maxEdge": 384 },
+    { "source": "icons/star-shards.png", "maxEdge": 384 },
+    { "source": "icons/shop.png", "maxEdge": 256 },
+    { "source": "icons/sound-on.png", "maxEdge": 256 },
+    { "source": "icons/sound-off.png", "maxEdge": 256 },
+    {
+      "source": "icons/fullscreen-enter.png",
+      "maxEdge": 256,
+      "standaloneOnly": true
+    },
+    {
+      "source": "icons/fullscreen-exit.png",
+      "maxEdge": 256,
+      "standaloneOnly": true
+    },
+    { "source": "skins/coin_silver.png" },
+    { "source": "skins/coin_ruby.png" },
+    { "source": "skins/coin_emerald.png" },
+    { "source": "combo/x.png" },
+    { "source": "combo/0.png" },
+    { "source": "combo/1.png" },
+    { "source": "combo/2.png" },
+    { "source": "combo/3.png" },
+    { "source": "combo/4.png" },
+    { "source": "combo/5.png" },
+    { "source": "combo/6.png" },
+    { "source": "combo/7.png" },
+    { "source": "combo/8.png" },
+    { "source": "combo/9.png" }
+  ]
+}

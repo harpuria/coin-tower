@@ -31,6 +31,8 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 배경 시간대·전환 경과 시간도 Session이 소유합니다. Scene은 불투명한 이전 배경 위에 다음 배경의 불투명도를 올려 그리며 별도 tween 시간을 진행하지 않습니다. 중단·결과에서 모델 시간이 멈추면 배경 전환도 멈춥니다.
 
+배포 아트의 설정은 `game/art-manifest.json`, 생성 해시·크기는 `art-generated.json`이 소유합니다. `game/art.ts`가 원본 이름을 WebP URL로 연결해 HTML·Phaser가 같은 파일을 사용합니다. Python 생성기는 원본 PNG를 보존하며 Vite 패키징은 해시를 확인한 파생 파일·WAV·favicon만 업로드 산출물에 넣습니다. 원본 frame 좌표를 유지하고 작은 아이콘만 축소합니다. [ADR 0006](adr/0006-preserve-source-art-and-package-optimized-derivatives.md)을 따릅니다.
+
 착지 반동·접점 입자·PERFECT/X 팝도 `Session.feedbackRemaining`에서 경과 시간을 계산합니다. `game/feedback.ts`는 조정값과 표시 계산을 제공하고 Scene과 Shell이 같은 계산을 사용합니다. 표시용 변형은 모델의 동전 좌표·판정·정착 시간을 바꾸지 않습니다. 별도 tween이나 CSS 애니메이션 시계는 진행하지 않습니다.
 
 ## 용어

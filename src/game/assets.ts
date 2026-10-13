@@ -1,4 +1,6 @@
 import type Phaser from 'phaser';
+import { gameConfig } from '../config/game';
+import { artFile, standaloneArt } from './art';
 import { skins } from './skins';
 
 export const assetKeys = {
@@ -50,7 +52,7 @@ const images = {
   fullscreenExitIcon: 'icons/fullscreen-exit.png',
 } as const;
 
-/** 원본 PNG를 수정하지 않고 모바일과 같은 투명 여백을 텍스처 frame으로 제외한다. */
+/** 원본과 동일한 좌표로 투명 여백을 텍스처 frame에서 제외한다. */
 const regions: Record<string, readonly [number, number, number, number]> = {
   coin: [300, 180, 1000, 630],
   pedestal: [0, 95, 1206, 1175],
@@ -63,11 +65,14 @@ const regions: Record<string, readonly [number, number, number, number]> = {
 
 export function queueAssets(load: Phaser.Loader.LoaderPlugin) {
   load.setPath(`${import.meta.env.BASE_URL}assets/coin-tower/`);
-  for (const [key, file] of Object.entries(images)) load.image(key, file);
+  for (const [key, file] of Object.entries(images)) {
+    if (gameConfig.crazygames && standaloneArt.has(file)) continue;
+    load.image(key, artFile(file));
+  }
   for (const skin of skins)
-    if (skin.id !== 'gold') load.image(skin.texture, skin.file);
+    if (skin.id !== 'gold') load.image(skin.texture, artFile(skin.file));
   for (const glyph of 'x0123456789')
-    load.image(`combo-${glyph}`, `combo/${glyph}.png`);
+    load.image(`combo-${glyph}`, artFile(`combo/${glyph}.png`));
   load.audio(assetKeys.stack, 'stack.wav');
 }
 export function installAssetFrames(textures: Phaser.Textures.TextureManager) {

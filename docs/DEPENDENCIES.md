@@ -29,6 +29,8 @@ CI는 `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` 모두
 
 ## Asset과 서비스
 
+- 배포 이미지 생성 도구(2026-10-14): Python 3.13.14 / Pillow 12.3.0(MIT-CMU, 설치 패키지 메타데이터 확인) / 번들 libwebp 1.6.0. `scripts/art-requirements.txt`가 Pillow 버전을 고정하며 기존 로컬 설치를 사용했다. npm 의존성·lockfile·런타임 SDK 변경은 없다. 일반 빌드는 커밋된 파생 파일을 사용한다. Pillow의 WEBP `lossless`·`exact`와 LANCZOS, Vite 8.3.2의 `copyPublicDir: false`·`writeBundle`, Phaser 4.2.1 `ImageFile`의 HTMLImageElement 디코딩을 설치 소스/타입과 실제 Chromium에서 확인했다. TypeScript의 명시적 `.ts` 설정 import와 JSON import attributes를 사용한다. [최적화 안내](art/optimized-assets.md)를 따른다.
+
 - `public/assets/coin-tower/`의 PNG 9개는 사용자 요청에 따라 모바일 원본을 그대로 복사했습니다. 출처와 원본 일치 해시는 [ASSET_SOURCES.md](ASSET_SOURCES.md)에 있습니다.
 - `stack.wav`는 템플릿의 합성 효과음을 재사용한 임시 음원입니다. BGM은 없으며 글꼴은 시스템 폰트입니다. 파비콘 SVG는 프로젝트 초기화 중 작성했습니다.
 - CrazyGames 빌드는 공식 HTML5 SDK **v3** CDN `https://sdk.crazygames.com/crazygames-sdk-v3.js`를 실행 중 로드합니다. 확인일 2026-10-07. 이 URL은 major만 고정하며 정확한 patch는 고정할 수 없습니다. npm 의존성 추가나 SDK 재배포는 하지 않습니다. 공식 [초기화 문서](https://docs.crazygames.com/sdk/intro/)와 [game API](https://docs.crazygames.com/sdk/game/)가 계약의 기준이며 소스의 타입은 사용하는 API 범위만 선언합니다. 로컬 검사와 포털 Preview의 구분은 `VALIDATION.md`에 기록합니다.

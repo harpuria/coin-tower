@@ -1,0 +1,644 @@
+{
+  "codec": {
+    "pillow": "12.3.0",
+    "webp": "1.6.0"
+  },
+  "encoding": {
+    "lossless": true,
+    "quality": 100,
+    "method": 6,
+    "exact": true
+  },
+  "files": [
+    {
+      "source": "coin.png",
+      "output": "coin.webp",
+      "sourceBytes": 619314,
+      "outputBytes": 410224,
+      "sourceSha256": "91e566353d7dd22f0cb9db8687a873ec15191abbb6997635080fa6429b54019e",
+      "outputSha256": "d6b7234bc1bf07ddf4589ce6d4b11f0d2874dc19bf19ba2115298d112e8f7ba1",
+      "sourceSize": [
+        1599,
+        984
+      ],
+      "outputSize": [
+        1599,
+        984
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "pedestal.png",
+      "output": "pedestal.webp",
+      "sourceBytes": 1578908,
+      "outputBytes": 1098696,
+      "sourceSha256": "cebb01a3bfd2cf05daad4a8f215131f7fba3e347a7df70cd24a7262ad9dc236a",
+      "outputSha256": "5ce045572b8ce7b01e6d4baba6b3935a7f901230893431dc92928914fe00bc88",
+      "sourceSize": [
+        1206,
+        1304
+      ],
+      "outputSize": [
+        1206,
+        1304
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "sky_ruins.png",
+      "output": "sky_ruins.webp",
+      "sourceBytes": 1586548,
+      "outputBytes": 1167450,
+      "sourceSha256": "7939e2a463b49bb89820ac8dac8c6c3286d938e37fb0bb95d2bd233d1cd18987",
+      "outputSha256": "f15f4fd391fbcd474ac65899a1b7561ac85a97726b995c9dfb3fe36c4322ee9c",
+      "sourceSize": [
+        941,
+        1672
+      ],
+      "outputSize": [
+        941,
+        1672
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "backgrounds/sky_ruins_noon.png",
+      "output": "backgrounds/sky_ruins_noon.webp",
+      "sourceBytes": 1846078,
+      "outputBytes": 1325958,
+      "sourceSha256": "c66ea479a436fcada4059bf02e8c935eeb8e14e01907744282666895673a7117",
+      "outputSha256": "01f0673ee94c7f158e4a1975faf62bf18b395baf4a3e3efc98badb014bd28058",
+      "sourceSize": [
+        941,
+        1672
+      ],
+      "outputSize": [
+        941,
+        1672
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "backgrounds/sky_ruins_evening.png",
+      "output": "backgrounds/sky_ruins_evening.webp",
+      "sourceBytes": 1839113,
+      "outputBytes": 1362518,
+      "sourceSha256": "d732c7cd201fd4ef2d0ade72f6bd749f152194ce5757add1c747e5c2d9a61623",
+      "outputSha256": "9e162410a64de003ba66cd1d96cb7f73139dac6dcdce2acfbaec15d7be8ff0e9",
+      "sourceSize": [
+        941,
+        1671
+      ],
+      "outputSize": [
+        941,
+        1671
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "backgrounds/sky_ruins_night.png",
+      "output": "backgrounds/sky_ruins_night.webp",
+      "sourceBytes": 1764608,
+      "outputBytes": 1211782,
+      "sourceSha256": "b5030e4997fa5892c53d0831fdeda0f51934e3cda8d49e9eddc8d8a70ffec7ad",
+      "outputSha256": "92224f8a5d9903d1e8c6f4f7fe934f3a6952b1c80cc4f9bdfd7f6edfd975d5aa",
+      "sourceSize": [
+        941,
+        1672
+      ],
+      "outputSize": [
+        941,
+        1672
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "hud_panel.png",
+      "output": "hud_panel.webp",
+      "sourceBytes": 704983,
+      "outputBytes": 427896,
+      "sourceSha256": "50fb06aa4615c405d040ddcdd65335e6acf505cddfdbe7fabcf8a3fd4076497f",
+      "outputSha256": "43b84fccb78c47ed1905574a4a22912cb12adfe1a05880fe579e85fc45afb510",
+      "sourceSize": [
+        1860,
+        845
+      ],
+      "outputSize": [
+        1860,
+        845
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "logo.png",
+      "output": "logo.webp",
+      "sourceBytes": 1545877,
+      "outputBytes": 1020614,
+      "sourceSha256": "4a34c9f18a5a012e1ff0cb5d7600c7d134316e93f6102b367ecaec0fac49171e",
+      "outputSha256": "7699988e09d24cf26dc4f65b17dbb1d794fc6e4aedf5cb0598f174aabeee84ff",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "outputSize": [
+        1536,
+        1024
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "tap_to_play.png",
+      "output": "tap_to_play.webp",
+      "sourceBytes": 812872,
+      "outputBytes": 525242,
+      "sourceSha256": "442e8b152612dcc7e176fefa2f7bc04a30e527f9247c28e9527c23803b75240d",
+      "outputSha256": "04f94d85892b167629cbfa7fdcc3101b8eafd6ec1c4a7f7e335d876aebd63db2",
+      "sourceSize": [
+        2172,
+        724
+      ],
+      "outputSize": [
+        2172,
+        724
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "perfect.png",
+      "output": "perfect.webp",
+      "sourceBytes": 1048306,
+      "outputBytes": 757264,
+      "sourceSha256": "17cb5cbb67eecabbf7a86fdd5c69da9f1cd743c8e61c71d1f7fe4b72eb250bba",
+      "outputSha256": "5bf04f9156380b4f8a20279873ab250ea2257828ef1d7bc1f4a3f51356d0e32a",
+      "sourceSize": [
+        1774,
+        887
+      ],
+      "outputSize": [
+        1774,
+        887
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "nice.png",
+      "output": "nice.webp",
+      "sourceBytes": 694733,
+      "outputBytes": 506118,
+      "sourceSha256": "a0d21cc3ab54c432f735628dc94c20f6408d59f581755fc9bb517320d840987b",
+      "outputSha256": "355519503d2fc2ab16cf72a8a2d6a62f2ad4b20608f63ac130a8606cd83733fa",
+      "sourceSize": [
+        1774,
+        887
+      ],
+      "outputSize": [
+        1774,
+        887
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "game_over.png",
+      "output": "game_over.webp",
+      "sourceBytes": 955252,
+      "outputBytes": 684610,
+      "sourceSha256": "9d9af9bc28ed3d07d2a5221e698200b2030fc6086646477c556ef40bc82da501",
+      "outputSha256": "d186b5122e7a6e4cf36e6c6294af6d0b85b9eba4ee346928fe36683aaae8aa3d",
+      "sourceSize": [
+        2172,
+        724
+      ],
+      "outputSize": [
+        2172,
+        724
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "paused.png",
+      "output": "paused.webp",
+      "sourceBytes": 1065082,
+      "outputBytes": 739628,
+      "sourceSha256": "99fd66970def663737b10808ca0142e896f3a7e8b90fa66a12637b709824c9fc",
+      "outputSha256": "5077755f7cba4a8a9c166692c4679e22db01a7af353205ad320f5c81e922f6cf",
+      "sourceSize": [
+        2172,
+        724
+      ],
+      "outputSize": [
+        2172,
+        724
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/best-coins.png",
+      "output": "icons/best-coins.webp",
+      "sourceBytes": 1058785,
+      "outputBytes": 93566,
+      "sourceSha256": "ee458402fc4f1ba2db065345bda506035b1788cf14ac3e487e2fc9df7d7a6f25",
+      "outputSha256": "8f26d625a8d0e6217950bed3e39dcc918bb64ba840aad452d2d86738965226f2",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        384,
+        384
+      ],
+      "maxEdge": 384,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/best-combo.png",
+      "output": "icons/best-combo.webp",
+      "sourceBytes": 567199,
+      "outputBytes": 51970,
+      "sourceSha256": "eb34d061aaa5440a3bb201f4720de557d246dc56eaabaa2edf17a748b622211c",
+      "outputSha256": "7352bd08618c29d8a167f932c31946a49a52e5571b15102ef51c28879dd01e5b",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        384,
+        384
+      ],
+      "maxEdge": 384,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/star-shards.png",
+      "output": "icons/star-shards.webp",
+      "sourceBytes": 825631,
+      "outputBytes": 70600,
+      "sourceSha256": "33fed458627a77c4693e2c50e640da61b211a26419a4cd42ae846cbc1c744f4a",
+      "outputSha256": "1fec11b36be0820ea73d513accd6f41412b7343f6c0ac9bdb9ab93d18e9d5168",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        384,
+        384
+      ],
+      "maxEdge": 384,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/shop.png",
+      "output": "icons/shop.webp",
+      "sourceBytes": 1326909,
+      "outputBytes": 63742,
+      "sourceSha256": "04e4da128b1baecdf39e18c960cd670381db04b9a7f75c8029b796ef813c6a2f",
+      "outputSha256": "24adb6249b137c729a4b054ac11053c00de50d6b74548e9b84206de20bc434c4",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        256,
+        256
+      ],
+      "maxEdge": 256,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/sound-on.png",
+      "output": "icons/sound-on.webp",
+      "sourceBytes": 860131,
+      "outputBytes": 40296,
+      "sourceSha256": "72479d636f0280d632a5e758038710757817fb7a75999ba8a5e44dbb92669a42",
+      "outputSha256": "cb3f93c2d54b3c67fff9b677900a6a569fbb9d60c4f33152107388fedb30a484",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        256,
+        256
+      ],
+      "maxEdge": 256,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/sound-off.png",
+      "output": "icons/sound-off.webp",
+      "sourceBytes": 787401,
+      "outputBytes": 33978,
+      "sourceSha256": "8527f9ce5194768d4d90797bb866fc86d2b9aa7d1f62d08db7c533e05119cecf",
+      "outputSha256": "0a8a9385de13999b236cb58aaf4c7e4756558e067be09c38f2fd861e373ab220",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        256,
+        256
+      ],
+      "maxEdge": 256,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/fullscreen-enter.png",
+      "output": "icons/fullscreen-enter.webp",
+      "sourceBytes": 1095337,
+      "outputBytes": 47894,
+      "sourceSha256": "7ceec6f15ed25fd492f963f2ebd937086b546d6ec75d437c4d4ee804de0163c0",
+      "outputSha256": "b8b9e6a8d49c9f9c26ada41120bcf52128caa39fa48fed15590f3397993e4b8a",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        256,
+        256
+      ],
+      "maxEdge": 256,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "icons/fullscreen-exit.png",
+      "output": "icons/fullscreen-exit.webp",
+      "sourceBytes": 1053455,
+      "outputBytes": 46876,
+      "sourceSha256": "9d3d4ca8f7b61625a833b7e5231b0438db180aa04e312b49d4d3cd05d8b3350f",
+      "outputSha256": "5912a458afda4b6d05f99233f25592bbdb5c2af68a3a19999c7a18816168a47d",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "outputSize": [
+        256,
+        256
+      ],
+      "maxEdge": 256,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "skins/coin_silver.png",
+      "output": "skins/coin_silver.webp",
+      "sourceBytes": 745108,
+      "outputBytes": 413808,
+      "sourceSha256": "6abb6bbb549383990a98750344ff41f05e36d0d730e4c4235a72acaf82ecd18e",
+      "outputSha256": "1f00335941ffd764150f4abe4d3fcb53387b2e7068654b94de7d0f30cdccb11a",
+      "sourceSize": [
+        1599,
+        984
+      ],
+      "outputSize": [
+        1599,
+        984
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "skins/coin_ruby.png",
+      "output": "skins/coin_ruby.webp",
+      "sourceBytes": 730800,
+      "outputBytes": 465116,
+      "sourceSha256": "3a28b4113dfd130ecdcc718a511d6441534b4768b83397cfe2a9b0e160d52503",
+      "outputSha256": "be5541e96999fe0197a1472f99ff3078ba17c2588dab0dd0547df0e31fb631f8",
+      "sourceSize": [
+        1599,
+        984
+      ],
+      "outputSize": [
+        1599,
+        984
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "skins/coin_emerald.png",
+      "output": "skins/coin_emerald.webp",
+      "sourceBytes": 778628,
+      "outputBytes": 500982,
+      "sourceSha256": "4fbd4567857354ab2ebcb853ed87f2112797d777d72b2c4e6ce7d7692e6d8451",
+      "outputSha256": "488c9a141b055fd1a81597af50f9996404f59b15bc8b3cd2847a62ef0d93f08a",
+      "sourceSize": [
+        1599,
+        984
+      ],
+      "outputSize": [
+        1599,
+        984
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/x.png",
+      "output": "combo/x.webp",
+      "sourceBytes": 55405,
+      "outputBytes": 29878,
+      "sourceSha256": "d2a7f4e130ceefd103d03eff8bd928ae3b141cd8888b2b6e7065b0145e165be2",
+      "outputSha256": "5e132c667c0165cbbaceb63b76812dbba257c9693aad61cc0be7dae74a58f5ef",
+      "sourceSize": [
+        182,
+        192
+      ],
+      "outputSize": [
+        182,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/0.png",
+      "output": "combo/0.webp",
+      "sourceBytes": 47998,
+      "outputBytes": 26220,
+      "sourceSha256": "c5f226379710a4fce6db624f41d6c5a17453d8b09689dfe9b47ff3f393ccec04",
+      "outputSha256": "6a2dc4ec84f1fa84c990e24fae7dbd74c8ec7a0bdf53b1120a04d08a1640f46e",
+      "sourceSize": [
+        167,
+        192
+      ],
+      "outputSize": [
+        167,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/1.png",
+      "output": "combo/1.webp",
+      "sourceBytes": 38194,
+      "outputBytes": 20462,
+      "sourceSha256": "4db3aa2f37133212f66eda1aea3c5bf61996ab135b8bc68de4426b1c2632bafd",
+      "outputSha256": "5013db830409a2854c02ef6538c9bc315cecd941804a77ae509c6339397671a3",
+      "sourceSize": [
+        145,
+        192
+      ],
+      "outputSize": [
+        145,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/2.png",
+      "output": "combo/2.webp",
+      "sourceBytes": 51566,
+      "outputBytes": 27136,
+      "sourceSha256": "12cb8b37e46517fed574c5d85df20c2eb18cc0fd5ecd5577f0f391a6fc8e963c",
+      "outputSha256": "d4a817547759a682208ec8aac9e15225e0632f8f6073f4f87094139c9287ddd9",
+      "sourceSize": [
+        167,
+        192
+      ],
+      "outputSize": [
+        167,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/3.png",
+      "output": "combo/3.webp",
+      "sourceBytes": 52803,
+      "outputBytes": 28720,
+      "sourceSha256": "4a9d59c639c6f531f9e4666e2a51b1d621160da86d741b9f6c3246c47611eba8",
+      "outputSha256": "f496b41edaca5241f0cb249c82355b0e404da170d2b73618bf19c2942c192eba",
+      "sourceSize": [
+        170,
+        192
+      ],
+      "outputSize": [
+        170,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/4.png",
+      "output": "combo/4.webp",
+      "sourceBytes": 46088,
+      "outputBytes": 24150,
+      "sourceSha256": "b55f66eccad695d61ebf5b6d552bee508497bfbec08fd1bdfcc5d38b63f4f918",
+      "outputSha256": "a2717626e466d51c104c04b9f1248ad7965e872bf3bb880e634c79e937343a23",
+      "sourceSize": [
+        180,
+        192
+      ],
+      "outputSize": [
+        180,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/5.png",
+      "output": "combo/5.webp",
+      "sourceBytes": 51034,
+      "outputBytes": 27044,
+      "sourceSha256": "81c15b72a3c4d3074554d98a7beec43dde9b26c34e4f46baea8e1a063a0b7b56",
+      "outputSha256": "0358cca81aa62d43204d5f9327691019e34cd986d32927cdbf9e36724ed9e2f9",
+      "sourceSize": [
+        163,
+        192
+      ],
+      "outputSize": [
+        163,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/6.png",
+      "output": "combo/6.webp",
+      "sourceBytes": 48037,
+      "outputBytes": 26224,
+      "sourceSha256": "9118ee0b56bfa6054228d0a4033dd7bbb7d8ec7a3aa41b351315cf70132ea261",
+      "outputSha256": "c4d8875d83520f63c26e7b79211ace55b472f968fd8b2fc399c1c3f1a9a3c292",
+      "sourceSize": [
+        167,
+        192
+      ],
+      "outputSize": [
+        167,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/7.png",
+      "output": "combo/7.webp",
+      "sourceBytes": 46018,
+      "outputBytes": 23658,
+      "sourceSha256": "839f807805cf9d88281634b03232991acc95ef5fe53c367f535ba1d3b20a304e",
+      "outputSha256": "c3aa2bc5e53c8b42b3952a461ff98d745cac043e422c5aa21bab71109a71008c",
+      "sourceSize": [
+        173,
+        192
+      ],
+      "outputSize": [
+        173,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/8.png",
+      "output": "combo/8.webp",
+      "sourceBytes": 51754,
+      "outputBytes": 28030,
+      "sourceSha256": "174391ecb02c6af3f4b3514bf06172d3194ce0a35cbf6e6727dbbaa93d9a8760",
+      "outputSha256": "141175263348e9b5aa9309833e8d72397252e9dac461d04949c9eada72602973",
+      "sourceSize": [
+        171,
+        192
+      ],
+      "outputSize": [
+        171,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    },
+    {
+      "source": "combo/9.png",
+      "output": "combo/9.webp",
+      "sourceBytes": 50905,
+      "outputBytes": 27248,
+      "sourceSha256": "7c281b0f5d9ac5fd41a510761329fa45e3bcb71ba041ab23ea54a0683c4be7d3",
+      "outputSha256": "23898e23cb2ecdc7e1c97c0ce9c2290ec2577e81c6c74ae66949ef3bc0bea5a7",
+      "sourceSize": [
+        174,
+        192
+      ],
+      "outputSize": [
+        174,
+        192
+      ],
+      "maxEdge": null,
+      "decodedEqualsPreparedPixels": true
+    }
+  ]
+}

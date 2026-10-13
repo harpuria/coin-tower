@@ -55,7 +55,7 @@ async function expectComboArt(page: Page, value: number) {
       });
     }),
   ).toEqual(
-    [...`x${value}`].map((glyph) => ({ file: `${glyph}.png`, height: 192 })),
+    [...`x${value}`].map((glyph) => ({ file: `${glyph}.webp`, height: 192 })),
   );
   const bounds = (await page.locator('#combo').boundingBox())!;
   const row = (await page.locator('.combo-glyphs').boundingBox())!;
@@ -824,7 +824,7 @@ test('corrupt progress is preserved while the player can still complete a run', 
 test('asset failure and uncaught errors offer reload without claiming readiness', async ({
   page,
 }) => {
-  await page.route('**/assets/coin-tower/coin.png', (route) => route.abort());
+  await page.route('**/assets/coin-tower/coin.webp', (route) => route.abort());
   await page.goto('/');
   await expect(page.locator('#error-overlay')).toContainText(
     'Unable to load game files',

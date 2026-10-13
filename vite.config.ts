@@ -1,8 +1,11 @@
 import { defineConfig } from 'vitest/config';
+import { packageArt } from './scripts/package-art.ts';
 
 export default defineConfig({
   base: './',
+  plugins: [packageArt()],
   build: {
+    copyPublicDir: false,
     rolldownOptions: {
       output: {
         manualChunks: (id: string) =>

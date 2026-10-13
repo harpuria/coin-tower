@@ -2,6 +2,20 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-14 — 원본 보존·배포 WebP·20MB 이하 최적화
+
+- 요청/기준: 사용자가 CrazyGames 포털 Total 26.6MB / Load 24MB / 모바일 홈페이지 20MB 초과 안내를 보고했다. 이는 사용자 보고이며 로컬 측정과 구분한다. 기존 로컬 dist는 27,870,719 bytes(26.58MiB)였다.
+- 원본/변환: PNG 35장의 Git 원본 SHA-256을 모두 보존했다. 배포 WebP 합계는 13,355,598 bytes다. 아이콘 8장만 384px/256px로 축소하고 나머지 27장은 해상도와 전체 디코딩 픽셀이 같다. 모든 파생 파일은 준비한 픽셀과 무손실 디코딩 결과가 같다. 알파·frame 좌표·CSS 비율 crop을 유지했다. [파일별 기록](../src/game/art-generated.json)·[재생성 절차](art/optimized-assets.md)를 따른다.
+- 빌드: 일반 배포 14,796,951 bytes / CrazyGames 배포 **14,702,181 bytes**(14.70MB, 약 14.02MiB). 최종 dist는 39개 파일이며 원본 PNG와 fullscreen 아이콘은 없다. Vite는 등록 WebP·WAV·favicon만 복사하고 해시/설정 불일치·20,000,000 bytes 이상 CrazyGames 산출물을 실패시킨다.
+- 정적 검사: `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build`, `rtk npm run build:crazygames`(두 빌드 모두 TypeScript 포함)를 통과했다. 이미지 재생성 명령도 실제 실행했다. 최종 dist는 CrazyGames 모드다.
+- 개발 장면 비교: 실제 PC 1280×900 DPR1·Pixel 7 터치 에뮬레이션 DPR2.625에서 보존 PNG를 이미지 응답으로 대체한 기준 장면과 WebP 장면을 비교했다. 메뉴·SHOP·확인/취소·세 스킨 구매·20개/X19·네 시간대 배경·전환 중 pause/countdown·결과/+20·재시도·재시작·메뉴·전체화면·360×640/821×462를 캡처했다. 시간 훅만 사용하고 점수·동전 좌표는 덮어쓰지 않았다. 정상 페이지·자산 HTTP 오류는 0건이었다. 픽셀 동일성은 비축소 아트의 파일 디코딩 비교이며 전체 화면 픽셀 동일성 주장은 아니다.
+- 일반 production preview: PC·터치에서 실제 전체화면 진입/해제와 256px WebP 상태 전환, SHOP·소리·별도 시작/첫 적층 1개를 관측했다. 개발 훅은 제외됐다. 필수 coin.webp 누락은 로딩 오류와 PLAY/SHOP 비활성화를 유지했다.
+- CrazyGames production preview: SDK fixture와 실제 시간 입력을 사용했다. 플랫폼 음소거·자체 전체화면 숨김·개발 훅 제외, 1개 완료/+1 후 은화 구매(75→76→26)·자동 장착·재접속 복원·재시작을 관측했다. 원본 PNG와 fullscreen 아트 요청은 없고 정상 페이지·자산 HTTP 오류는 0건이었다.
+- 초기 전송량: 새 브라우저 세션의 기본 캐시 설정에서 첫 SDK fixture Gameplay Start까지 CDP로 관측한 로컬 전송량은 PC·터치 모두 **약 17.81MB**였다. 등록된 배포 파일 합계보다 큰 것은 HTML·Phaser의 요청과 전송 헤더를 포함하기 때문이다. 외부 공식 SDK의 실제 전송량·CrazyGames CDN 압축/캐시·포털 집계는 이 수치에 포함해 입증하지 않는다. 이벤트 시점을 앞당기지 않았다.
+- 재생성: 동일 설정 재실행은 해시 기반 캐시를 사용했다. SHOP maxEdge만 256→320으로 바꾸면 파일 63,742→90,416 bytes와 실제 DOM naturalWidth 320이 관측됐다. 설정만 변경하는 관측 중 첫 임시 스크립트는 HMR 시점의 DOM 준비 확인을 보완해 다시 실행했다. 최종 256으로 복원·재생성했다.
+- 산출물: `test-results/optimized-assets/`의 원본/최적화 장면 PNG, `game-observations.json`, `standalone-observations.json`, `production-network.json`, `content-edit.json`. 정식 회귀 스위트를 추가하거나 실행하지 않았으며 기존 E2E의 콤보 확장자·누락 자산 URL 두 기대값만 맞췄다.
+- 제한/다음: 실제 포털의 재업로드 Load size·모바일 홈페이지 자격, 공식 SDK·실기기·Safari/Firefox·느린 회선은 미확인이다. 최신 `dist/`를 새 빌드로 업로드하고 포털 수치를 확인해야 한다. 기존 생성 원본 PNG는 업로드하지 않는다.
+
 ## 2026-10-13 — SHOP·소리·전체화면 아이콘 생성·적용
 
 - 제작: 기존 파란 패널·금화 아이콘을 참조해 상점, 소리 ON/OFF, 전체화면 진입/해제 PNG 5종을 생성했다. 실제 출력은 모두 1254×1254 RGBA·알파 0~255이며 원본 그대로 복사했다. 해시·프롬프트·참조 연결은 [제작 기록](art/utility-icons.md)과 [메타데이터](art/utility-icons-metadata.json)를 따른다.

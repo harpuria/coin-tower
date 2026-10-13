@@ -16,6 +16,7 @@
 Prefix all shell commands with `rtk`, including each segment in chains. `rtk proxy <command>` preserves raw output; raw commands are allowed for debugging.
 
 - Install: `rtk proxy npm ci`.
+- Regenerate optimized art after source/settings changes: `rtk npm run assets:optimize` (Python/Pillow setup and packaging contract: `docs/art/optimized-assets.md`). Preserve source PNGs; upload only the built `dist/` contents.
 - Run: `rtk npm run dev` → `http://localhost:5173` (LAN access for mobile browsers).
 - CrazyGames run/build: `rtk npm run dev:crazygames` / `rtk npm run build:crazygames`. SDK browser checks: `rtk npm run test:crazygames`; after that build, `rtk proxy env E2E_PREVIEW=1 npm run test:crazygames`. See `docs/DEVELOPMENT.md` for real SDK versus fixture coverage.
 - Static checks and production build: `rtk npm run check` (lint, format, unit tests, typecheck, build).
