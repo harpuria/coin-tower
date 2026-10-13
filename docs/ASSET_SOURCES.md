@@ -57,11 +57,18 @@ PNG는 수정 없이 복사했다. 원본과 아래 파일의 SHA-256이 일치�
 - 출력·후처리: 2172×724 RGBA PNG·812,872 bytes, 생성 원본 그대로 복사. 픽셀 후처리 없이 CSS로 표시 영역의 투명 여백만 제외한다. 전체 프롬프트·원본 경로·해시·표시 사양은 [제작 기록](art/tap-to-play.md)에 있다.
 - 이용 조건 확인(2026-10-12): [OpenAI Terms of Use](https://openai.com/policies/terms-of-use/) Content 절에 따라 법이 허용하는 범위에서 사용자에게 Output 권리를 귀속한다. 입력 참조 권리·서비스 이용 조건은 계속 적용되며 결과의 독점성은 보장되지 않는다. 실제 계정 계약 종류는 미확인이다. 플랫폼의 AI 생성물 공개 여부는 사용자가 결정한다.
 
+## SHOP·소리·전체화면 조작 아이콘
+
+- 파일: `public/assets/coin-tower/icons/shop.png`, `sound-on.png`, `sound-off.png`, `fullscreen-enter.png`, `fullscreen-exit.png`. 제작·런타임 적용 아트이며 플레이어 외형 선호는 후속 피드백에서 확인한다.
+- 출처: 2026-10-13 OpenAI 내장 `image_gen.imagegen`, 총 5회. 모델 상세 버전·seed는 제공되지 않았다. SHOP은 기존 `hud_panel.png`·`icons/best-coins.png`, SOUND ON/전체화면 진입은 SHOP, 각 반대 상태는 해당 정방향 생성 이미지를 참조했다. 모두 `transparent_background: true`다.
+- 출력·후처리: 실제 출력 1254×1254 RGBA PNG 5장, 합계 약 4.89MiB·원시 RGBA 약 30MiB. 생성 원본 그대로 복사했고 픽셀 편집·축소는 하지 않았다. 개별 프롬프트·원본 경로·해시·용량·표시 사양·관측 한계는 [제작 기록](art/utility-icons.md)과 [메타데이터](art/utility-icons-metadata.json)에 있다.
+- 이용 조건 확인(2026-10-13): [OpenAI Terms of Use](https://openai.com/policies/terms-of-use/) Content 절에 따라 법이 허용하는 범위에서 사용자에게 Output 권리를 귀속하며 독점성은 보장되지 않는다. 입력 참조 권리·서비스 이용 조건은 계속 적용된다. 실제 계정 계약 종류는 미확인이다. 플랫폼의 AI 생성물 공개 여부는 사용자가 결정한다.
+
 ## 효과음과 기타
 
 - `public/assets/coin-tower/stack.wav`: phaser-web-template 0.2.0, commit `b953c81b31cfdb36f73c6462d707a45ec2b8a46d`의 `public/assets/demo/collect.wav`를 재사용한 합성 효과음. 템플릿은 직접 합성한 WAV라고 기록한다. 현재 착지 소리용 임시 음원이며 BGM은 없다.
   - 착지 연출 개선에서도 파일 원본은 유지한다. 일반/Perfect에 다른 재생 속도와 상대 음량을 적용하며 조정값은 `src/game/feedback.ts`를 따른다. 별도 금속음 녹음·AI 생성이나 외부 음원 추가는 하지 않았다.
 - `public/favicon.svg`: 이 프로젝트 초기화 중 작성한 SVG.
-- 신규 생성 이미지는 위 콤보 숫자·시간대 배경·기록/별조각 아이콘·TAP TO PLAY 글자다. 외부 폰트·제삼자 음원은 추가하지 않았다.
+- 신규 생성 이미지는 위 동전 스킨·콤보 숫자·시간대 배경·기록/별조각 아이콘·TAP TO PLAY 글자·SHOP/소리/전체화면 아이콘이다. 외부 폰트·제삼자 음원은 추가하지 않았다.
 
 첫 플레이 버전은 이미지 원본을 보존한다. 파일 크기와 실제 휴대폰 첫 로딩 시간은 후속 기기 플레이에서 함께 관찰한다.

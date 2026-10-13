@@ -42,7 +42,7 @@ export class Shell {
             </section>
             <div class="title-shards shard-readout icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
             <div class="start-prompt"><button id="play" class="start-image" aria-label="Tap to play"><img src="${asset}tap_to_play.png" alt="" draggable="false" /></button></div>
-            <button id="skins-menu" class="utility-button skins-menu">SKINS</button>
+            <button id="skins-menu" class="utility-button skins-menu" aria-label="Shop" title="Shop"><img src="${asset}icons/shop.png" alt="" draggable="false" /><span class="utility-caption" aria-hidden="true">SHOP</span></button>
           </div>
           <div id="hud" class="layer" hidden>
             <section class="hud-records" aria-label="Browser bests and collected Star Shards">
@@ -102,7 +102,7 @@ export class Shell {
             <div class="confirm-card"><h2 id="skin-confirm-title">Unlock this skin?</h2><p id="skin-confirm-description"></p><button id="skin-confirm-yes" class="game-button primary">BUY</button><button id="skin-confirm-no" class="game-button">CANCEL</button></div>
           </section>
           <div id="countdown-overlay" class="layer countdown" hidden><span>GET READY</span><strong id="countdown" aria-live="polite">3</strong></div>
-          <div class="utility"><button id="mute" class="utility-button" aria-label="Mute sound" aria-pressed="false">SOUND ON</button><button id="fullscreen" class="utility-button" hidden>FULLSCREEN</button></div>
+          <div class="utility"><button id="mute" class="utility-button" aria-label="Mute sound" title="Mute sound" aria-pressed="false"><img id="sound-icon" src="${asset}icons/sound-on.png" alt="" draggable="false" /></button><button id="fullscreen" class="utility-button" aria-label="Enter fullscreen" title="Enter fullscreen" hidden><img id="fullscreen-icon" src="${asset}icons/fullscreen-enter.png" alt="" draggable="false" /></button></div>
           <p id="storage-notice" role="status" class="storage-notice"></p>
           <div id="loading-overlay" class="layer blocking"><p>Getting the coins ready…</p></div>
           <div id="error-overlay" class="layer blocking" role="alert" hidden><p id="error-message"></p><button id="reload" class="game-button">RELOAD</button></div>
@@ -374,11 +374,12 @@ export class Shell {
         : run.mode.toUpperCase();
     const muted = app.settings.data.muted || app.platform.muted;
     this.element<HTMLButtonElement>('mute').disabled = app.platform.muted;
-    this.element('mute').textContent = app.platform.muted
-      ? 'SOUND OFF (PLATFORM)'
-      : muted
-        ? 'SOUND OFF'
-        : 'SOUND ON';
+    const soundIcon = this.element<HTMLImageElement>('sound-icon');
+    const soundFile = muted ? 'sound-off' : 'sound-on';
+    if (soundIcon.dataset.state !== soundFile) {
+      soundIcon.src = `${import.meta.env.BASE_URL}assets/coin-tower/icons/${soundFile}.png`;
+      soundIcon.dataset.state = soundFile;
+    }
     this.element('mute').setAttribute(
       'aria-label',
       app.platform.muted
@@ -387,6 +388,8 @@ export class Shell {
           ? 'Unmute sound'
           : 'Mute sound',
     );
+    this.element('mute').title =
+      this.element('mute').getAttribute('aria-label')!;
     this.element('mute').setAttribute('aria-pressed', String(muted));
     this.element('fullscreen').hidden = !(
       !app.platform.hideFullscreen &&
@@ -394,9 +397,16 @@ export class Shell {
       app.game &&
       fullscreenAvailable(app.game)
     );
-    this.element('fullscreen').textContent = app.game?.scale.isFullscreen
-      ? 'EXIT FULLSCREEN'
-      : 'FULLSCREEN';
+    const fullscreen = !!app.game?.scale.isFullscreen;
+    const fullscreenLabel = fullscreen ? 'Exit fullscreen' : 'Enter fullscreen';
+    this.element('fullscreen').setAttribute('aria-label', fullscreenLabel);
+    this.element('fullscreen').title = fullscreenLabel;
+    const fullscreenIcon = this.element<HTMLImageElement>('fullscreen-icon');
+    const fullscreenFile = fullscreen ? 'fullscreen-exit' : 'fullscreen-enter';
+    if (fullscreenIcon.dataset.state !== fullscreenFile) {
+      fullscreenIcon.src = `${import.meta.env.BASE_URL}assets/coin-tower/icons/${fullscreenFile}.png`;
+      fullscreenIcon.dataset.state = fullscreenFile;
+    }
   }
   destroy() {
     cancelAnimationFrame(this.comboFrame);

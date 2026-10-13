@@ -1,0 +1,57 @@
+[
+  {
+    "name": "shop",
+    "original": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-5d675e03-24fe-4f9d-9e10-defe21bfe72e.png",
+    "path": "public/assets/coin-tower/icons/shop.png",
+    "size": [1254, 1254],
+    "mode": "RGBA",
+    "bytes": 1326909,
+    "sha256": "04e4da128b1baecdf39e18c960cd670381db04b9a7f75c8029b796ef813c6a2f",
+    "alpha": [0, 255],
+    "bounds": [68, 67, 1184, 1174]
+  },
+  {
+    "name": "sound-on",
+    "original": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-bc3ee292-5ba7-4653-af44-cb6d3b69d3d0.png",
+    "path": "public/assets/coin-tower/icons/sound-on.png",
+    "size": [1254, 1254],
+    "mode": "RGBA",
+    "bytes": 860131,
+    "sha256": "72479d636f0280d632a5e758038710757817fb7a75999ba8a5e44dbb92669a42",
+    "alpha": [0, 255],
+    "bounds": [99, 207, 1172, 1064]
+  },
+  {
+    "name": "sound-off",
+    "original": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-15e9d5ad-721e-4991-8cd1-44769570fa68.png",
+    "path": "public/assets/coin-tower/icons/sound-off.png",
+    "size": [1254, 1254],
+    "mode": "RGBA",
+    "bytes": 787401,
+    "sha256": "8527f9ce5194768d4d90797bb866fc86d2b9aa7d1f62d08db7c533e05119cecf",
+    "alpha": [0, 255],
+    "bounds": [175, 189, 1088, 1091]
+  },
+  {
+    "name": "fullscreen-enter",
+    "original": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-e9538555-6672-45c6-a049-5937fbc70dfb.png",
+    "path": "public/assets/coin-tower/icons/fullscreen-enter.png",
+    "size": [1254, 1254],
+    "mode": "RGBA",
+    "bytes": 1095337,
+    "sha256": "7ceec6f15ed25fd492f963f2ebd937086b546d6ec75d437c4d4ee804de0163c0",
+    "alpha": [0, 255],
+    "bounds": [94, 118, 1159, 1135]
+  },
+  {
+    "name": "fullscreen-exit",
+    "original": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-919c6c99-d616-45b5-b4ff-42076c7e97cb.png",
+    "path": "public/assets/coin-tower/icons/fullscreen-exit.png",
+    "size": [1254, 1254],
+    "mode": "RGBA",
+    "bytes": 1053455,
+    "sha256": "9d3d4ca8f7b61625a833b7e5231b0438db180aa04e312b49d4d3cd05d8b3350f",
+    "alpha": [0, 255],
+    "bounds": [93, 116, 1160, 1135]
+  }
+]

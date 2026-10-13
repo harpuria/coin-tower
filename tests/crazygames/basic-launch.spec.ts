@@ -199,7 +199,7 @@ test('platform mute takes priority and preserves stored user mute across changes
   await ready(page);
   const mute = page.locator('#mute');
   await expect(mute).toBeDisabled();
-  await expect(mute).toHaveText('SOUND OFF (PLATFORM)');
+  await expect(mute).toHaveAttribute('aria-label', 'Sound muted by platform');
   await expect(mute).toHaveAttribute('aria-pressed', 'true');
   // 오디오 렌더가 시작된 뒤 실제 gain 값을 읽는다(자동 재생 제한).
   await page.locator('#play').click();
@@ -211,7 +211,7 @@ test('platform mute takes priority and preserves stored user mute across changes
   ).toBeNull();
   await page.evaluate(() => window.__CG_TEST__.setMute(false));
   await expect(mute).toBeEnabled();
-  await expect(mute).toHaveText('SOUND ON');
+  await expect(mute).toHaveAttribute('aria-label', 'Mute sound');
   await expect.poll(audioGain).toBe(1);
   await mute.click();
   await expect.poll(audioGain).toBe(0);
@@ -223,7 +223,7 @@ test('platform mute takes priority and preserves stored user mute across changes
     window.__CG_TEST__.setMute(true);
     window.__CG_TEST__.setMute(false);
   });
-  await expect(mute).toHaveText('SOUND OFF');
+  await expect(mute).toHaveAttribute('aria-label', 'Unmute sound');
   await expect.poll(audioGain).toBe(0);
   expect(
     await page.evaluate(() =>
@@ -236,7 +236,7 @@ test('platform mute takes priority and preserves stored user mute across changes
   await page.locator('#play').click();
   await expect.poll(audioGain).toBe(0);
   await page.evaluate(() => window.__CG_TEST__.setMute(false));
-  await expect(mute).toHaveText('SOUND OFF');
+  await expect(mute).toHaveAttribute('aria-label', 'Unmute sound');
   await expect.poll(audioGain).toBe(0);
 });
 

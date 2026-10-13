@@ -18,6 +18,11 @@ export const assetKeys = {
   bestCoinsIcon: 'bestCoinsIcon',
   bestComboIcon: 'bestComboIcon',
   starShardsIcon: 'starShardsIcon',
+  shopIcon: 'shopIcon',
+  soundOnIcon: 'soundOnIcon',
+  soundOffIcon: 'soundOffIcon',
+  fullscreenEnterIcon: 'fullscreenEnterIcon',
+  fullscreenExitIcon: 'fullscreenExitIcon',
   stack: 'stack',
 } as const;
 
@@ -38,6 +43,11 @@ const images = {
   bestCoinsIcon: 'icons/best-coins.png',
   bestComboIcon: 'icons/best-combo.png',
   starShardsIcon: 'icons/star-shards.png',
+  shopIcon: 'icons/shop.png',
+  soundOnIcon: 'icons/sound-on.png',
+  soundOffIcon: 'icons/sound-off.png',
+  fullscreenEnterIcon: 'icons/fullscreen-enter.png',
+  fullscreenExitIcon: 'icons/fullscreen-exit.png',
 } as const;
 
 /** 원본 PNG를 수정하지 않고 모바일과 같은 투명 여백을 텍스처 frame으로 제외한다. */
