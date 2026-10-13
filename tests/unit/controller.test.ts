@@ -7,7 +7,7 @@ import { Store } from '../../src/core/store';
 import { progressSchema, type Progress } from '../../src/game/save';
 import { rules } from '../../src/game/rules';
 
-function fixture(initial?: Omit<Progress, 'shards'>) {
+function fixture(initial?: Pick<Progress, 'best' | 'bestCombo' | 'rounds'>) {
   const events: string[] = [];
   let raw = initial ? JSON.stringify({ version: 2, data: initial }) : null;
   const storage = {
@@ -92,6 +92,7 @@ it.each([0, 1])('records %i for a run with that many Perfects', (perfects) => {
   for (let index = 0; index < perfects; index++) land(game);
   land(game, -100);
   expect(app.save.data).toEqual({
+    ...progressSchema.defaults(),
     best: perfects + 1,
     bestCombo: perfects,
     rounds: 1,
@@ -116,6 +117,7 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   for (let index = 0; index < 5; index++) land(game);
   expect(storage.setItem).not.toHaveBeenCalled();
   expect(app.save.data).toEqual({
+    ...progressSchema.defaults(),
     best: 30,
     bestCombo: 4,
     rounds: 2,
@@ -123,6 +125,7 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   });
   land(game, -100);
   expect(app.save.data).toEqual({
+    ...progressSchema.defaults(),
     best: 30,
     bestCombo: 8,
     rounds: 3,
@@ -150,6 +153,7 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   land(game);
   land(game, -100);
   expect(app.save.data).toEqual({
+    ...progressSchema.defaults(),
     best: 30,
     bestCombo: 8,
     rounds: 4,

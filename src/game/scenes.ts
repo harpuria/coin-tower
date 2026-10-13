@@ -5,6 +5,7 @@ import type { BackgroundTime } from './backgrounds';
 import type { GameController } from './controller';
 import { feedbackRules, landingVisual } from './feedback';
 import { rules } from './rules';
+import { skinById } from './skins';
 
 export interface DebugControl {
   snapshot: () => ReturnType<App['session']['snapshot']>;
@@ -157,6 +158,11 @@ export class CoinTowerScene extends Phaser.Scene {
   }
   private renderRun() {
     const run = this.app.session;
+    const coinTexture = skinById(this.app.save.data.equippedSkin).texture;
+    this.titleCoin.setTexture(coinTexture, 'art').setDisplaySize(188, 115);
+    this.activeCoin
+      .setTexture(coinTexture, 'art')
+      .setDisplaySize(rules.diameter, 102);
     const reducedMotion = this.app.settings.data.reducedMotion;
     const visual = landingVisual(
       run.feedback,
@@ -194,7 +200,7 @@ export class CoinTowerScene extends Phaser.Scene {
       const sprite =
         this.stacked[index] ??
         this.add
-          .image(0, 0, assetKeys.coin, 'art')
+          .image(0, 0, coinTexture, 'art')
           .setDisplaySize(rules.diameter, 102)
           .setDepth(1);
       this.stacked[index] = sprite;
@@ -203,6 +209,7 @@ export class CoinTowerScene extends Phaser.Scene {
       const height = 102 * (top ? visual.height : 1);
       // 접점의 바닥을 고정한 채 새 동전만 눌렀다 복원한다. 모델 좌표는 그대로다.
       sprite
+        .setTexture(coinTexture, 'art')
         .setVisible(true)
         .setDisplaySize(width, height)
         .setPosition(coin.x, coin.y + run.cameraOffset + (102 - height) / 2);

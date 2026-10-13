@@ -3,6 +3,7 @@ import { assetKeys } from './assets';
 import { shardReward } from './economy';
 import { feedbackRules } from './feedback';
 import type { RunAction } from './session';
+import { skinById, type SkinId } from './skins';
 
 export interface RunResult {
   score: number;
@@ -20,6 +21,9 @@ export class GameController {
   private viewKey = '';
   private gameplayActive = false;
   saved = true;
+  skinsOpen = false;
+  skinPurchase: SkinId | null = null;
+  skinMessage = '';
   result: Readonly<RunResult> | null = null;
   constructor(readonly app: App) {
     app.onBackground = () => {
@@ -60,13 +64,14 @@ export class GameController {
     }
   }
   start() {
-    if (!this.app.ready) return;
+    if (!this.app.ready || this.skinsOpen) return;
     this.result = null;
     this.run.start();
     if (this.background) this.run.pause();
     this.sync();
   }
   tap() {
+    if (this.skinsOpen) return;
     if (this.run.mode === 'menu') this.start();
     else if (!this.background) {
       this.run.drop();
@@ -93,6 +98,8 @@ export class GameController {
     this.sync();
   }
   home() {
+    this.skinsOpen = false;
+    this.skinPurchase = null;
     this.result = null;
     this.run.home();
     this.sync();
@@ -123,6 +130,7 @@ export class GameController {
       };
       this.result = result;
       this.app.save.update((data) => ({
+        ...data,
         best: result.best,
         bestCombo: result.bestCombo,
         rounds: Math.min(Number.MAX_SAFE_INTEGER, data.rounds + 1),
@@ -131,5 +139,67 @@ export class GameController {
       this.saved = this.app.save.flush();
     }
     this.sync();
+  }
+
+  openSkins() {
+    if (!this.app.ready || this.app.fatalError || this.run.mode !== 'menu')
+      return;
+    this.skinsOpen = true;
+    this.skinMessage = '';
+    this.app.onState();
+  }
+  closeSkins() {
+    this.skinsOpen = false;
+    this.skinPurchase = null;
+    this.skinMessage = '';
+    this.app.onState();
+  }
+  selectSkin(id: SkinId) {
+    if (!this.skinsOpen || this.skinPurchase || this.run.mode !== 'menu')
+      return;
+    const progress = this.app.save.data;
+    this.skinMessage = '';
+    if (progress.ownedSkins.includes(id)) {
+      if (progress.equippedSkin === id) return;
+      const saved = this.app.save.commit((data) => ({
+        ...data,
+        equippedSkin: id,
+      }));
+      this.skinMessage = saved
+        ? `${skinById(id).name} equipped.`
+        : 'Could not save. Your equipped skin has not changed.';
+    } else if (this.app.save.status !== 'ready') {
+      this.skinMessage =
+        'Purchases are unavailable because progress cannot be saved.';
+    } else if (progress.shards < skinById(id).price) {
+      this.skinMessage = `Need ${skinById(id).price - progress.shards} more Star Shards.`;
+    } else {
+      this.skinPurchase = id;
+    }
+    this.app.onState();
+  }
+  confirmSkinPurchase(accepted: boolean) {
+    if (!this.skinsOpen || !this.skinPurchase || this.run.mode !== 'menu')
+      return;
+    const id = this.skinPurchase;
+    this.skinPurchase = null;
+    if (accepted) {
+      const skin = skinById(id);
+      const progress = this.app.save.data;
+      if (progress.ownedSkins.includes(id) || progress.shards < skin.price) {
+        this.skinMessage = 'Purchase unavailable. Please choose a skin again.';
+      } else {
+        const saved = this.app.save.commit((data) => ({
+          ...data,
+          shards: data.shards - skin.price,
+          ownedSkins: [...data.ownedSkins, id],
+          equippedSkin: id,
+        }));
+        this.skinMessage = saved
+          ? `${skin.name} unlocked and equipped!`
+          : 'Purchase could not be saved. No Star Shards were spent.';
+      }
+    }
+    this.app.onState();
   }
 }

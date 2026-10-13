@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { skins } from './skins';
 
 export const assetKeys = {
   coin: 'coin',
@@ -53,12 +54,20 @@ const regions: Record<string, readonly [number, number, number, number]> = {
 export function queueAssets(load: Phaser.Loader.LoaderPlugin) {
   load.setPath(`${import.meta.env.BASE_URL}assets/coin-tower/`);
   for (const [key, file] of Object.entries(images)) load.image(key, file);
+  for (const skin of skins)
+    if (skin.id !== 'gold') load.image(skin.texture, skin.file);
   for (const glyph of 'x0123456789')
     load.image(`combo-${glyph}`, `combo/${glyph}.png`);
   load.audio(assetKeys.stack, 'stack.wav');
 }
 export function installAssetFrames(textures: Phaser.Textures.TextureManager) {
-  for (const [key, [x, y, width, height]] of Object.entries(regions)) {
+  const skinRegions = Object.fromEntries(
+    skins.map((skin) => [skin.texture, regions.coin!]),
+  );
+  for (const [key, [x, y, width, height]] of Object.entries({
+    ...regions,
+    ...skinRegions,
+  })) {
     const texture = textures.get(key);
     if (!texture.has('art')) texture.add('art', 0, x, y, width, height);
   }

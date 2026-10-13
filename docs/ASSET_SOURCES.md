@@ -20,7 +20,7 @@ PNG는 수정 없이 복사했다. 원본과 아래 파일의 SHA-256이 일치�
 
 ## 동전 스킨 3종
 
-- 파일: `public/assets/coin-tower/skins/coin_silver.png`, `coin_ruby.png`, `coin_emerald.png`. 상태: 제작 완료·실제 구매/장착 기능 적용 전. 기존 `coin.png`는 보존했다.
+- 파일: `public/assets/coin-tower/skins/coin_silver.png`, `coin_ruby.png`, `coin_emerald.png`. 상태: SKINS 미리보기·메뉴·플레이의 구매/장착 기능에 사용하는 아트. 필수 로더에 등록했으며 기존 `coin.png`는 보존했다.
 - 출처: 2026-10-13 OpenAI 내장 `image_gen.imagegen` 참조 이미지 편집, 스킨당 한 번씩 총 3회. 상세 모델 버전·seed는 제공되지 않았다. 참조는 기존 `coin.png` 하나이며 `transparent_background: true`를 사용했다.
 - 원본과 같은 1599×984 RGBA PNG를 그대로 복사했으며 픽셀·알파 후처리는 없다. 전체 프롬프트·원본 경로·해시·표시 frame·용량·관측은 [제작 기록](art/coin-skins.md)에 있다.
 - 이용 조건 확인(2026-10-13): [OpenAI Terms of Use](https://openai.com/policies/terms-of-use/) Content 절에 따라 법이 허용하는 범위에서 사용자에게 Output 권리를 귀속한다. 입력 참조 권리·서비스 이용 조건은 계속 적용되며 결과의 독점성은 보장되지 않는다. 실제 계정 계약 종류는 미확인이다. 플랫폼의 AI 생성물 공개 여부는 사용자가 결정한다.

@@ -1,20 +1,37 @@
 import { isRecord, type Schema } from '../core/store';
+import { isSkinId, type SkinId } from './skins';
 
 export interface Progress {
   best: number;
   bestCombo: number;
   rounds: number;
   shards: number;
+  ownedSkins: SkinId[];
+  equippedSkin: SkinId;
 }
 
 const isCount = (n: unknown): n is number =>
   typeof n === 'number' && Number.isSafeInteger(n) && n >= 0;
 
 export const progressSchema: Schema<Progress> = {
-  version: 3,
-  defaults: () => ({ best: 0, bestCombo: 0, rounds: 0, shards: 0 }),
+  version: 4,
+  defaults: () => ({
+    best: 0,
+    bestCombo: 0,
+    rounds: 0,
+    shards: 0,
+    ownedSkins: ['gold'],
+    equippedSkin: 'gold',
+  }),
   validate: (v): v is Progress =>
-    isRecord(v) && [v.best, v.bestCombo, v.rounds, v.shards].every(isCount),
+    isRecord(v) &&
+    [v.best, v.bestCombo, v.rounds, v.shards].every(isCount) &&
+    Array.isArray(v.ownedSkins) &&
+    v.ownedSkins.every(isSkinId) &&
+    new Set(v.ownedSkins).size === v.ownedSkins.length &&
+    v.ownedSkins.includes('gold') &&
+    isSkinId(v.equippedSkin) &&
+    v.ownedSkins.includes(v.equippedSkin),
   migrations: {
     1: (value) => {
       // 구버전에 없던 콤보 기록은 추정하지 않고 0에서 시작한다.
@@ -33,6 +50,23 @@ export const progressSchema: Schema<Progress> = {
         bestCombo: value.bestCombo,
         rounds: value.rounds,
         shards: 0,
+      };
+    },
+    3: (value) => {
+      if (
+        !isRecord(value) ||
+        ![value.best, value.bestCombo, value.rounds, value.shards].every(
+          isCount,
+        )
+      )
+        throw new Error('Invalid v3 progress');
+      return {
+        best: value.best,
+        bestCombo: value.bestCombo,
+        rounds: value.rounds,
+        shards: value.shards,
+        ownedSkins: ['gold'],
+        equippedSkin: 'gold',
       };
     },
   },

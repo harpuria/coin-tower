@@ -97,6 +97,25 @@ export class Store<T> {
     }
   }
 
+  /** 저장에 성공한 후보만 반영하고, 실패 시 기존 메모리 값을 유지한다. */
+  commit(change: (current: T) => T): boolean {
+    if (this.status !== 'ready') return false;
+    const next = change(structuredClone(this.value));
+    if (!this.schema.validate(next)) throw new Error('Invalid store commit');
+    try {
+      this.storage!.setItem(
+        this.key,
+        JSON.stringify({ version: this.schema.version, data: next }),
+      );
+      this.value = structuredClone(next);
+      this.dirty = false;
+      return true;
+    } catch {
+      this.status = 'unavailable';
+      return false;
+    }
+  }
+
   /** Destructive recovery: call only after an explicit user reset action. */
   reset(): boolean {
     try {

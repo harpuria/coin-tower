@@ -3,6 +3,7 @@ import { gameConfig } from '../config/game';
 import { fullscreenAvailable, toggleFullscreen } from '../core/screen';
 import type { GameController } from '../game/controller';
 import { landingVisual } from '../game/feedback';
+import { skins, skinById } from '../game/skins';
 
 /** 네이티브 HTML 버튼을 게임 화면 위에 배치해 입력과 접근성을 함께 유지한다. */
 export class Shell {
@@ -41,6 +42,7 @@ export class Shell {
             </section>
             <div class="title-shards shard-readout icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
             <div class="start-prompt"><button id="play" class="start-image" aria-label="Tap to play"><img src="${asset}tap_to_play.png" alt="" draggable="false" /></button></div>
+            <button id="skins-menu" class="utility-button skins-menu">SKINS</button>
           </div>
           <div id="hud" class="layer" hidden>
             <section class="hud-records" aria-label="Browser bests and collected Star Shards">
@@ -78,6 +80,26 @@ export class Shell {
           </section>
           <section id="confirm-overlay" class="layer veil" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
             <div class="confirm-card"><h2 id="confirm-title">End this run?</h2><p>No Star Shards earned for this run.<br />Your best scores and collected shards will be kept.</p><button id="confirm-yes" class="game-button primary">CONFIRM</button><button id="confirm-no" class="game-button">CANCEL</button></div>
+          </section>
+          <section id="skins-screen" class="layer skins-screen" role="dialog" aria-modal="true" aria-labelledby="skins-title" tabindex="-1" hidden>
+            <header class="skins-header"><h2 id="skins-title">COIN SKINS</h2><div class="icon-stat shard-readout" aria-label="Star Shards balance">${icon('shards')}<strong id="skins-balance">0</strong></div></header>
+            <p class="skins-subtitle">Make your next tower shine.</p>
+            <div class="skins-grid">${skins
+              .map(
+                (
+                  skin,
+                ) => `<article class="skin-card" aria-label="${skin.name} coin">
+              <span class="skin-preview" aria-hidden="true"><img src="${asset}${skin.file}" alt="" draggable="false" /></span>
+              <h3>${skin.name.toUpperCase()}</h3><p id="skin-state-${skin.id}" class="skin-state"></p>
+              <button id="skin-${skin.id}" class="game-button" aria-describedby="skin-state-${skin.id}"></button>
+            </article>`,
+              )
+              .join('')}</div>
+            <p id="skins-message" class="skins-message" role="status" aria-live="polite"></p>
+            <button id="skins-back" class="game-button skins-back">BACK</button>
+          </section>
+          <section id="skin-confirm-overlay" class="layer veil skin-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="skin-confirm-title" hidden>
+            <div class="confirm-card"><h2 id="skin-confirm-title">Unlock this skin?</h2><p id="skin-confirm-description"></p><button id="skin-confirm-yes" class="game-button primary">BUY</button><button id="skin-confirm-no" class="game-button">CANCEL</button></div>
           </section>
           <div id="countdown-overlay" class="layer countdown" hidden><span>GET READY</span><strong id="countdown" aria-live="polite">3</strong></div>
           <div class="utility"><button id="mute" class="utility-button" aria-label="Mute sound" aria-pressed="false">SOUND ON</button><button id="fullscreen" class="utility-button" hidden>FULLSCREEN</button></div>
@@ -160,6 +182,12 @@ export class Shell {
       if (this.app.session.mode === 'playing') focusGame();
     };
     this.on('play', start);
+    this.on('skins-menu', () => this.game.openSkins());
+    this.on('skins-back', () => this.game.closeSkins());
+    for (const skin of skins)
+      this.on(`skin-${skin.id}`, () => this.game.selectSkin(skin.id));
+    this.on('skin-confirm-yes', () => this.game.confirmSkinPurchase(true));
+    this.on('skin-confirm-no', () => this.game.confirmSkinPurchase(false));
     this.on('retry', start);
     this.on('home', () => this.game.home());
     this.on('pause', () => this.game.pause());
@@ -198,6 +226,7 @@ export class Shell {
           event.metaKey ||
           event.shiftKey ||
           !this.app.ready ||
+          this.game.skinsOpen ||
           this.app.loadingError ||
           this.app.fatalError ||
           document.hidden
@@ -226,6 +255,40 @@ export class Shell {
     document.addEventListener(
       'keydown',
       (event) => {
+        if (this.game.skinsOpen) {
+          if (event.code === 'Escape') {
+            event.preventDefault();
+            if (this.game.skinPurchase) this.game.confirmSkinPurchase(false);
+            else this.game.closeSkins();
+          } else if (event.code === 'Tab') {
+            const panel = this.element(
+              this.game.skinPurchase ? 'skin-confirm-overlay' : 'skins-screen',
+            );
+            const buttons = [
+              ...panel.querySelectorAll<HTMLButtonElement>(
+                'button:not(:disabled)',
+              ),
+            ];
+            const first = buttons[0];
+            const last = buttons.at(-1);
+            if (
+              event.shiftKey &&
+              (document.activeElement === first ||
+                !panel.contains(document.activeElement))
+            ) {
+              event.preventDefault();
+              last?.focus();
+            } else if (
+              !event.shiftKey &&
+              (document.activeElement === last ||
+                !panel.contains(document.activeElement))
+            ) {
+              event.preventDefault();
+              first?.focus();
+            }
+          }
+          return;
+        }
         if (event.code !== 'Escape' || this.app.session.mode !== 'playing')
           return;
         if (this.app.session.confirmation) this.game.confirm(false);
@@ -241,7 +304,8 @@ export class Shell {
     const playing = run.mode === 'playing';
     this.element('surface').dataset.mode = run.mode;
     this.element('surface').dataset.phase = run.phase;
-    this.element('title-screen').hidden = !menu;
+    this.element('title-screen').hidden = !menu || this.game.skinsOpen;
+    this.renderSkins();
     this.element('hud').hidden = !playing;
     this.element('result-screen').hidden = run.mode !== 'result';
     this.element('pause-overlay').hidden =
@@ -338,5 +402,86 @@ export class Shell {
     cancelAnimationFrame(this.comboFrame);
     this.controller.abort();
     this.app.onState = () => {};
+  }
+
+  private renderSkins() {
+    const open = this.game.skinsOpen;
+    const panel = this.element('skins-screen');
+    const confirmation = this.element('skin-confirm-overlay');
+    const wasOpen = !panel.hidden;
+    const wasConfirming = !confirmation.hidden;
+    const previous = confirmation.dataset.skin;
+    const progress = this.app.save.data;
+    const pending = this.game.skinPurchase;
+    panel.hidden = !open;
+    panel.inert = !!pending;
+    confirmation.hidden = !open || !pending;
+    confirmation.dataset.skin = pending ?? '';
+    this.element('game').inert = open;
+    this.element('title-screen').inert = open;
+    this.root.querySelector<HTMLElement>('.utility')!.inert = open;
+    this.root.querySelector<HTMLElement>('.utility')!.hidden = open;
+    this.element('storage-notice').hidden = open;
+    this.element('surface').classList.toggle('skins-open', open);
+    this.record('skins-balance', String(progress.shards));
+    this.element<HTMLButtonElement>('skins-menu').disabled =
+      !this.app.ready || !!this.app.fatalError;
+    for (const skin of skins) {
+      const owned = progress.ownedSkins.includes(skin.id);
+      const equipped = progress.equippedSkin === skin.id;
+      const shortage = Math.max(0, skin.price - progress.shards);
+      const button = this.element<HTMLButtonElement>(`skin-${skin.id}`);
+      const state = equipped
+        ? 'EQUIPPED'
+        : owned
+          ? 'OWNED'
+          : `${skin.price} STAR SHARDS`;
+      this.element(`skin-state-${skin.id}`).textContent =
+        shortage && !owned ? `${state} · Need ${shortage} more` : state;
+      button.textContent = equipped
+        ? 'EQUIPPED'
+        : owned
+          ? 'EQUIP'
+          : `BUY ${skin.price}`;
+      button.setAttribute(
+        'aria-label',
+        `${equipped ? 'Equipped' : owned ? 'Equip' : 'Buy'} ${skin.name}${owned ? '' : ` for ${skin.price} Star Shards`}`,
+      );
+      button.disabled =
+        equipped ||
+        this.app.save.status !== 'ready' ||
+        (!owned && shortage > 0);
+      button.closest('.skin-card')!.classList.toggle('is-equipped', equipped);
+    }
+    this.element('skins-message').textContent =
+      this.game.skinMessage ||
+      (this.app.save.status !== 'ready'
+        ? 'Progress cannot be saved. Purchases and skin changes are unavailable. You can keep playing.'
+        : 'Owned skins are yours to keep on this browser.');
+    if (pending) {
+      const skin = skinById(pending);
+      this.element('skin-confirm-title').textContent = `Unlock ${skin.name}?`;
+      this.element('skin-confirm-description').textContent =
+        `Spend ${skin.price} Star Shards? Balance after purchase: ${progress.shards - skin.price}. Your new skin will be equipped automatically.`;
+      this.element<HTMLButtonElement>('skin-confirm-yes').disabled =
+        this.app.save.status !== 'ready' || progress.shards < skin.price;
+    }
+    if (open && pending && !wasConfirming)
+      this.element('skin-confirm-no').focus({ preventScroll: true });
+    else if (open && wasConfirming && !pending && previous) {
+      const button = this.element<HTMLButtonElement>(`skin-${previous}`);
+      this.element(button.disabled ? 'skins-back' : `skin-${previous}`).focus({
+        preventScroll: true,
+      });
+    } else if (open && !wasOpen)
+      this.element('skins-back').focus({ preventScroll: true });
+    else if (
+      open &&
+      document.activeElement instanceof HTMLButtonElement &&
+      document.activeElement.disabled
+    )
+      this.element('skins-back').focus({ preventScroll: true });
+    else if (!open && wasOpen)
+      this.element('skins-menu').focus({ preventScroll: true });
   }
 }

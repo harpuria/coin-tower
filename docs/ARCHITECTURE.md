@@ -27,6 +27,8 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 별조각 지급 비율과 보상 계산은 `game/economy.ts`가 소유합니다. controller는 Session의 한 번뿐인 완료 이벤트에서 두 개인 기록과 별조각을 같은 진행 envelope에 갱신·flush합니다. 화면 렌더링·재시작·중단·광고 adapter에서 별도로 보상을 지급하지 않습니다. 결과의 획득량·정산 후 누적량은 메모리 완료 결과에, 장기 보유량은 진행 저장에 둡니다.
 
+스킨 목록·가격·이미지/텍스처는 `game/skins.ts`가 소유합니다. controller의 `skinsOpen`·`skinPurchase`·`skinMessage`는 메뉴의 일시적 화면 상태이며 Session이나 저장 데이터에 넣지 않습니다. Shell은 SKINS·확인창·포커스·입력 차단을 표시하고, controller만 구매·장착을 확정합니다. Scene은 저장된 장착 스킨의 동일한 art frame을 메뉴 동전·이동 동전·적층 동전에 사용합니다. 플레이 중에는 스킨 변경을 허용하지 않습니다.
+
 배경 시간대·전환 경과 시간도 Session이 소유합니다. Scene은 불투명한 이전 배경 위에 다음 배경의 불투명도를 올려 그리며 별도 tween 시간을 진행하지 않습니다. 중단·결과에서 모델 시간이 멈추면 배경 전환도 멈춥니다.
 
 착지 반동·접점 입자·PERFECT/X 팝도 `Session.feedbackRemaining`에서 경과 시간을 계산합니다. `game/feedback.ts`는 조정값과 표시 계산을 제공하고 Scene과 Shell이 같은 계산을 사용합니다. 표시용 변형은 모델의 동전 좌표·판정·정착 시간을 바꾸지 않습니다. 별도 tween이나 CSS 애니메이션 시계는 진행하지 않습니다.
@@ -65,6 +67,10 @@ App의 숨김·blur는 게임의 `onBackground`를 호출합니다. controller�
 `Store<T>`는 envelope 하나를 localStorage 키 하나에 기록합니다. 게임이 `defaults`/`validate`/`migrations`를 제공합니다.
 순차 migration과 최종 validate가 모두 성공해야 정상 load로 인정합니다. 갱신하면 dirty가 되고, 판 종료·주기·탭 숨김·pagehide에서 flush합니다.
 브라우저 종료 시 이벤트는 보장되지 않으므로 중요한 진행은 즉시 flush합니다.
+
+진행 envelope v4는 기존 기록·별조각과 `ownedSkins`·`equippedSkin`을 함께 보존합니다. v3→v4는 기록/잔액을 유지하고 무료 금화를 보유·장착으로 추가합니다. 알 수 없는 스킨·중복 보유·미보유 스킨 장착 등 읽을 수 없는 v4는 원본을 보호합니다.
+
+`Store.commit(change)`는 검증된 후보를 하나의 envelope로 쓴 다음에만 메모리에 반영합니다. 실패 시 기존 메모리 값과 dirty 상태를 유지하고 unavailable로 전환합니다. 구매는 잔액·보유·장착을 한 번에 commit하며 무료 장착 교체도 commit합니다. 완료 보상의 메모리 누적은 기존 update/flush를 계속 사용하고 스킨 필드를 보존합니다. [ADR 0005](adr/0005-persist-before-publishing-skin-purchases.md)를 따릅니다.
 
 | 상태           | 의미와 동작                                          |
 | -------------- | ---------------------------------------------------- |
