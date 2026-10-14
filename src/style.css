@@ -11,6 +11,9 @@
 body {
   margin: 0;
   background: radial-gradient(ellipse at 50% 35%, #315971, #12273b 75%);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 button {
   font: inherit;

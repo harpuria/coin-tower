@@ -2,6 +2,14 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-14 — 모바일 선택 방지 CSS
+
+- 변경: `src/style.css` body에 `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`을 추가했다. 화면 비율·게임 규칙은 그대로다. Android 사용자 피드백과 여백 개선 제안은 [플레이 관측](PLAYTEST_NOTES.md)에 기록했다.
+- 실행: `rtk npm run lint`, `rtk npm run format:check`, `rtk npm run build:crazygames`(TypeScript 포함)를 통과했다. 최종 CrazyGames dist는 14,702,250 bytes다. 이전 초기 전송 측정은 새 CSS를 포함한 재측정과 구분한다.
+- 관측: production preview·SDK fixture에서 Chromium PC/Pixel 7 터치 에뮬레이션을 실제 입력으로 조작했다. body·canvas 영역·SHOP·안내·소리 버튼의 computed standard/WebKit userSelect가 none이며, 안내를 가로지르는 드래그와 터치 750ms 홀드 이후 선택 문자열이 비어 있었다. SHOP 열기/복귀·소리·시작 후 별도 낙하로 1개·일시정지·메뉴 복귀, SDK init/start/stop·자체 전체화면 숨김을 관측했다. 점수·좌표·개발 훅을 사용하지 않았고 정상 페이지/HTTP 오류는 양쪽 모두 0건이었다.
+- 산출물: `test-results/selection-prevention/observations.json`과 PC/터치 메뉴·드래그·긴 터치·소리·정지·복귀 PNG. 회귀 스위트를 추가하거나 실행하지 않은 관측이다.
+- 한계: 실제 Android 새 배포본의 선택 방지·iOS Safari/WebKit callout·물리 기기 성능·포털 QA는 확인하지 않았다. 사용자 Android 긍정 피드백은 CSS 적용 전 별도 보고이며 기기/플레이 조건이 제공되지 않았다.
+
 ## 2026-10-14 — Basic 요구사항 점검·회귀 검사
 
 - 사용자 요청에 따라 다운로드·Gameplay·외부 광고·외부 로그인·iOS/Android 원활한 플레이를 공식 문서와 대조했다. QR Code는 사용자 정정으로 제외했다. 항목별 판정과 남은 작업은 [Basic 점검](basic-launch-readiness.md)에 있다. 실제 포털 빌드·QA 상태는 열람하지 않았다.

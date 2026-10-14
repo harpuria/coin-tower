@@ -4,22 +4,24 @@
 
 ## 항목별 판단
 
-| 항목                        | 상태              | 근거·남은 작업                                                                                                                                                                                                                                                     |
-| --------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Initial download size <50MB | 로컬 기준 충족    | 배포 전체 14,702,181 bytes, SDK fixture의 첫 플레이까지 로컬 전송 17,807,713 bytes. 재업로드 후 포털 수치를 확인한다.                                                                                                                                              |
-| Gameplay requirements       | 보완·최종 QA 필요 | 영어 UI, PC 마우스/키보드·터치, 시작/낙하·실패·재시작·일시정지·기록, SDK 이벤트·음소거, CrazyGames 자체 전체화면 숨김을 확인했다. 모바일 텍스트 선택 차단 CSS가 빠져 있다. 원작성·가독성·재미·실제 고주사율/저사양 성능의 최종 판단은 플랫폼/사람 검증을 포함한다. |
-| No external ads             | 충족              | `gameConfig.services.ads`와 mock은 false, 실제 adapter는 Unavailable이며 광고 SDK 호출·외부 광고 UI·외부 광고 URL이 없다. Basic에서도 광고에 의존하지 않는다.                                                                                                      |
-| No external login options   | 충족              | 외부 로그인 UI·OAuth/API·계정 backend가 없고 게스트로 플레이한다. 브라우저 기록·재화·스킨 저장을 사용한다.                                                                                                                                                         |
-| Smooth on iOS and Android   | 실기기 미확인     | Chromium PC·Pixel 7 터치 에뮬레이션을 관측/검사했다. iOS Safari·Android Chrome 실제 기기의 FPS·메모리·입력·백그라운드 복귀는 확인하지 않았다. 에뮬레이션 결과를 실기기 통과로 기록하지 않는다.                                                                     |
+| 항목                        | 상태                           | 근거·남은 작업                                                                                                                                                                                                                                                    |
+| --------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Initial download size <50MB | 로컬 기준 충족                 | 현재 배포 전체 14,702,250 bytes. CSS 변경 전 SDK fixture의 첫 플레이까지 로컬 전송은 17,807,713 bytes였다. 재업로드 후 포털 수치를 확인한다.                                                                                                                      |
+| Gameplay requirements       | 최종 QA 필요                   | 영어 UI, PC 마우스/키보드·터치, 시작/낙하·실패·재시작·일시정지·기록, SDK 이벤트·음소거, CrazyGames 자체 전체화면 숨김을 확인했다. 모바일 텍스트 선택 차단 CSS도 적용했다. 원작성·가독성·재미·실제 고주사율/저사양 성능의 최종 판단은 플랫폼/사람 검증을 포함한다. |
+| No external ads             | 충족                           | `gameConfig.services.ads`와 mock은 false, 실제 adapter는 Unavailable이며 광고 SDK 호출·외부 광고 UI·외부 광고 URL이 없다. Basic에서도 광고에 의존하지 않는다.                                                                                                     |
+| No external login options   | 충족                           | 외부 로그인 UI·OAuth/API·계정 backend가 없고 게스트로 플레이한다. 브라우저 기록·재화·스킨 저장을 사용한다.                                                                                                                                                        |
+| Smooth on iOS and Android   | Android 사용자 보고·iOS 미확인 | 사용자는 Android에서 상하 여백 외에는 괜찮다고 보고했다. 기기/빌드·플레이 조건은 미제공이며 FPS·메모리·백그라운드 복귀를 확인한 보고는 아니다. iOS Safari 실기기는 미확인이다. Chromium 터치 관측을 실기기 통과로 기록하지 않는다.                                |
 
 ## 보완과 기기 확인
 
-- `src/style.css`의 body에 `user-select: none` / `-webkit-user-select: none`이 없다. 캔버스 `touch-action: none`, 버튼 `touch-action: manipulation`, 이미지 `draggable=false`는 이미 있다. 공식 모바일 요구사항의 긴 터치/선택 방지 설정을 추가하는 것을 권장한다. 이번 점검에서는 게임 CSS를 변경하지 않았다.
+- `src/style.css` body에 `user-select: none` / `-webkit-user-select: none` / `-webkit-touch-callout: none`을 적용했다. production preview PC·터치 에뮬레이션에서 드래그/긴 터치 뒤 선택 문자열이 비어 있고 입력이 유지됐다. 실제 Android 새 배포본과 Safari callout은 별도 확인한다. [최신 검증 기록](VALIDATION.md)을 따른다.
 - safe-area inset과 `viewport-fit=cover`, 세로 FIT·작은 가로 창 배치는 구현돼 있다. 설치된 Phaser 4.2.1은 focus 시 suspended/interrupted AudioContext를 resume하는 코드를 포함한다. 실제 iOS의 통화·앱 전환 후 오디오/게임 복귀는 별도 확인한다.
 - iPhone Safari와 Android Chrome에서 새 Preview를 열고 5·10·20개·시간대 전환, 실패/재시작, SHOP 구매/재접속, 음소거, 앱 전환 후 정지/재개, 긴 터치/세로·가로 표시를 확인한다. 기기/OS/브라우저·도달 구간·버벅임/입력 누락 여부를 기록한다.
-- 실기기 체감 조정을 보류한 기존 결정은 유지한다. 이 문서는 입점 요구사항의 검증 상태를 기록하며 미확인을 통과로 바꾸지 않는다.
+- Android 사용자 피드백은 [플레이 관측](PLAYTEST_NOTES.md)에 기록했다. 상하 여백은 고정 세로 비율 때문에 생기는 것으로 보이며 확대·블러 배경으로 채우는 방안은 제안 상태다. 이 문서는 제한된 긍정 보고를 전체 기기 성능 통과로 바꾸지 않는다.
 
 ## 실행 근거
+
+- 선택 방지 후 `lint`, `format:check`, `build:crazygames`를 통과했다. SDK-fixture preview PC/터치 관측에서 드래그/750ms 홀드의 선택 없음, SHOP·소리·시작/첫 낙하·정지/메뉴, 페이지/HTTP 오류 0건을 확인했다. `test-results/selection-prevention/`에 기록했으며 새 회귀 스위트 실행은 아니다. 아래 정식 검사 결과는 앞선 Basic 점검 시점의 결과다.
 
 - `rtk npm run check`: 첫 실행은 audio/SDK 단위 검사 두 파일의 브라우저 전용 Phaser import 때문에 실패했다. 단위 검사에서 Phaser 이벤트 의존성을 mock으로 격리한 뒤 **6개 파일/67개 검사·lint·format·TypeScript·일반 빌드 통과**를 확인했다.
 - 개발 SDK 검사: **14개 fixture 통과 / 공식 SDK 2개 미설정 skip**. 이어서 공식 v3 파일을 수정 없이 내려받아 배포본 검사에 포함했다.

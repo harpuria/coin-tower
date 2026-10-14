@@ -8,6 +8,8 @@
 
 ## Status
 
+- Completed mobile selection suppression (2026-10-14): body standard/WebKit selection and WebKit touch-callout CSS are applied. Production SDK-fixture observation on desktop/touch preserves SHOP, sound, start/drop, pause/home and empty selection after drag/hold; lint, format and CrazyGames build pass. Current output is 14,702,250 bytes. User reports Android play feels okay except top/bottom bands; device/build/play conditions are unspecified and iOS remains unverified. Filling the surrounding space with an enlarged blurred background is proposed, not implemented. See [play observations](PLAYTEST_NOTES.md) and [validation](VALIDATION.md).
+
 - Basic requirements audit completed (2026-10-14): local download budget, absent external ads and absent external login pass the inspected scope. Gameplay needs mobile text-selection suppression and platform QA; actual iOS/Android smoothness remains unverified. Fixed unit-test Phaser isolation and stale UI/save expectations. Check passes 67 unit tests; standalone first run 24/30 plus corrected focused rerun 6/6; SDK development 14 fixtures plus 2 skips; production 16/16 including current official SDK local. No gameplay/CSS change in this audit. See [readiness](basic-launch-readiness.md) and [validation](VALIDATION.md).
 
 - Completed image optimization (2026-10-14): preserved all 35 PNG source hashes, generated lossless WebP derivatives with eight resized icons, unified HTML/Phaser paths, and restricted build packaging to verified runtime files. CrazyGames output is 14,702,181 bytes, with no source PNG or fullscreen art. Cold local first-gameplay traffic is about 17.81MB on desktop/touch SDK-fixture preview. Source/optimized game observations cover purchases, 20 coins/X19, backgrounds, pauses, completed rewards and restart. Regular production fullscreen also works. No regression suite was added or run. See [optimization](art/optimized-assets.md), [ADR 0006](adr/0006-preserve-source-art-and-package-optimized-derivatives.md) and [validation](VALIDATION.md). Real portal reupload/measurement remains external verification.
@@ -82,6 +84,6 @@
 
 ## Next Request
 
-Apply the small mobile text-selection suppression identified in the Basic audit. Example: `$game-implement 모바일 텍스트 선택 방지 설정을 적용하고 브라우저에서 확인해줘.` Then confirm the new portal build's Load size and real iPhone Safari/Android Chrome play before declaring all Basic requirements satisfied. Human PC icon recognition and zero-balance first-purchase pacing still need feedback. Physical-device tuning and ads remain later work; native leaderboard gates are unchanged.
+Proposed next task for the reported Android bands: `$game-implement 게임 배경을 확대·블러해 모바일 상하 여백을 자연스럽게 채워줘.` This proposal awaits the user's request. Confirm the new portal build's Load size and bounded real-device evidence, including iPhone Safari, before declaring all Basic requirements satisfied. Human PC icon recognition and zero-balance first-purchase pacing still need feedback. Ads remain later work; native leaderboard gates are unchanged.
 
 Icon integration, panel-free presentation and the TAP TO PLAY main screen are also complete. Native leaderboard integration still depends on access and operational decisions. Final review submission remains a separate action.
