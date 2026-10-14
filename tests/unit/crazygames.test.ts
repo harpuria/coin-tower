@@ -10,6 +10,11 @@ import { AudioService } from '../../src/core/audio';
 import { settingsSchema } from '../../src/core/settings';
 import type Phaser from 'phaser';
 
+// 플랫폼·음소거 계약은 브라우저 전용 Phaser 초기화와 분리해 검사한다.
+vi.mock('phaser', () => ({
+  default: { Sound: { Events: { COMPLETE: 'complete' } } },
+}));
+
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();

@@ -83,7 +83,7 @@ test('real mouse/touch start, drop, first miss, retry, home, and saved best', as
   await ready(page);
   const panelLoaded = await page.evaluate(async () => {
     const background = getComputedStyle(
-      document.querySelector('.blue-panel')!,
+      document.querySelector('.game-button')!,
     ).backgroundImage;
     const url = background.match(/url\(["']?(.*?)["']?\)/)?.[1];
     if (!url) return false;
@@ -480,6 +480,8 @@ test('v1 migration preserves height and v2 combo best survives a lower completed
     bestCombo: 8,
     rounds: 14,
     shards: 1,
+    ownedSkins: ['gold'],
+    equippedSkin: 'gold',
   });
 });
 
@@ -667,7 +669,7 @@ test('result rows and menu bests distinguish each record break, ties and large c
           canvas.y + (canvas.height * 552.5) / rules.height,
         );
         const columns = await page
-          .locator('.title-record-columns .blue-panel')
+          .locator('.title-record-columns .stat-readout')
           .all();
         const left = (await columns[0]!.boundingBox())!;
         const right = (await columns[1]!.boundingBox())!;
@@ -677,7 +679,7 @@ test('result rows and menu bests distinguish each record break, ties and large c
           await page
             .locator('.title-record-columns')
             .evaluate((el) =>
-              [...el.querySelectorAll<HTMLElement>('span, strong')].every(
+              [...el.querySelectorAll<HTMLElement>('strong')].every(
                 (cell) => cell.scrollWidth <= cell.clientWidth,
               ),
             ),

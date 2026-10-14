@@ -2,6 +2,17 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-14 — Basic 요구사항 점검·회귀 검사
+
+- 사용자 요청에 따라 다운로드·Gameplay·외부 광고·외부 로그인·iOS/Android 원활한 플레이를 공식 문서와 대조했다. QR Code는 사용자 정정으로 제외했다. 항목별 판정과 남은 작업은 [Basic 점검](basic-launch-readiness.md)에 있다. 실제 포털 빌드·QA 상태는 열람하지 않았다.
+- 정적 확인: 외부 광고/로그인 UI·SDK/API가 없고 해당 서비스와 Mock이 꺼져 있다. 영어 UI·마우스/키보드/터치·세로 FIT·safe area·플랫폼 전체화면 숨김이 구현돼 있다. body의 `user-select: none`/`-webkit-user-select: none` 누락을 발견해 보완 항목으로 기록했으며 게임 CSS는 변경하지 않았다.
+- `rtk npm run check` 첫 실행은 브라우저 전용 Phaser가 두 Node 단위 검사에서 import돼 중단됐다. 두 검사에 Phaser 이벤트 mock을 넣어 격리한 뒤 **67개 단위 검사(6개 파일)·lint·format·TypeScript·일반 빌드 통과**를 확인했다. 게임 소리/SDK 구현은 변경하지 않았다.
+- standalone 개발 브라우저 전체 실행은 **24/30 통과**했다. 이전 `.blue-panel` 선택자와 v4 보유/장착 필드가 반영되지 않은 기존 검사 3종이 각 PC·터치에서 실패했다. 버튼/기록 readout 선택자·표시 숫자 overflow 확인·저장 기대값을 현재 구현에 맞춰 갱신했고, 해당 6건 재실행은 **6/6 통과**했다. 전체 실행과 부분 재실행을 합쳐 새 전체 실행 통과로 표현하지 않는다.
+- 개발 CrazyGames는 **14 fixture 통과 / 2개 공식 SDK 조건부 skip**. 현재 CDN에서 공식 v3 파일(112,919 bytes)을 수정 없이 내려받아 production preview에 사용한 별도 실행은 **16/16 통과**(fixture 14 + 공식 SDK local 2)했다. 플레이 이벤트·정지/재개·실패·메뉴/재시작·플랫폼 음소거·저장 보존·실패 처리·영어/821×462·전체화면 숨김을 확인했다. 공식 SDK의 실제 CrazyGames 호스트 통과를 뜻하지 않는다.
+- 기존 개발/preview 서버를 유지하려고 임시 Playwright 설정의 포트만 5273/5274/5275로 바꿨다. 산출물은 `test-results/basic-audit-standalone/`, `basic-audit-standalone-rerun/`, `basic-audit-crazygames/`, `basic-audit-production/`이다. 공식 SDK 해시와 명령 조건은 [점검 기록](basic-launch-readiness.md)을 따른다.
+- 최종 dist는 CrazyGames 모드·14,702,181 bytes다. 직전 최적화에서 관측한 SDK fixture cold-first-gameplay 전송은 17,807,713 bytes이며 이번 점검에서 수치를 새로 측정한 것과 구분한다.
+- 한계: iPhone Safari·Android Chrome 실기기·Safari/WebKit/Firefox·물리 고주사율/저사양 기기 성능·포털의 QA·원작성/가독성 최종 심사는 미확인이다. Chromium 터치 에뮬레이션을 실제 iOS/Android 성능 통과로 기록하지 않는다. 전체 충족으로 체크하려면 모바일 선택 방지 보완과 실제 기기/포털 확인이 필요하다.
+
 ## 2026-10-14 — 원본 보존·배포 WebP·20MB 이하 최적화
 
 - 요청/기준: 사용자가 CrazyGames 포털 Total 26.6MB / Load 24MB / 모바일 홈페이지 20MB 초과 안내를 보고했다. 이는 사용자 보고이며 로컬 측정과 구분한다. 기존 로컬 dist는 27,870,719 bytes(26.58MiB)였다.

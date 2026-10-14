@@ -3,6 +3,11 @@ import type Phaser from 'phaser';
 import { AudioService } from '../../src/core/audio';
 import { settingsSchema } from '../../src/core/settings';
 
+// 소리 서비스의 단위 검사는 브라우저 전용 Phaser 초기화 없이 실행한다.
+vi.mock('phaser', () => ({
+  default: { Sound: { Events: { COMPLETE: 'complete' } } },
+}));
+
 it('pauses and resumes all game sounds while preserving the chosen mute setting', () => {
   const sound = {
     mute: false,

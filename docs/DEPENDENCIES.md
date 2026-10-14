@@ -35,6 +35,7 @@ CI는 `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` 모두
 - `stack.wav`는 템플릿의 합성 효과음을 재사용한 임시 음원입니다. BGM은 없으며 글꼴은 시스템 폰트입니다. 파비콘 SVG는 프로젝트 초기화 중 작성했습니다.
 - CrazyGames 빌드는 공식 HTML5 SDK **v3** CDN `https://sdk.crazygames.com/crazygames-sdk-v3.js`를 실행 중 로드합니다. 확인일 2026-10-07. 이 URL은 major만 고정하며 정확한 patch는 고정할 수 없습니다. npm 의존성 추가나 SDK 재배포는 하지 않습니다. 공식 [초기화 문서](https://docs.crazygames.com/sdk/intro/)와 [game API](https://docs.crazygames.com/sdk/game/)가 계약의 기준이며 소스의 타입은 사용하는 API 범위만 선언합니다. 로컬 검사와 포털 Preview의 구분은 `VALIDATION.md`에 기록합니다.
 - 이번 실제 SDK local 검사 파일: 108,970 bytes, SHA-256 `df040bea90f50e8c741415f7594a6883f53ac435e9f08b8a39b7a50c96362681`. 임시 다운로드를 그대로 사용한 관측 기록이며 CDN의 향후 내용 고정을 뜻하지 않습니다.
+- 2026-10-14 Basic 점검에서 내려받은 공식 v3 파일: 112,919 bytes, SHA-256 `d4c44671cafbb694a0fd054078303242681bdf1b5908d6fb9f766d1de3f25911`. 수정 없이 배포 SDK local 검사에 사용했고 PC·터치 2개 공식 SDK 검사와 14개 fixture가 통과했다. 실제 포털/실기기 확인과 구분하며 이전 파일 해시는 과거 관측 기록이다. [Basic 점검](basic-launch-readiness.md)을 따른다.
 - 광고·결제·분석 SDK 기능은 비활성화 상태입니다. CrazyGames SDK 자체 통신은 해당 플랫폼의 SDK 계약을 따릅니다. 게시 전 개발자 포털의 최신 약관과 배포 조건을 확인합니다.
 - 파생 게임은 실제로 쓰는 의존성/asset의 라이선스 고지와 SDK 약관을 직접 관리합니다.
 
