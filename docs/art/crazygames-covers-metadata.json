@@ -1,0 +1,105 @@
+{
+  "files": [
+    {
+      "variant": "landscape",
+      "source": {
+        "path": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-48f508f8-cf41-4438-8eea-e2d89508d961.png",
+        "width": 1672,
+        "height": 941,
+        "mode": "RGB",
+        "format": "PNG",
+        "bytes": 2017817,
+        "sha256": "a78d14b90b81a3b64051239df1b6750973fb9d69242a20945e634c529d6b3355"
+      },
+      "delivery": {
+        "path": "marketing/crazygames/covers/coin-tower-landscape-1920x1080.png",
+        "width": 1920,
+        "height": 1080,
+        "mode": "RGB",
+        "format": "PNG",
+        "bytes": 2889107,
+        "sha256": "0af845d15521b3997b7f884ee1261df8fbc292805556619fe03257d97adff661"
+      }
+    },
+    {
+      "variant": "portrait",
+      "source": {
+        "path": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-01e3c571-5b96-468c-bc7b-97fcea648256.png",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGB",
+        "format": "PNG",
+        "bytes": 2098453,
+        "sha256": "503596747e7d3632f0d412627d0c2da2354a462cb9d262372165fbd1f221adc9"
+      },
+      "delivery": {
+        "path": "marketing/crazygames/covers/coin-tower-portrait-800x1200.png",
+        "width": 800,
+        "height": 1200,
+        "mode": "RGB",
+        "format": "PNG",
+        "bytes": 1569026,
+        "sha256": "7725c759ac4fc633e35508308289a3d1748933656ae8907b1817fd68e3b0d038"
+      }
+    },
+    {
+      "variant": "square",
+      "source": {
+        "path": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-8b26e8ec-1018-41ba-993c-17305d42103a.png",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGB",
+        "format": "PNG",
+        "bytes": 2065910,
+        "sha256": "546ed3ebc1f76f77c8fed60b424b2bb415f21b576159c3b530a577651db1ca27"
+      },
+      "delivery": {
+        "path": "marketing/crazygames/covers/coin-tower-square-800x800.png",
+        "width": 800,
+        "height": 800,
+        "mode": "RGB",
+        "format": "PNG",
+        "bytes": 1085402,
+        "sha256": "3bcbd2726afc4d12bd8970c00a5d7e55ae8e5d0c687f88250f3ec7c8290e68c5"
+      }
+    }
+  ],
+  "references": [
+    {
+      "path": "public/assets/coin-tower/logo.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "format": "PNG",
+      "bytes": 1545877,
+      "sha256": "4a34c9f18a5a012e1ff0cb5d7600c7d134316e93f6102b367ecaec0fac49171e"
+    },
+    {
+      "path": "public/assets/coin-tower/coin.png",
+      "width": 1599,
+      "height": 984,
+      "mode": "RGBA",
+      "format": "PNG",
+      "bytes": 619314,
+      "sha256": "91e566353d7dd22f0cb9db8687a873ec15191abbb6997635080fa6429b54019e"
+    },
+    {
+      "path": "public/assets/coin-tower/pedestal.png",
+      "width": 1206,
+      "height": 1304,
+      "mode": "RGBA",
+      "format": "PNG",
+      "bytes": 1578908,
+      "sha256": "cebb01a3bfd2cf05daad4a8f215131f7fba3e347a7df70cd24a7262ad9dc236a"
+    },
+    {
+      "path": "public/assets/coin-tower/sky_ruins.png",
+      "width": 941,
+      "height": 1672,
+      "mode": "RGB",
+      "format": "PNG",
+      "bytes": 1586548,
+      "sha256": "7939e2a463b49bb89820ac8dac8c6c3286d938e37fb0bb95d2bd233d1cd18987"
+    }
+  ]
+}

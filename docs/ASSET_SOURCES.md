@@ -1,5 +1,13 @@
 # 자산 출처
 
+## CrazyGames 제출용 커버
+
+- 파일: `marketing/crazygames/covers/coin-tower-landscape-1920x1080.png`, `coin-tower-portrait-800x1200.png`, `coin-tower-square-800x800.png`. 상태: 사용자 요청으로 제작한 업로드용 PNG 3종, 실제 포털 심사는 미확인. 런타임 자산과 분리했다.
+- 출처: 2026-10-14 OpenAI 내장 `image_gen.imagegen`으로 기존 로고·금화·받침대·아침 배경을 참조해 생성한 커버 재구성. 세로·정사각형은 가로 커버도 참조했다. 모델 버전·seed는 미제공이며 각 1회 생성했다.
+- 후처리: 생성 원본을 보존하고 macOS sips로 각각 1920×1080, 800×1200, 800×800 RGB PNG를 내보냈다. 가로형은 약 1.15배 확대, 나머지는 축소이며 별도 재도색은 없다.
+- 이용 조건: 2026-10-14 [OpenAI Terms of Use](https://openai.com/policies/terms-of-use/)의 Content 절을 확인했다. 법이 허용하는 범위의 Output 권리 귀속이며 입력 권리·실제 계정 계약은 계속 적용되고 독점성은 보장되지 않는다. 기존 아트 재사용은 사용자가 요청했다. AI 생성물 공개 여부는 제출 단계에서 사용자가 결정한다.
+- 전체 프롬프트·참조·해시·실제 크기·시각 확인은 [제작 기록](art/crazygames-covers.md)에 있다.
+
 ## 배포용 WebP 파생 파일
 
 - 원본 PNG 35장과 아래 출처·해시는 보존했다. 같은 상대 경로의 `.webp`가 현재 런타임 파일이며 생성형 AI 편집 없이 로컬 Pillow/libwebp로 변환했다.

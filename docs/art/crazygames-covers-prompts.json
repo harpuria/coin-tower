@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-14",
+  "tool": "image_gen.imagegen",
+  "model": "Not exposed by tool",
+  "seed": "Not exposed by tool",
+  "transparent_background": false,
+  "references": [
+    "public/assets/coin-tower/logo.png",
+    "public/assets/coin-tower/coin.png",
+    "public/assets/coin-tower/pedestal.png",
+    "public/assets/coin-tower/sky_ruins.png"
+  ],
+  "variants": [
+    {
+      "key": "landscape",
+      "path": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-48f508f8-cf41-4438-8eea-e2d89508d961.png",
+      "width": 1920,
+      "height": 1080,
+      "prompt": "Create ONE finished CrazyGames LANDSCAPE game cover, exact output 1920 x 1080 pixels, 16:9, opaque full bleed. Recompose the four supplied existing Coin Tower game artworks into a polished promotional key visual; faithfully preserve their recognizable design, colors and rendering, not a new visual identity. Reference 1 is the exact COIN TOWER title logo: golden COIN with crown above and white TOWER with rich blue bevel/outline. Preserve this spelling and distinctive letterforms. Reference 2 is the thick gold coin with crown embossed on its face and ribbed edge. Reference 3 is the cream stone cylindrical pedestal with gold bands, gold crown emblem and green vines. Reference 4 is the bright blue sky, pale stone sky ruins, blue/gold banners and turquoise waterfalls. Extend/reframe the background to fill the landscape canvas naturally. Composition: oversized readable two-line title on the LEFT about 46% of canvas width, centered vertically in the upper-middle; on the RIGHT a prominent tall vertical stack of 7-8 separate gold coins resting on the matching pedestal, plus ONE crown coin descending horizontally just above the stack with a visible small gap. All stacked coins are horizontal and face up like the provided coin, not upright casino coins. Tower occupies the right half and pedestal sits near bottom with entire silhouette visible. Keep each coin crisp and substantial, a few tiny gold glints at the landing point, no excessive particles. Keep the crown top, title, falling coin and base at least 4% away from canvas boundaries. Bright inviting blue versus gold palette, clean high-quality casual 2D game illustration, strong shapes readable at thumbnail size, restrained background detail behind title. NO extra text: only COIN TOWER. NO HUD, score, numbers, Perfect, buttons, tap to play, shop icons, store logos, badges, borders, letterboxing, watermark or rounded canvas corners. Do not include black/transparent backgrounds from the reference previews. Export the single complete cover at exactly 1920x1080.",
+      "additionalReference": null
+    },
+    {
+      "key": "portrait",
+      "path": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-01e3c571-5b96-468c-bc7b-97fcea648256.png",
+      "width": 800,
+      "height": 1200,
+      "prompt": "Create ONE finished CrazyGames cover for the existing game COIN TOWER using the supplied game artwork. The first four references are the existing exact logo, crown coin, cream/gold stone pedestal with green vines, and blue sky-ruins/waterfalls background. The fifth is the LANDSCAPE cover from this same cover series: match its identity, bright blue/turquoise and gold palette, crisp glossy rendering and large clean shapes. Preserve the distinctive two-line COIN TOWER logo, golden COIN with gold crown above and white TOWER with dark blue bevel/outline. Faithfully use the same thick gold crown-embossed coins lying horizontal face-up, ribbed edges; do not make upright coins or redesign them. Show a small tower of stacked coins standing on the matching pedestal, plus ONE matching gold coin just above it, descending toward a landing with a visible small gap and a few small gold glints. Natural full-bleed sky ruins and turquoise waterfalls fill the complete canvas. This is promotional cover art, not a screenshot: NO HUD, score, numbers, Perfect text, buttons, tap to play, shop, store logos, extra icons, badges, border, black bars, watermark or rounded canvas corners. The ONLY lettering is COIN TOWER. Keep title and falling coin entirely inside frame with at least 4% breathing room. Strong thumbnail readability. Output PORTRAIT exactly 800 x 1200 pixels, 2:3 aspect ratio. Recompose vertically: large readable title centered in the upper third (about 82% canvas width); BELOW the title, the descending coin, then a tall stack of 6-7 coins in the middle/lower area on a substantial pedestal near the bottom. Do not overlap the falling coin with the logo. Keep a clear vertical rhythm title -> falling coin -> coin tower -> pedestal. Allow the very bottom of the pedestal to approach the bottom edge, but retain its crown emblem and green vines. Keep all seven letters of TOWER/COIN as in reference, no other text. Opaque RGB cover at exactly 800x1200.",
+      "additionalReference": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-48f508f8-cf41-4438-8eea-e2d89508d961.png"
+    },
+    {
+      "key": "square",
+      "path": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-8b26e8ec-1018-41ba-993c-17305d42103a.png",
+      "width": 800,
+      "height": 800,
+      "prompt": "Create ONE finished CrazyGames cover for the existing game COIN TOWER using the supplied game artwork. The first four references are the existing exact logo, crown coin, cream/gold stone pedestal with green vines, and blue sky-ruins/waterfalls background. The fifth is the LANDSCAPE cover from this same cover series: match its identity, bright blue/turquoise and gold palette, crisp glossy rendering and large clean shapes. Preserve the distinctive two-line COIN TOWER logo, golden COIN with gold crown above and white TOWER with dark blue bevel/outline. Faithfully use the same thick gold crown-embossed coins lying horizontal face-up, ribbed edges; do not make upright coins or redesign them. Show a small tower of stacked coins standing on the matching pedestal, plus ONE matching gold coin just above it, descending toward a landing with a visible small gap and a few small gold glints. Natural full-bleed sky ruins and turquoise waterfalls fill the complete canvas. This is promotional cover art, not a screenshot: NO HUD, score, numbers, Perfect text, buttons, tap to play, shop, store logos, extra icons, badges, border, black bars, watermark or rounded canvas corners. The ONLY lettering is COIN TOWER. Keep title and falling coin entirely inside frame with at least 4% breathing room. Strong thumbnail readability. Output SQUARE exactly 800 x 800 pixels, 1:1 aspect ratio. Recompose for square thumbnail readability: large centered logo across the upper 40%, then a compact wide stack of 4-5 coins below it on the cream/gold pedestal in the lower third. One coin hovers just above the stack in the space beneath the title. Use a compact, bold silhouette rather than squeezing the entire tall tower. The title must remain unobstructed and dominant, the crown symbol on the falling coin clearly visible. Background side ruins frame the central tower, blue sky behind logo; do not crowd with extra details. Opaque RGB cover at exactly 800x800.",
+      "additionalReference": "/Users/yhh/.codex/generated_images/01a1163e-8f6f-7ca1-80b8-45c2a26f62e3/exec-48f508f8-cf41-4438-8eea-e2d89508d961.png"
+    }
+  ],
+  "postprocess": "macOS sips: PNG export resized to exact delivery width/height; generated originals retained. No repainting, added lettering, or extra art."
+}
