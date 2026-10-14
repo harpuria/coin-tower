@@ -2,6 +2,8 @@ import type { App } from '../app';
 import { gameConfig } from '../config/game';
 import { fullscreenAvailable, toggleFullscreen } from '../core/screen';
 import { artUrl } from '../game/art';
+import { backgroundTextures } from '../game/assets';
+import { backgroundAlpha } from '../game/backgrounds';
 import type { GameController } from '../game/controller';
 import { landingVisual } from '../game/feedback';
 import { skins, skinById } from '../game/skins';
@@ -12,6 +14,7 @@ export class Shell {
   private root: HTMLElement;
   private displayedCombo = -1;
   private comboFrame = 0;
+  private backdropFrame = 0;
   constructor(
     private app: App,
     private game: GameController,
@@ -31,6 +34,10 @@ export class Shell {
     this.root.innerHTML = `
       <h1 class="sr-only">Coin Tower</h1>
       <section id="stage" aria-label="Coin Tower game">
+        <div id="ambient-backdrop" aria-hidden="true">
+          <div id="backdrop-base" class="backdrop-layer"></div>
+          <div id="backdrop-next" class="backdrop-layer" hidden></div>
+        </div>
         <div id="surface">
           <div id="game" tabindex="0" aria-label="Game area. Click, tap or press Space to drop a coin."></div>
           <div id="title-screen" class="layer title-screen">
@@ -120,6 +127,43 @@ export class Shell {
     const element = this.element(id);
     element.textContent = value;
     element.style.setProperty('--record-digits', String(value.length));
+  }
+  /** 별도 시계 없이 전환 중에만 Session의 배경 진행률을 다시 읽는다. */
+  private renderBackdrop() {
+    cancelAnimationFrame(this.backdropFrame);
+    this.backdropFrame = 0;
+    if (!this.app.ready || !this.app.game) return;
+    const run = this.app.session;
+    const background = run.background;
+    const base = this.element('backdrop-base');
+    const next = this.element('backdrop-next');
+    next.hidden = background.from === background.to;
+    for (const [layer, time] of [
+      [base, background.from],
+      [next, background.to],
+    ] as const) {
+      if (layer.hidden) continue;
+      if (layer.dataset.time !== time || !layer.firstElementChild) {
+        // Phaser가 디코딩한 원본 Image를 붙여 재다운로드·추가 인코딩을 피한다.
+        const image = this.app.game.textures
+          .get(backgroundTextures[time])
+          .getSourceImage();
+        if (image instanceof HTMLImageElement) {
+          image.alt = '';
+          image.draggable = false;
+          layer.replaceChildren(image);
+          layer.dataset.time = time;
+        }
+      }
+    }
+    next.style.opacity = String(backgroundAlpha(background.progress));
+    if (
+      !next.hidden &&
+      run.mode === 'playing' &&
+      !run.frozen &&
+      background.progress < 1
+    )
+      this.backdropFrame = requestAnimationFrame(() => this.renderBackdrop());
   }
   /** 숫자 이미지는 게임 시간의 Perfect 잔여 시간과 함께 사라진다. */
   private renderComboFeedback() {
@@ -302,6 +346,7 @@ export class Shell {
     const run = app.session;
     const menu = run.mode === 'menu';
     const playing = run.mode === 'playing';
+    this.renderBackdrop();
     this.element('surface').dataset.mode = run.mode;
     this.element('surface').dataset.phase = run.phase;
     this.element('title-screen').hidden = !menu || this.game.skinsOpen;
@@ -413,6 +458,7 @@ export class Shell {
   }
   destroy() {
     cancelAnimationFrame(this.comboFrame);
+    cancelAnimationFrame(this.backdropFrame);
     this.controller.abort();
     this.app.onState = () => {};
   }

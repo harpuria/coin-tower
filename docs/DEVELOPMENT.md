@@ -57,6 +57,8 @@ window.__COIN_TOWER__.freeze(false);
 
 `snapshot().background`는 `from`/`to` 시간대와 0~1의 `progress`를 포함합니다. Scene은 이 진행률에 부드러운 곡선을 적용해 다음 배경을 덮습니다. 배경 시간도 `advance`를 따르며 정지·카운트다운·결과에서 진행하지 않습니다. 두 이미지는 같은 논리 화면 크기로 표시합니다. 시간대 자산 세 장은 필수 로더로 미리 읽으며 추가 요청을 기다리느라 전환을 멈추지 않습니다.
 
+`Shell`의 `#ambient-backdrop`은 두 HTML 레이어에 Phaser Texture의 기존 Image 요소를 붙여 게임 밖 여백을 채웁니다. `getSourceImage()`의 같은 노드를 사용하고 src를 복사하거나 새 Blob을 만들지 않아, 로더가 해제한 Blob URL 문제와 재다운로드를 피합니다. 필수 로딩 완료 후 표시합니다. `src/game/backgrounds.ts`의 파일 매핑·`backgroundAlpha()`와 `assets.ts`의 texture 매핑을 Scene/로더와 공유하고 Session 상태만 읽습니다. 전환 중에는 RAF로 불투명도를 맞추고 정지·결과·전환 완료 때 반복을 멈춥니다. `#stage` 안의 fixed 장식 레이어이므로 standalone 전체화면에도 포함되며 `#surface`는 그 위에서 기존 9:16 FIT를 유지합니다. 블러·확장·어둡기는 CSS에서 조정합니다.
+
 `window.__COIN_TOWER__.feedback()`는 착지 피드백 잔여 시간, 실제 최상단 Scene 동전의 좌표·표시 크기, NICE/PERFECT 표시 크기·가시성, 접점 Graphics의 가시성·불투명도를 읽습니다. `advance(42)`의 일반 최대 눌림, `advance(54)`의 Perfect 최대 눌림, `advance(90)`의 Perfect 팝 최대점을 관찰할 수 있습니다. 모두 착지 직후부터의 경과 시간입니다. 숫자 팝은 `.combo-glyphs`의 실제 CSS transform에서 함께 확인합니다. 이 관측 API도 production에서 제외합니다.
 
 ## 착지 허용 범위 집중 브라우저 검사

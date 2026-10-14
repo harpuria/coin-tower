@@ -2,6 +2,18 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-14 — 상하·좌우 여백 배경
+
+- 구현: `Shell`의 fixed 장식 레이어 두 개가 Phaser Texture의 기존 Image 요소를 재사용한다. 새 URL 로딩·Blob 생성 없이 주변 영역만 CSS cover·블러로 표시한다. 게임 안팎은 같은 Session 상태와 `backgroundAlpha()`를 사용한다. 표현 기준은 [아트 방향](ART_DIRECTION.md#플레이-영역-바깥-배경)에 있다.
+- 개발 관측: Chromium PC 1280×900 DPR1·Pixel 7 터치 에뮬레이션 412×839 DPR2.625에서 마우스/Space·실제 터치와 개발 시간 제어로 20개/X19까지 진행했다. 5/10/15/20개 전환 시작·50%·완료 때 주변 alpha와 Scene alpha가 일치했고, 5개 50%에서 정지·카운트다운 동안 0.5를 유지한 뒤 완료했다. 실패·TRY AGAIN·메뉴 복귀 시 상태도 일치했다. 점수·동전 좌표를 덮어쓰지 않았다.
+- 배치: 주변 레이어는 viewport 전체, 게임 영역은 PC 497.25×884·터치 412×732.4375로 유지됐다. 360×640·821×462·PC standalone 전체화면에도 배경이 채워졌고 페이지 overflow는 없었다. PC·모바일 메뉴, 밤 배경·전체화면 캡처를 시각적으로 확인했다. 장식 레이어가 포인터 타깃이 되지 않았다.
+- 배포 관측: CrazyGames production preview·SDK fixture에서 PC/터치 SHOP·복귀·소리·시작 후 별도 첫 낙하 1개·정지, init/start/stop, 자체 전체화면 숨김·개발 훅 제외를 관측했다. 정상 개발/배포 경로의 페이지·HTTP 오류는 0건, 표시 중 이미지의 미로딩은 없었다.
+- 초기 전송 관측: 최초 URL 구현에서 아침 이미지가 HTML/Phaser로 중복 요청됐다. Image 요소 재사용으로 바꾼 최종 preview의 새 세션에서 네 배경은 각 XHR 한 번이며 추가 Image 네트워크 요청이 없었다. SDK fixture·첫 PLAY 직후까지 CDP loadingFinished 합계는 PC/터치 모두 **17,774,167 bytes(17.77MB)**다. 포털/CDN 압축·공식 SDK 전송·실기기 성능 수치는 아니다.
+- 프로젝트 검사·빌드: `rtk npm run check`의 lint·format·67개 단위 검사(6개 파일)·TypeScript·일반 빌드를 통과했다. 이어 `rtk npm run build:crazygames`도 통과했다. 최종 dist는 **14,703,692 bytes(14.70MB)**로 직전 선택 방지 산출물 대비 1,442 bytes 증가했고 새 이미지 파일은 없다.
+- 기존 배경 회귀 검사: `backgrounds.spec.ts`의 PC/터치 **4/4 통과**(2.6분). 5/10/15/20/25개·중간 정지/카운트다운·확인 취소/재시작/메뉴·중간 실패/TRY AGAIN·실시간 전환을 포함한다. 임시 설정은 기존 프로젝트/worker/timeout을 유지하고 실행 중인 5283 개발 서버 및 별도 `test-results/ambient-backdrop-regression/`만 지정했다. 실행은 `rtk proxy npx playwright test backgrounds.spec.ts --config /private/tmp/coin-backdrop.playwright.config.ts`다.
+- 산출물: `test-results/ambient-backdrop/`의 PC/터치 전후 메뉴·구간·정지·결과·재시작·화면 크기 PNG, `observations.json`(49개 관측 항목), `network.json`. 초기 관측의 SHOP 복귀 후 Space는 포커스된 SHOP을 활성화하므로 시작 버튼으로 준비 입력을 수정해 재실행했다. 최종 Image 요소 재사용 변경 후 전체 관측을 다시 수행했다. 새 테스트는 추가하지 않았다.
+- 한계/다음: 실제 Android/iOS·CrazyGames 호스트·저사양에서 블러 합성 성능과 사용자 미감은 미확인이다. 새 dist를 업로드하고 Android에서 주변 연결·5/10/15개 시간대·입력 지연 여부를 다시 확인하면 이번 사용자 피드백을 평가할 수 있다.
+
 ## 2026-10-14 — 모바일 선택 방지 CSS
 
 - 변경: `src/style.css` body에 `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`을 추가했다. 화면 비율·게임 규칙은 그대로다. Android 사용자 피드백과 여백 개선 제안은 [플레이 관측](PLAYTEST_NOTES.md)에 기록했다.

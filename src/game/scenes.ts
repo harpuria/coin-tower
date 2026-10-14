@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type { App } from '../app';
-import { assetKeys } from './assets';
-import type { BackgroundTime } from './backgrounds';
+import { assetKeys, backgroundTextures } from './assets';
+import { backgroundAlpha } from './backgrounds';
 import type { GameController } from './controller';
 import { feedbackRules, landingVisual } from './feedback';
 import { rules } from './rules';
@@ -39,13 +39,6 @@ declare global {
     __COIN_TOWER__?: DebugControl;
   }
 }
-
-const backgroundTextures: Record<BackgroundTime, string> = {
-  morning: assetKeys.background,
-  noon: assetKeys.backgroundNoon,
-  evening: assetKeys.backgroundEvening,
-  night: assetKeys.backgroundNight,
-};
 
 /** 원본 금화와 배경으로 한 판을 그리며 게임 시간은 Session에 맡긴다. */
 export class CoinTowerScene extends Phaser.Scene {
@@ -178,7 +171,7 @@ export class CoinTowerScene extends Phaser.Scene {
     this.backgroundNext
       .setTexture(backgroundTextures[background.to])
       .setDisplaySize(rules.width, rules.height)
-      .setAlpha(progress * progress * (3 - 2 * progress))
+      .setAlpha(backgroundAlpha(progress))
       .setVisible(background.from !== background.to);
     const title = run.mode === 'menu';
     this.logo

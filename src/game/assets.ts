@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import { gameConfig } from '../config/game';
 import { artFile, standaloneArt } from './art';
+import { backgroundFiles, type BackgroundTime } from './backgrounds';
 import { skins } from './skins';
 
 export const assetKeys = {
@@ -28,13 +29,20 @@ export const assetKeys = {
   stack: 'stack',
 } as const;
 
+export const backgroundTextures: Record<BackgroundTime, string> = {
+  morning: assetKeys.background,
+  noon: assetKeys.backgroundNoon,
+  evening: assetKeys.backgroundEvening,
+  night: assetKeys.backgroundNight,
+};
+
 const images = {
   coin: 'coin.png',
   pedestal: 'pedestal.png',
-  background: 'sky_ruins.png',
-  backgroundNoon: 'backgrounds/sky_ruins_noon.png',
-  backgroundEvening: 'backgrounds/sky_ruins_evening.png',
-  backgroundNight: 'backgrounds/sky_ruins_night.png',
+  background: backgroundFiles.morning,
+  backgroundNoon: backgroundFiles.noon,
+  backgroundEvening: backgroundFiles.evening,
+  backgroundNight: backgroundFiles.night,
   panel: 'hud_panel.png',
   logo: 'logo.png',
   tapToPlay: 'tap_to_play.png',
