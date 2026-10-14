@@ -1,0 +1,22 @@
+[
+  {
+    "name": "landscape-1920x1080",
+    "duration": 18,
+    "width": 1920,
+    "height": 1080,
+    "ended": true,
+    "error": null,
+    "totalFrames": 455,
+    "droppedFrames": 0
+  },
+  {
+    "name": "portrait-1080x1620",
+    "duration": 18,
+    "width": 1080,
+    "height": 1620,
+    "ended": true,
+    "error": null,
+    "totalFrames": 454,
+    "droppedFrames": 0
+  }
+]

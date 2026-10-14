@@ -1,5 +1,12 @@
 # 자산 출처
 
+## CrazyGames 제출용 프리뷰 영상
+
+- 파일: `marketing/crazygames/videos/coin-tower-landscape-1920x1080.mp4`, `coin-tower-portrait-1080x1620.mp4`. 상태: 업로드용 18초 무음 MP4 2종, 포털 심사 미확인.
+- 출처: 2026-10-14 현재 게임을 Playwright 1.63.0 / Chromium으로 정상 속도 녹화하고 기존 커버를 첫 3프레임에 사용했다. 게임 입력만 자동화했으며 점수·게임 규칙 변경이나 배속은 없다.
+- 후처리: FFmpeg 7.1 / libx264 CRF 18, 25fps, yuv420p, H.264 High Level 4.2, faststart. 준비 구간 자르기·커버 연결·오디오 제외. 커서 및 포커스 테두리만 녹화 문서에서 숨겼다.
+- 이용 조건: 기존 게임 아트·커버의 출처와 이용 조건을 따른다. 새 생성형 영상·외부 음원은 없다. 상세 제작 설정, 파일 해시, 재생 확인 및 한계는 [영상 기록](art/crazygames-preview-videos.md)에 있다.
+
 ## CrazyGames 제출용 커버
 
 - 파일: `marketing/crazygames/covers/coin-tower-landscape-1920x1080.png`, `coin-tower-portrait-800x1200.png`, `coin-tower-square-800x800.png`. 상태: 사용자 요청으로 제작한 업로드용 PNG 3종, 실제 포털 심사는 미확인. 런타임 자산과 분리했다.
