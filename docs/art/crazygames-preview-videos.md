@@ -4,10 +4,10 @@
 
 ## 제출 파일
 
-| 파일 (`marketing/crazygames/videos/`) | 해상도 | 길이 | 용량 |
-| --- | --- | --- | --- |
-| `coin-tower-landscape-1920x1080.mp4` | 1920×1080, 16:9 | 18초 | 8,065,466 bytes |
-| `coin-tower-portrait-1080x1620.mp4` | 1080×1620, 2:3 | 18초 | 8,910,640 bytes |
+| 파일 (`marketing/crazygames/videos/`) | 해상도          | 길이 | 용량            |
+| ------------------------------------- | --------------- | ---- | --------------- |
+| `coin-tower-landscape-1920x1080.mp4`  | 1920×1080, 16:9 | 18초 | 8,065,466 bytes |
+| `coin-tower-portrait-1080x1620.mp4`   | 1080×1620, 2:3  | 18초 | 8,910,640 bytes |
 
 공통: H.264 High / Level 4.2, yuv420p, 25fps, MP4 faststart, 오디오 스트림 없음. `marketing/`에만 보관하므로 게임 초기 다운로드에 추가되지 않는다.
 
