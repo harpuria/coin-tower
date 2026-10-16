@@ -8,7 +8,7 @@
 
 현재 웹 실행물에 첫 플레이 버전과 CrazyGames 기본 연동, 무제한 콤보 표시와 완료 시 브라우저 최장 콤보 저장, 두 기록의 결과·메뉴 표시와 항목별 경신 안내를 구현했다. 전역 경쟁은 CrazyGames 자체 주간 적층 순위표 하나로 확정했으며 실제 연결은 미구현이다. 이 문서는 합의된 규칙의 기준이며 실제로 확인한 환경과 제한은 [VALIDATION.md](VALIDATION.md), 주관적 체감 가설은 [PLAYTEST_NOTES.md](PLAYTEST_NOTES.md)를 따른다. 기술 환경과 원본 위치는 [SETUP.md](SETUP.md)에 있다.
 
-2026-10-17 첫 품질 개선 범위의 설계를 확정했다. 아래 연결 문서의 집중형 HUD·실패 연출·첫 플레이 안내·결과 목표와 상점 복귀는 아직 실행물에 반영하지 않았다. 구현 준비 상태와 검증 계획은 [구현 계획](IMPLEMENTATION_PLAN.md#quality-improvement--first-implementation-slice-ready)을 따른다.
+2026-10-17 확정한 첫 품질 개선 범위의 집중형 HUD·실패 연출·첫 플레이 안내·결과 목표와 상점 복귀를 실행물에 반영했다. 구현 상태와 검증 결과는 [구현 계획](IMPLEMENTATION_PLAN.md#quality-improvement--first-implementation-slice-implemented)을 따른다.
 
 ### 첫 범위에 포함하는 화면
 

@@ -1,3 +1,4 @@
+import migrationFixtures from '../fixtures/progress-migrations.json';
 import { describe, expect, it } from 'vitest';
 import { Store, type StoragePort } from '../../src/core/store';
 import { progressSchema } from '../../src/game/save';
@@ -159,7 +160,7 @@ describe('versioned persistence', () => {
     });
     expect(store.flush()).toBe(true);
     expect(JSON.parse(storage.getItem('save')!)).toEqual({
-      version: 4,
+      version: 5,
       data: {
         ...progressSchema.defaults(),
         best: 30,
@@ -170,4 +171,33 @@ describe('versioned persistence', () => {
     });
     expect(new Store(storage, 'save', progressSchema).data).toEqual(store.data);
   });
+});
+
+it.each(migrationFixtures)(
+  'preserves the complete old-save fixture: $name',
+  ({ source, expected }) => {
+    const storage = new MemoryStorage();
+    storage.setItem('save', JSON.stringify(source));
+    const store = new Store(storage, 'save', progressSchema);
+    expect(store.status).toBe('ready');
+    expect(store.data).toEqual(expected.data);
+    expect(store.flush()).toBe(true);
+    expect(JSON.parse(storage.getItem('save')!)).toEqual(expected);
+    expect(new Store(storage, 'save', progressSchema).data).toEqual(
+      expected.data,
+    );
+  },
+);
+it.each([
+  { ...progressSchema.defaults(), ownedSkins: ['gold', 'unknown'] },
+  { ...progressSchema.defaults(), equippedSkin: 'silver' },
+  { ...progressSchema.defaults(), ownedSkins: ['gold', 'gold'] },
+])('protects invalid legacy collections while migrating: %j', (data) => {
+  const storage = new MemoryStorage();
+  const raw = JSON.stringify({ version: 4, data });
+  storage.setItem('save', raw);
+  const store = new Store(storage, 'save', progressSchema);
+  expect(store.status).toBe('corrupt');
+  expect(store.flush()).toBe(false);
+  expect(storage.getItem('save')).toBe(raw);
 });

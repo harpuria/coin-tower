@@ -166,7 +166,7 @@ test('reports play, manual pause, countdown completion, failure, retry and menu 
     'moving',
   );
   await tap(page, info);
-  await page.clock.runFor(320);
+  await page.clock.runFor(720);
   await expect(page.locator('#result-screen')).toBeVisible();
   expect((await events(page)).at(-1)).toBe('stop');
   const beforeRetry = await events(page);

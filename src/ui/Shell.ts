@@ -6,7 +6,8 @@ import { backgroundTextures } from '../game/assets';
 import { backgroundAlpha } from '../game/backgrounds';
 import type { GameController } from '../game/controller';
 import { landingVisual } from '../game/feedback';
-import { skins, skinById } from '../game/skins';
+import { skins, skinById, nextSkinGoal } from '../game/skins';
+import { nextHeightGoal } from '../game/goals';
 
 /** 네이티브 HTML 버튼을 게임 화면 위에 배치해 입력과 접근성을 함께 유지한다. */
 export class Shell {
@@ -52,16 +53,15 @@ export class Shell {
             <button id="skins-menu" class="utility-button skins-menu" aria-label="Shop" title="Shop"><img src="${artUrl('icons/shop.png')}" alt="" draggable="false" /><span class="utility-caption" aria-hidden="true">SHOP</span></button>
           </div>
           <div id="hud" class="layer" hidden>
-            <section class="hud-records" aria-label="Browser bests and collected Star Shards">
+            <section class="hud-records" aria-label="Browser best height">
               <div class="stat-readout icon-stat" title="Best coins"><span class="hud-best-label" aria-hidden="true">BEST</span><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="best">0</strong></div>
-              <div class="stat-readout icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="hud-best-combo">x0</strong></div>
-              <div class="shard-readout icon-stat" title="Collected Star Shards"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="hud-shards">0</strong></div>
             </section>
             <div class="hud-stats stat-readout"><span>COINS</span><strong id="score">0</strong></div>
             <button id="pause" class="icon-button pause-button" aria-label="Pause">Ⅱ</button>
             <div id="combo" class="combo" hidden><strong id="combo-count" class="sr-only">x1</strong><span class="combo-glyphs" aria-hidden="true"></span></div>
-            <p id="tap-prompt" class="tap-prompt">Click, tap or press Space to drop</p>
+            <div id="tap-prompt" class="tap-prompt"><svg class="hint-gesture" aria-hidden="true" viewBox="0 0 36 42"><path d="M12 21V7a3 3 0 0 1 6 0v9l2-2a3 3 0 0 1 4 0l2 2a3 3 0 0 1 4 0l1 1v11c0 6-4 10-10 10h-1c-4 0-7-2-9-5L4 22a3 3 0 0 1 5-4z" fill="#fff3d0" stroke="#123b77" stroke-width="2.5" stroke-linejoin="round" /></svg><p><strong>Align the coins</strong><span>${matchMedia('(pointer: coarse)').matches ? 'Tap to drop' : 'Click or Space to drop'}</span></p><button id="skip-hints" class="hint-skip" aria-label="Skip hints">SKIP</button></div>
           </div>
+          <div id="miss-feedback" class="miss-feedback" role="status" hidden>MISS</div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
             <img class="result-heading" src="${artUrl('game_over.png')}" alt="GAME OVER" />
             <div class="result-stats stat-readout">
@@ -73,12 +73,13 @@ export class Shell {
                 </tbody>
               </table>
             </div>
-            <p class="result-caption">One more try. A little higher.</p>
+            <div class="result-caption"><span>NEXT GOAL</span><strong id="height-goal">5 COINS</strong></div>
             <section class="shard-reward shard-readout" aria-label="Star Shards reward">
               <span class="shard-label"><span class="sr-only">STAR SHARDS</span>${icon('shards')}</span>
               <div><span>EARNED</span><strong id="result-shards-earned">+0</strong></div>
               <div><span>TOTAL</span><strong id="result-shards-total">0</strong></div>
             </section>
+            <section class="skin-goal" aria-label="Skin collection goal"><span id="goal-skin-preview" class="skin-preview"><img id="goal-skin-image" alt="" draggable="false" /></span><p><strong id="goal-skin-name"></strong><span id="goal-skin-progress"></span></p><button id="result-shop" class="game-button" hidden>SHOP</button></section>
             <div class="result-actions"><button id="retry" class="game-button primary">TRY AGAIN</button><button id="home" class="game-button">MENU</button></div>
           </section>
           <section id="pause-overlay" class="layer veil" aria-label="Pause menu" hidden>
@@ -227,6 +228,11 @@ export class Shell {
     };
     this.on('play', start);
     this.on('skins-menu', () => this.game.openSkins());
+    this.on('result-shop', () => this.game.openSkins());
+    this.on('skip-hints', () => {
+      this.game.skipHints();
+      focusGame();
+    });
     this.on('skins-back', () => this.game.closeSkins());
     for (const skin of skins)
       this.on(`skin-${skin.id}`, () => this.game.selectSkin(skin.id));
@@ -350,9 +356,15 @@ export class Shell {
     this.element('surface').dataset.mode = run.mode;
     this.element('surface').dataset.phase = run.phase;
     this.element('title-screen').hidden = !menu || this.game.skinsOpen;
+    this.element('result-screen').hidden =
+      !run.resultReady || this.game.skinsOpen;
     this.renderSkins();
     this.element('hud').hidden = !playing;
-    this.element('result-screen').hidden = run.mode !== 'result';
+    this.element('miss-feedback').hidden = !(
+      run.mode === 'result' &&
+      !run.resultReady &&
+      app.settings.data.reducedMotion
+    );
     this.element('pause-overlay').hidden =
       !playing || !run.paused || !!run.confirmation;
     this.element('confirm-overlay').hidden = !run.confirmation;
@@ -382,18 +394,39 @@ export class Shell {
       '--combo-digits',
       String(String(run.combo).length + 1),
     );
-    this.element('tap-prompt').hidden = run.score >= 5 || run.frozen;
+    this.element('tap-prompt').hidden = !this.game.showHints;
     const progress = app.save.data;
     const result = this.game.result;
     this.record('score', String(run.score));
     this.record('best', String(progress.best));
-    this.record('hud-best-combo', `x${progress.bestCombo}`);
-    this.record('hud-shards', String(progress.shards));
     this.record('title-best', String(progress.best));
     this.record('title-best-combo', `x${progress.bestCombo}`);
     this.record('title-shards', String(progress.shards));
     this.record('result-shards-earned', `+${result?.shardsEarned ?? 0}`);
-    this.record('result-shards-total', String(result?.shardsTotal ?? 0));
+    this.record('result-shards-total', String(progress.shards));
+    this.element('height-goal').textContent =
+      `${nextHeightGoal(result?.score ?? 0)} COINS`;
+    const goal = nextSkinGoal(progress.ownedSkins);
+    const canSave = app.save.status === 'ready' && this.game.saved;
+    const shortage = goal ? Math.max(0, goal.price - progress.shards) : 0;
+    const goalImage = this.element<HTMLImageElement>('goal-skin-image');
+    goalImage.hidden = !goal;
+    this.element('goal-skin-preview').hidden = !goal;
+    if (goal && goalImage.dataset.skin !== goal.id) {
+      goalImage.src = artUrl(goal.file);
+      goalImage.dataset.skin = goal.id;
+    }
+    this.element('goal-skin-name').textContent = goal
+      ? `${goal.name.toUpperCase()} COIN`
+      : 'COLLECTION COMPLETE';
+    this.element('goal-skin-progress').textContent = !goal
+      ? 'All skins owned'
+      : !canSave
+        ? 'Purchases unavailable · cannot save'
+        : shortage
+          ? `${shortage} Star Shards to go`
+          : 'Ready to unlock!';
+    this.element('result-shop').hidden = !goal || !canSave || shortage > 0;
     this.record('result-score', String(result?.score ?? 0));
     this.record('result-best', String(result?.best ?? 0));
     this.record('result-combo', `x${result?.combo ?? 0}`);
@@ -411,7 +444,7 @@ export class Shell {
     this.element('storage-notice').textContent =
       app.save.status === 'ready' && this.game.saved
         ? ''
-        : 'Scores cannot be saved. Star Shards are temporary. You can keep playing.';
+        : 'Progress cannot be saved.';
     this.element('mode-label').textContent = run.paused
       ? 'PAUSED'
       : run.countdownMs > 0
@@ -478,6 +511,7 @@ export class Shell {
     confirmation.dataset.skin = pending ?? '';
     this.element('game').inert = open;
     this.element('title-screen').inert = open;
+    this.element('result-screen').inert = open;
     this.root.querySelector<HTMLElement>('.utility')!.inert = open;
     this.root.querySelector<HTMLElement>('.utility')!.hidden = open;
     this.element('storage-notice').hidden = open;
@@ -541,6 +575,8 @@ export class Shell {
     )
       this.element('skins-back').focus({ preventScroll: true });
     else if (!open && wasOpen)
-      this.element('skins-menu').focus({ preventScroll: true });
+      this.element(
+        this.app.session.mode === 'result' ? 'retry' : 'skins-menu',
+      ).focus({ preventScroll: true });
   }
 }

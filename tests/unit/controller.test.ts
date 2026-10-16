@@ -5,11 +5,26 @@ import { Session } from '../../src/game/session';
 import { GameController } from '../../src/game/controller';
 import { Store } from '../../src/core/store';
 import { progressSchema, type Progress } from '../../src/game/save';
+import { failureRules } from '../../src/game/feedback';
 import { rules } from '../../src/game/rules';
 
-function fixture(initial?: Pick<Progress, 'best' | 'bestCombo' | 'rounds'>) {
+const progressDefaults = () => ({
+  ...progressSchema.defaults(),
+  onboardingComplete: true,
+});
+
+function fixture(
+  initial?: Pick<Progress, 'best' | 'bestCombo' | 'rounds'>,
+  onboardingComplete = true,
+) {
   const events: string[] = [];
-  let raw = initial ? JSON.stringify({ version: 2, data: initial }) : null;
+  let raw =
+    initial || onboardingComplete
+      ? JSON.stringify({
+          version: 5,
+          data: { ...progressDefaults(), ...initial, onboardingComplete },
+        })
+      : null;
   const storage = {
     getItem: () => raw,
     setItem: vi.fn((_key: string, value: string) => {
@@ -39,7 +54,9 @@ function land(game: GameController, offset = 0) {
   game.run.activeX = game.run.targetX + offset;
   game.tap();
   game.update(1000);
-  game.update(rules.settleMs);
+  game.update(
+    game.run.mode === 'result' ? failureRules.durationMs : rules.settleMs,
+  );
 }
 
 it.each([
@@ -92,7 +109,7 @@ it.each([0, 1])('records %i for a run with that many Perfects', (perfects) => {
   for (let index = 0; index < perfects; index++) land(game);
   land(game, -100);
   expect(app.save.data).toEqual({
-    ...progressSchema.defaults(),
+    ...progressDefaults(),
     best: perfects + 1,
     bestCombo: perfects,
     rounds: 1,
@@ -117,7 +134,7 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   for (let index = 0; index < 5; index++) land(game);
   expect(storage.setItem).not.toHaveBeenCalled();
   expect(app.save.data).toEqual({
-    ...progressSchema.defaults(),
+    ...progressDefaults(),
     best: 30,
     bestCombo: 4,
     rounds: 2,
@@ -125,7 +142,7 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   });
   land(game, -100);
   expect(app.save.data).toEqual({
-    ...progressSchema.defaults(),
+    ...progressDefaults(),
     best: 30,
     bestCombo: 8,
     rounds: 3,
@@ -153,7 +170,7 @@ it('finalizes independent bests once at failure using the longest streak', () =>
   land(game);
   land(game, -100);
   expect(app.save.data).toEqual({
-    ...progressSchema.defaults(),
+    ...progressDefaults(),
     best: 30,
     bestCombo: 8,
     rounds: 4,
@@ -176,7 +193,7 @@ it.each(['restart', 'home'] as const)(
     game.request(action);
     game.confirm(true);
     expect(game.run.maxCombo).toBe(0);
-    expect(app.save.data).toEqual(progressSchema.defaults());
+    expect(app.save.data).toEqual(progressDefaults());
     expect(storage.setItem).not.toHaveBeenCalled();
   },
 );
@@ -224,6 +241,7 @@ it('reports actual play transitions once, including countdown, result and retry'
   game.update(1000);
   expect(game.run.mode).toBe('result');
   expect(events).toEqual(['start', 'stop', 'start', 'stop']);
+  game.update(failureRules.durationMs);
   game.start();
   game.pause();
   game.request('restart');
@@ -274,4 +292,92 @@ it('does not report starts before readiness or while backgrounded', () => {
   game.start();
   expect(game.run.paused).toBe(true);
   expect(events).toEqual([]);
+});
+
+it('completes hints on the fifth landing without finalizing an unfinished run', () => {
+  const { app, controller: game, storage } = fixture(undefined, false);
+  game.start();
+  for (let i = 0; i < 4; i++) land(game);
+  expect(app.save.data.onboardingComplete).toBe(false);
+  expect(storage.setItem).not.toHaveBeenCalled();
+  expect(game.showHints).toBe(true);
+  land(game);
+  expect(app.save.data).toEqual(progressDefaults());
+  expect(storage.setItem).toHaveBeenCalledTimes(1);
+  game.home();
+  expect(new Store(storage, 'save', progressSchema).data).toEqual(
+    progressDefaults(),
+  );
+});
+it('repeats unfinished hints and skips them without dropping a coin', () => {
+  const { app, controller: game } = fixture(undefined, false);
+  game.start();
+  land(game);
+  land(game, 100);
+  game.start();
+  expect(game.showHints).toBe(true);
+  game.skipHints();
+  expect(game.run.phase).toBe('moving');
+  expect(game.run.score).toBe(0);
+  expect(app.save.data.onboardingComplete).toBe(true);
+  expect(game.showHints).toBe(false);
+});
+it('keeps hint completion in-page and protects the source when saving fails', () => {
+  const {
+    app,
+    controller: game,
+    storage,
+  } = fixture({ best: 53, bestCombo: 8, rounds: 12 }, false);
+  const raw = storage.getItem();
+  storage.setItem.mockImplementation(() => {
+    throw new Error('quota');
+  });
+  game.start();
+  game.skipHints();
+  game.home();
+  game.start();
+  expect(game.showHints).toBe(false);
+  expect(app.save.status).toBe('unavailable');
+  expect(storage.getItem()).toBe(raw);
+  expect(
+    new Store(storage, 'save', progressSchema).data.onboardingComplete,
+  ).toBe(false);
+});
+it('settles once before the result delay and retains a completed run across shop purchase', () => {
+  const { app, controller: game, events } = fixture();
+  app.save.update((data) => ({ ...data, shards: 49 }));
+  app.save.flush();
+  game.start();
+  land(game);
+  game.run.activeX = game.run.targetX - 100;
+  game.tap();
+  game.update(1000);
+  const result = game.result;
+  expect(game.run.resultReady).toBe(false);
+  expect(game.run.failureDirection).toBe(-1);
+  expect(app.save.data.rounds).toBe(1);
+  expect(app.save.data.shards).toBe(50);
+  expect(events).toEqual(['start', 'stop']);
+  game.start();
+  game.openSkins();
+  expect(game.result).toBe(result);
+  expect(game.skinsOpen).toBe(false);
+  game.update(399);
+  expect(game.run.resultReady).toBe(false);
+  game.update(1);
+  expect(game.run.resultReady).toBe(true);
+  game.openSkins();
+  game.selectSkin('silver');
+  game.confirmSkinPurchase(true);
+  game.closeSkins();
+  expect(app.save.data.equippedSkin).toBe('silver');
+  expect(game.runSkin).toBe('gold');
+  expect(app.save.data.shards).toBe(0);
+  expect(game.result).toBe(result);
+  expect(game.result?.shardsEarned).toBe(1);
+  game.update(5000);
+  expect(app.save.data.rounds).toBe(1);
+  expect(events).toEqual(['start', 'stop']);
+  game.start();
+  expect(game.runSkin).toBe('silver');
 });

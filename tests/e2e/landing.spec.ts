@@ -64,6 +64,7 @@ test('45 percent landing boundaries and unchanged Perfect use real input', async
       if (scenario.expected === 'miss') {
         expect(landed.mode).toBe('result');
         expect(landed.score).toBe(1);
+        await advance(page, 400);
         await expect(page.locator('#result-score')).toHaveText('1');
       } else {
         expect(landed.mode).toBe('playing');

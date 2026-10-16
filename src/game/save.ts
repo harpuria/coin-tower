@@ -8,13 +8,26 @@ export interface Progress {
   shards: number;
   ownedSkins: SkinId[];
   equippedSkin: SkinId;
+  onboardingComplete: boolean;
 }
 
 const isCount = (n: unknown): n is number =>
   typeof n === 'number' && Number.isSafeInteger(n) && n >= 0;
 
+const validCollection = (
+  v: unknown,
+): v is Omit<Progress, 'onboardingComplete'> =>
+  isRecord(v) &&
+  [v.best, v.bestCombo, v.rounds, v.shards].every(isCount) &&
+  Array.isArray(v.ownedSkins) &&
+  v.ownedSkins.every(isSkinId) &&
+  new Set(v.ownedSkins).size === v.ownedSkins.length &&
+  v.ownedSkins.includes('gold') &&
+  isSkinId(v.equippedSkin) &&
+  v.ownedSkins.includes(v.equippedSkin);
+
 export const progressSchema: Schema<Progress> = {
-  version: 4,
+  version: 5,
   defaults: () => ({
     best: 0,
     bestCombo: 0,
@@ -22,17 +35,17 @@ export const progressSchema: Schema<Progress> = {
     shards: 0,
     ownedSkins: ['gold'],
     equippedSkin: 'gold',
+    onboardingComplete: false,
   }),
   validate: (v): v is Progress =>
     isRecord(v) &&
-    [v.best, v.bestCombo, v.rounds, v.shards].every(isCount) &&
-    Array.isArray(v.ownedSkins) &&
-    v.ownedSkins.every(isSkinId) &&
-    new Set(v.ownedSkins).size === v.ownedSkins.length &&
-    v.ownedSkins.includes('gold') &&
-    isSkinId(v.equippedSkin) &&
-    v.ownedSkins.includes(v.equippedSkin),
+    typeof v.onboardingComplete === 'boolean' &&
+    validCollection(v),
   migrations: {
+    4: (value) => {
+      if (!validCollection(value)) throw new Error('Invalid v4 progress');
+      return { ...value, onboardingComplete: false };
+    },
     1: (value) => {
       // 구버전에 없던 콤보 기록은 추정하지 않고 0에서 시작한다.
       if (!isRecord(value) || ![value.best, value.rounds].every(isCount))

@@ -9,14 +9,15 @@
       }
     },
     "expected": {
-      "version": 4,
+      "version": 5,
       "data": {
         "best": 30,
         "bestCombo": 0,
         "rounds": 12,
         "shards": 0,
         "ownedSkins": ["gold"],
-        "equippedSkin": "gold"
+        "equippedSkin": "gold",
+        "onboardingComplete": false
       }
     }
   },
@@ -31,14 +32,15 @@
       }
     },
     "expected": {
-      "version": 4,
+      "version": 5,
       "data": {
         "best": 53,
         "bestCombo": 8,
         "rounds": 19,
         "shards": 0,
         "ownedSkins": ["gold"],
-        "equippedSkin": "gold"
+        "equippedSkin": "gold",
+        "onboardingComplete": false
       }
     }
   },
@@ -54,14 +56,41 @@
       }
     },
     "expected": {
-      "version": 4,
+      "version": 5,
       "data": {
         "best": 53,
         "bestCombo": 8,
         "rounds": 20,
         "shards": 75,
         "ownedSkins": ["gold"],
-        "equippedSkin": "gold"
+        "equippedSkin": "gold",
+        "onboardingComplete": false
+      }
+    }
+  },
+  {
+    "name": "v4-preserve-skins-and-wallet",
+    "source": {
+      "version": 4,
+      "data": {
+        "best": 53,
+        "bestCombo": 12,
+        "rounds": 24,
+        "shards": 128,
+        "ownedSkins": ["gold", "ruby"],
+        "equippedSkin": "ruby"
+      }
+    },
+    "expected": {
+      "version": 5,
+      "data": {
+        "best": 53,
+        "bestCombo": 12,
+        "rounds": 24,
+        "shards": 128,
+        "ownedSkins": ["gold", "ruby"],
+        "equippedSkin": "ruby",
+        "onboardingComplete": false
       }
     }
   }

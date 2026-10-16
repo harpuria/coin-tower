@@ -1,5 +1,6 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { gameConfig } from '../../src/config/game';
+import { progressSchema } from '../../src/game/save';
 import { rules } from '../../src/game/rules';
 
 const preview = process.env.E2E_PREVIEW === '1';
@@ -34,6 +35,19 @@ async function place(page: Page, info: TestInfo, offset = 0) {
   await advance(page, 1000);
   if ((await snapshot(page)).mode === 'playing')
     await advance(page, rules.settleMs);
+  else await advance(page, 400);
+}
+
+async function expectUnfinishedSave(page: Page) {
+  expect(
+    await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key)!),
+      saveKey,
+    ),
+  ).toEqual({
+    version: 5,
+    data: { ...progressSchema.defaults(), onboardingComplete: true },
+  });
 }
 
 async function expectComboArt(page: Page, value: number) {
@@ -279,9 +293,7 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   expect(high.combo).toBe(13);
   expect(high.maxCombo).toBe(13);
   await expect(page.locator('#combo-count')).toHaveText('x13');
-  expect(
-    await page.evaluate((key) => localStorage.getItem(key), saveKey),
-  ).toBeNull();
+  await expectUnfinishedSave(page);
   expect(high.speed).toBe(rules.maxSpeed);
   expect(high.cameraOffset).toBe(rules.coinHeight * 21);
   await page.screenshot({
@@ -298,7 +310,7 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
       saveKey,
     ),
   ).toEqual({
-    version: 4,
+    version: 5,
     data: {
       best: 21,
       bestCombo: 13,
@@ -306,6 +318,7 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
       shards: 21,
       ownedSkins: ['gold'],
       equippedSkin: 'gold',
+      onboardingComplete: true,
     },
   });
   await page.locator('#retry').click();
@@ -403,14 +416,10 @@ test('x100 glyphs fit below Perfect and an unfinished record is discarded on rel
   await expectComboArt(page, 100);
   await advance(page, 180);
   await expect(page.locator('#combo')).toBeHidden();
-  expect(
-    await page.evaluate((key) => localStorage.getItem(key), saveKey),
-  ).toBeNull();
+  await expectUnfinishedSave(page);
   await page.reload();
   await expect(page.locator('#title-best')).toHaveText('0');
-  expect(
-    await page.evaluate((key) => localStorage.getItem(key), saveKey),
-  ).toBeNull();
+  await expectUnfinishedSave(page);
   expect(errors).toEqual([]);
 });
 
@@ -441,7 +450,7 @@ test('v1 migration preserves height and v2 combo best survives a lower completed
       saveKey,
     ),
   ).toEqual({
-    version: 4,
+    version: 5,
     data: {
       best: 30,
       bestCombo: 0,
@@ -449,6 +458,7 @@ test('v1 migration preserves height and v2 combo best survives a lower completed
       shards: 1,
       ownedSkins: ['gold'],
       equippedSkin: 'gold',
+      onboardingComplete: false,
     },
   });
   await page.evaluate((key) => {
@@ -482,6 +492,7 @@ test('v1 migration preserves height and v2 combo best survives a lower completed
     shards: 1,
     ownedSkins: ['gold'],
     equippedSkin: 'gold',
+    onboardingComplete: false,
   });
 });
 
@@ -737,7 +748,7 @@ test('single Perfect result and both new records survive menu and reload without
   });
   await page.clock.runFor(300);
   await tapGame(page, info);
-  await page.clock.runFor(320);
+  await page.clock.runFor(720);
   await expect(page.locator('#result-combo')).toHaveText('x1');
   await expect(page.locator('#result-best-combo')).toHaveText('x1');
   await expect(page.locator('#new-best-coins')).toBeVisible();

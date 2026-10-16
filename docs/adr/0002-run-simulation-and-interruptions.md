@@ -21,4 +21,4 @@ A development-only `?debug` hook can freeze automatic simulation, inspect state,
 
 ## Consequences
 
-Scene updates must not advance the simulation while paused; all future gameplay timers belong to the run model or obey its freeze state. Native DOM pointer events provide one primary press without processing emulated mouse events twice. Save writes occur only on the model's one-shot finished event. Debug time control is excluded from production behavior.
+Scene updates must not advance the simulation while paused; all future gameplay timers belong to the run model or obey its freeze state. Native DOM pointer events provide one primary press without processing emulated mouse events twice. Run records and completion rewards are saved only on the model's one-shot finished event. Onboarding completion is saved independently, and result presentation follows logical completion as documented in [ADR 0007](0007-complete-runs-before-result-presentation.md). Debug time control is excluded from production behavior.

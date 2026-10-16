@@ -2,9 +2,24 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-17 — 첫 품질 개선 구현·PC/터치/배포 검증
+
+- 범위: 확정한 첫 품질 개선의 로고·본문/버튼 크기·집중형 HUD, 실제 플레이 안내, 실패 동전 표현, 다음 높이/스킨 목표, 결과 SHOP/BACK을 구현했다. 새 래스터·오디오·의존성은 없으며 직접 작성한 손 제스처 SVG와 기존 아트 crop을 사용한다. [ADR 0007](adr/0007-complete-runs-before-result-presentation.md)에 완료/표현·안내 저장·상점 복귀 계약을 기록했다.
+- 상태/저장: 첫 실패에서 records/rewards를 한 번 정산하고 모델 시간으로 결과 표시를 지연한다. 백그라운드에서 지연을 멈춘다. v5의 안내 완료는 다섯 번째 성공 또는 SKIP 때 별도로 저장하며 중단 판의 기록·보상은 저장하지 않는다. v1–v4 이행·잘못된 collection·손상/미래 버전·quota 원본 보호를 확인했다. 결과 구매 후 TOTAL/목표는 갱신하지만 EARNED·기록 경신·완료 탑 외형은 유지하며 다음 판부터 새 스킨을 적용한다.
+- 정적 검사: 최종 `rtk npm run check`의 lint·format·단위 검사 **89/89(7개 파일)**·TypeScript·일반 빌드가 통과했다. 일반 dist는 **14,803,681 bytes**다. 기존 검사 기대값을 v5와 실패 표시 구간에 맞춰 갱신하고 목표 계산/추천·안내 독립 저장·완료 한 번 정산·상점 복귀의 회귀 검사를 추가했다.
+- standalone 개발: 전체 `rtk npm run test:e2e` 실행은 **38/40 통과**(11.0분)했다. 실패한 PC/터치 두 건은 v2 이행 기대값에서 새 `onboardingComplete: false`가 빠진 검사였고 수정했다. 수정 및 상점 BACK 포커스·완료 탑 스킨 보존 보완 뒤 `--grep 'quality:|v1 migration'` 재실행은 **12/12 통과**(2.3분)했다. 앞선 품질/정지 집중 실행도 **14/14 통과**(4.2분)했다. 전체 실행과 부분 재실행을 합쳐 40/40의 새 전체 실행으로 표현하지 않는다.
+- standalone production: 일반 빌드에서 `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`가 **24 통과 / 16 조건부 skip**(2.4분)했다. skip은 개발 시간 훅에 의존하는 관측이며 production에 훅을 넣지 않았다. 실제 마우스/Space·터치 입력과 브라우저 시간 제어로 완료/재시작·안내/저장·결과/구매·작은 화면·오류 처리를 확인했다. 이 실행의 캡처에서 발견한 저장 불가 안내/작은 로고 겹침을 마지막 CSS 조정으로 분리했다. 최종 일반 빌드의 `--grep 'quality: (result delay|unavailable)'` 재검사는 **4/4 통과**(18.3초)했다. 상점·BACK·SKIP·TRY AGAIN 등의 모바일 버튼을 실제 터치 탭으로 강화한 검사이며 작은 로고와 저장 안내의 분리도 캡처로 재확인했다.
+- CrazyGames 개발: `rtk proxy env CG_SDK_FILE=/private/tmp/coin-tower-quality-sdk-v3.js npm run test:crazygames`는 **26/26 통과**(3.6분)했다. 통제 fixture 24개와 수정 없는 공식 SDK local 2개다. 새 품질 흐름과 기존 start/stop·플랫폼 mute·SDK download/init/disabled 오류·작은 포털 프레임을 포함한다. 개발 실행 후 공용 품질 검사의 모바일 버튼 입력도 실제 터치 탭으로 강화했다.
+- CrazyGames production: `rtk npm run build:crazygames`의 TypeScript·빌드가 통과했다. 이어 `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-quality-sdk-v3.js npm run test:crazygames`는 **24 통과 / 2 조건부 skip**(2.0분)했다. fixture 22개·공식 SDK local 2개이며 skip 2개는 개발 훅이 필요한 20개 관측이다. 새 품질 흐름의 모바일 캔버스·상점·BACK·SKIP·재시작 버튼은 실제 터치 탭으로 확인했다. 배포본의 개발 훅 제외·자체 fullscreen 숨김과 기존 SDK 회귀도 유지된다. 최종 dist는 **14,708,911 bytes(14.71MB), 39개 파일**, 원본 PNG는 없다. 이번 작업에서 초기 네트워크 전송량이나 포털 Load를 새로 측정한 것은 아니다.
+- 공식 SDK: 2026-10-17에 `https://sdk.crazygames.com/crazygames-sdk-v3.js`를 새로 내려받아 수정 없이 `CG_SDK_FILE=/private/tmp/coin-tower-quality-sdk-v3.js`로 공급했다. **112,919 bytes**, SHA-256 `d4c44671cafbb694a0fd054078303242681bdf1b5908d6fb9f766d1de3f25911`. fixture의 통제된 start/stop/mute/error 검증과 공식 SDK의 local 환경 init/정지/재개 검증을 구분한다.
+- 환경/관측: Chromium PC 1280×900 DPR1·Pixel 7 터치 에뮬레이션 412×839 DPR2.625. 개발 관측은 실제 입력과 시간 훅으로 NICE·Perfect·5/10/20개·네 시간대·좌우 실패·reduced motion을 확인하고 점수/좌표를 덮어쓰지 않았다. 360×640·390×844·821×462·907×510의 결과 배치, 본문 시작 기준·44px 조작 크기·페이지 overflow와 캡처를 확인했다. 정상 품질 경로의 pageerror는 없었으며 의도한 SDK 실패 fixture의 warning은 오류 경로 검증과 구분한다.
+- 산출물: 일반 개발/배포 캡처는 `test-results/standalone/`, CrazyGames 캡처는 `test-results/crazygames/`에 기록한다. 검사 재실행은 같은 경로를 덮어쓴다. 최종 개발의 20개·좌우 실패·reduced motion·작은 화면·구매 후 완료 탑 캡처는 `test-results/quality-final/crazygames-development/`에 별도 보존했다. 최종 CrazyGames 배포 캡처는 `test-results/quality-final/crazygames-production/`, 마지막 일반 배포 집중 캡처는 `test-results/quality-final/standalone-final-focused/`에 보존했다. 이 디렉터리들은 Git에서 제외한다.
+- 문서 검사: 변경한 프로젝트 내부 링크·제목 앵커 262개와 `git diff --check`를 확인했다. 원본 모바일 프로젝트를 가리키는 기존 외부 형제 경로 4개는 현재 워크스페이스에서 확인할 수 없으며 새 링크 검증과 구분한다.
+- 한계: 터치 에뮬레이션은 실제 Android/iPhone 검증이 아니다. Safari/WebKit·Firefox·저사양/고주사율 기기, 실제 CrazyGames Preview/CDN·포털 Load 측정·재심사 통과는 미확인이다. 첫 플레이 이해도·가독성 체감·실패 납득·재도전 동기·첫 구매까지의 판 수는 [사람 플레이 과제](PLAYTEST_NOTES.md#2026-10-17--첫-품질-개선의-입력저장목표-흐름)로 남겼다. 업로드나 리뷰 제출은 수행하지 않았다.
+
 ## 2026-10-17 — 첫 품질 개선 설계 확정
 
-- 작업 범위: 사용자가 확정한 세로 화면 가독성·집중형 HUD·실패 연출·첫 플레이 안내·결과 목표·상점 복귀를 설계 문서와 [구현 계획](IMPLEMENTATION_PLAN.md#quality-improvement--first-implementation-slice-ready)에 반영했다. 새 안내 문서는 [onboarding.md](design/onboarding.md)다. 코드·런타임 자산·의존성은 변경하지 않았다.
+- 작업 범위: 사용자가 확정한 세로 화면 가독성·집중형 HUD·실패 연출·첫 플레이 안내·결과 목표·상점 복귀를 설계 문서와 [구현 계획](IMPLEMENTATION_PLAN.md#quality-improvement--first-implementation-slice-implemented)에 반영했다. 새 안내 문서는 [onboarding.md](design/onboarding.md)다. 코드·런타임 자산·의존성은 변경하지 않았다.
 - 검사: `rtk npm run check`의 lint·format·기존 67개 단위 검사(6개 파일)·TypeScript·일반 빌드가 통과했다. `rtk npm run build:crazygames`도 통과해 마지막 배포 산출물은 CrazyGames 모드다. 문서 변경의 공백 오류와 프로젝트 내부 링크·제목 앵커를 확인했다.
 - 한계: 이 결과는 현재 코드의 기존 검사·빌드 통과다. 새 설계의 UI·안내 저장·실패 연출·목표·상점 복귀는 아직 미구현이며 이번 작업에서 E2E·SDK 브라우저 검사나 사람 플레이를 새로 실행하지 않았다. 개선된 가독성·실패 납득·재도전 효과와 실제 포털 재심사는 구현 후 확인해야 한다.
 

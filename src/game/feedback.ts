@@ -34,6 +34,24 @@ export const feedbackRules = {
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
+export const failureRules = {
+  durationMs: 400,
+  travel: 160,
+  fall: 240,
+  angle: 65,
+} as const;
+
+/** 착지 판정을 바꾸지 않고 실패 동전의 표시만 기울여 떨어뜨린다. */
+export function failureVisual(remainingMs: number, direction: number) {
+  const t = Math.min(1, Math.max(0, 1 - remainingMs / failureRules.durationMs));
+  return {
+    x: direction * failureRules.travel * t,
+    y: failureRules.fall * t * t,
+    angle: direction * failureRules.angle * t,
+    alpha: Math.min(1, (1 - t) * 4),
+  };
+}
+
 /** 별도 시계 없이 Session의 착지 후 경과 시간으로 표시만 계산한다. */
 export function landingVisual(
   kind: 'nice' | 'perfect' | null,

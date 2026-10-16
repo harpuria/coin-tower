@@ -24,8 +24,10 @@ export class GameController {
   skinsOpen = false;
   skinPurchase: SkinId | null = null;
   skinMessage = '';
+  runSkin: SkinId;
   result: Readonly<RunResult> | null = null;
   constructor(readonly app: App) {
+    this.runSkin = app.save.data.equippedSkin;
     app.onBackground = () => {
       this.run.pause();
       // SDK가 포커스/탭 전환을 처리한다. 복귀 후 명시적인 재개만 다시 보고한다.
@@ -57,6 +59,8 @@ export class GameController {
       this.run.paused,
       Math.ceil(this.run.countdownMs / 1000),
       this.run.confirmation,
+      this.run.resultReady,
+      this.app.save.data.onboardingComplete,
     ].join(':');
     if (key !== this.viewKey) {
       this.viewKey = key;
@@ -64,8 +68,14 @@ export class GameController {
     }
   }
   start() {
-    if (!this.app.ready || this.skinsOpen) return;
+    if (
+      !this.app.ready ||
+      this.skinsOpen ||
+      (this.run.mode === 'result' && !this.run.resultReady)
+    )
+      return;
     this.result = null;
+    this.runSkin = this.app.save.data.equippedSkin;
     this.run.start();
     if (this.background) this.run.pause();
     this.sync();
@@ -93,7 +103,9 @@ export class GameController {
     this.sync();
   }
   confirm(accepted: boolean) {
+    const restart = accepted && this.run.confirmation === 'restart';
     this.run.confirm(accepted);
+    if (restart) this.runSkin = this.app.save.data.equippedSkin;
     if (this.background) this.run.pause();
     this.sync();
   }
@@ -106,6 +118,7 @@ export class GameController {
   }
   update(deltaMs: number) {
     if (this.background) this.run.pause();
+    if (this.background && this.run.mode === 'result') return;
     const event = this.run.update(deltaMs);
     if (event === 'landed') {
       const feedback = feedbackRules[this.run.feedback!];
@@ -113,6 +126,7 @@ export class GameController {
         rate: feedback.soundRate,
         gain: feedback.soundGain,
       });
+      if (this.run.score >= 5) this.completeHints();
     }
     if (event === 'finished') {
       const previous = this.app.save.data;
@@ -141,9 +155,32 @@ export class GameController {
     this.sync();
   }
 
+  get showHints() {
+    return (
+      this.run.mode === 'playing' &&
+      this.run.phase === 'moving' &&
+      !this.run.frozen &&
+      !this.background &&
+      !this.app.save.data.onboardingComplete
+    );
+  }
+  private completeHints() {
+    if (this.app.save.data.onboardingComplete) return;
+    this.app.save.update((data) => ({ ...data, onboardingComplete: true }));
+    this.saved = this.app.save.flush();
+  }
+  skipHints() {
+    if (!this.showHints) return;
+    this.completeHints();
+    this.sync();
+  }
+
+  private get canUseShop() {
+    return this.run.mode === 'menu' || this.run.resultReady;
+  }
+
   openSkins() {
-    if (!this.app.ready || this.app.fatalError || this.run.mode !== 'menu')
-      return;
+    if (!this.app.ready || this.app.fatalError || !this.canUseShop) return;
     this.skinsOpen = true;
     this.skinMessage = '';
     this.app.onState();
@@ -155,8 +192,7 @@ export class GameController {
     this.app.onState();
   }
   selectSkin(id: SkinId) {
-    if (!this.skinsOpen || this.skinPurchase || this.run.mode !== 'menu')
-      return;
+    if (!this.skinsOpen || this.skinPurchase || !this.canUseShop) return;
     const progress = this.app.save.data;
     this.skinMessage = '';
     if (progress.ownedSkins.includes(id)) {
@@ -179,8 +215,7 @@ export class GameController {
     this.app.onState();
   }
   confirmSkinPurchase(accepted: boolean) {
-    if (!this.skinsOpen || !this.skinPurchase || this.run.mode !== 'menu')
-      return;
+    if (!this.skinsOpen || !this.skinPurchase || !this.canUseShop) return;
     const id = this.skinPurchase;
     this.skinPurchase = null;
     if (accepted) {

@@ -3,7 +3,7 @@ import type { App } from '../app';
 import { assetKeys, backgroundTextures } from './assets';
 import { backgroundAlpha } from './backgrounds';
 import type { GameController } from './controller';
-import { feedbackRules, landingVisual } from './feedback';
+import { feedbackRules, landingVisual, failureVisual } from './feedback';
 import { rules } from './rules';
 import { skinById } from './skins';
 
@@ -29,7 +29,13 @@ export interface DebugControl {
   advance: (milliseconds: number) => void;
   feedback: () => {
     remainingMs: number;
-    coin: { x: number; y: number; width: number; height: number } | null;
+    coin: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      texture: string;
+    } | null;
     label: { width: number; height: number; visible: boolean };
     particles: { visible: boolean; alpha: number };
   };
@@ -50,6 +56,7 @@ export class CoinTowerScene extends Phaser.Scene {
   private logo!: Phaser.GameObjects.Image;
   private feedback!: Phaser.GameObjects.Image;
   private sparkles!: Phaser.GameObjects.Graphics;
+  private hint!: Phaser.GameObjects.Graphics;
   private stacked: Phaser.GameObjects.Image[] = [];
   private starPoints = Array.from(
     { length: 8 },
@@ -89,6 +96,7 @@ export class CoinTowerScene extends Phaser.Scene {
       .setDepth(5)
       .setVisible(false);
     this.sparkles = this.add.graphics().setDepth(4);
+    this.hint = this.add.graphics().setDepth(3);
     if (
       import.meta.env.DEV &&
       new URLSearchParams(location.search).has('debug')
@@ -121,6 +129,7 @@ export class CoinTowerScene extends Phaser.Scene {
                   y: coin.y,
                   width: coin.displayWidth,
                   height: coin.displayHeight,
+                  texture: coin.texture.key,
                 }
               : null,
             label: {
@@ -151,7 +160,11 @@ export class CoinTowerScene extends Phaser.Scene {
   }
   private renderRun() {
     const run = this.app.session;
-    const coinTexture = skinById(this.app.save.data.equippedSkin).texture;
+    const coinTexture = skinById(
+      run.mode === 'menu'
+        ? this.app.save.data.equippedSkin
+        : this.controller.runSkin,
+    ).texture;
     this.titleCoin.setTexture(coinTexture, 'art').setDisplaySize(188, 115);
     this.activeCoin
       .setTexture(coinTexture, 'art')
@@ -175,8 +188,8 @@ export class CoinTowerScene extends Phaser.Scene {
       .setVisible(background.from !== background.to);
     const title = run.mode === 'menu';
     this.logo
-      .setPosition(title ? 360 : 142, title ? 190 : 92)
-      .setDisplaySize(title ? 510 : 235, title ? 354 : 163);
+      .setPosition(title ? 360 : 116, title ? 150 : 78)
+      .setDisplaySize(title ? 420 : 180, title ? 292 : 125);
     this.titleCoin.setVisible(title);
     this.pedestal
       .setPosition(360, title ? 620 : rules.platformY - 102 + run.cameraOffset)
@@ -209,12 +222,29 @@ export class CoinTowerScene extends Phaser.Scene {
     });
     for (let index = visible.length; index < this.stacked.length; index++)
       this.stacked[index]!.setVisible(false);
+    const miss = failureVisual(run.failureRemaining, run.failureDirection);
+    const failing = run.mode === 'result';
     this.activeCoin
       .setDepth(2)
-      .setPosition(run.activeX, run.activeY + run.cameraOffset)
+      .setPosition(
+        run.activeX + (failing ? miss.x : 0),
+        run.activeY + run.cameraOffset + (failing ? miss.y : 0),
+      )
+      .setAngle(failing ? miss.angle : 0)
+      .setAlpha(failing ? miss.alpha : 1)
       .setVisible(
-        !title && (run.phase !== 'settling' || run.mode === 'result'),
+        !title &&
+          (failing
+            ? run.failureRemaining > 0 && !reducedMotion
+            : run.phase !== 'settling'),
       );
+    this.hint.clear().setVisible(this.controller.showHints && run.score > 0);
+    if (this.hint.visible) {
+      const x = run.targetX;
+      const y = run.targetY + run.cameraOffset + 6;
+      this.hint.lineStyle(8, 0x163c68, 1).lineBetween(x, y - 16, x, y + 16);
+      this.hint.lineStyle(4, 0xffffff, 1).lineBetween(x, y - 15, x, y + 15);
+    }
     const feedbackVisible =
       run.mode === 'playing' && !run.frozen && run.feedbackRemaining > 0;
     this.feedback

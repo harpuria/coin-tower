@@ -1,4 +1,5 @@
 import { landingKind, moveSpeed, rules } from './rules';
+import { failureRules } from './feedback';
 import {
   backgroundAt,
   backgroundRules,
@@ -27,6 +28,8 @@ export class Session {
   maxCombo = 0;
   feedback: 'nice' | 'perfect' | null = null;
   feedbackRemaining = 0;
+  failureRemaining = 0;
+  failureDirection = 1;
   paused = false;
   countdownMs = 0;
   confirmation: RunAction | null = null;
@@ -55,6 +58,9 @@ export class Session {
   get frozen() {
     return this.paused || this.countdownMs > 0;
   }
+  get resultReady() {
+    return this.mode === 'result' && this.failureRemaining === 0;
+  }
   get background() {
     return {
       from: this.backgroundFrom,
@@ -77,6 +83,8 @@ export class Session {
     this.maxCombo = 0;
     this.feedback = null;
     this.feedbackRemaining = 0;
+    this.failureRemaining = 0;
+    this.failureDirection = 1;
     this.paused = false;
     this.countdownMs = 0;
     this.confirmation = null;
@@ -127,13 +135,12 @@ export class Session {
 
   /** 게임 시간만 진행한다. 다음 단계에 남은 시간을 넘겨 중복 착지를 만들지 않는다. */
   update(deltaMs: number): 'landed' | 'finished' | undefined {
-    if (
-      !Number.isFinite(deltaMs) ||
-      deltaMs <= 0 ||
-      this.mode !== 'playing' ||
-      this.paused
-    )
+    if (!Number.isFinite(deltaMs) || deltaMs <= 0) return;
+    if (this.mode === 'result') {
+      this.failureRemaining = Math.max(0, this.failureRemaining - deltaMs);
       return;
+    }
+    if (this.mode !== 'playing' || this.paused) return;
     if (this.countdownMs > 0) {
       this.countdownMs = Math.max(0, this.countdownMs - deltaMs);
       return;
@@ -168,6 +175,8 @@ export class Session {
         this.streak = 0;
         this.feedback = null;
         this.feedbackRemaining = 0;
+        this.failureRemaining = failureRules.durationMs;
+        this.failureDirection = this.activeX < this.targetX ? -1 : 1;
         return 'finished';
       }
       this.coins.push({ x: this.activeX, y: this.targetY });
@@ -213,6 +222,9 @@ export class Session {
       combo: this.combo,
       maxCombo: this.maxCombo,
       feedback: this.feedback,
+      failureRemaining: this.failureRemaining,
+      failureDirection: this.failureDirection,
+      resultReady: this.resultReady,
       paused: this.paused,
       countdownMs: this.countdownMs,
       confirmation: this.confirmation,
