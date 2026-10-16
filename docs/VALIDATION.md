@@ -2,6 +2,12 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-17 — 첫 품질 개선 설계 확정
+
+- 작업 범위: 사용자가 확정한 세로 화면 가독성·집중형 HUD·실패 연출·첫 플레이 안내·결과 목표·상점 복귀를 설계 문서와 [구현 계획](IMPLEMENTATION_PLAN.md#quality-improvement--first-implementation-slice-ready)에 반영했다. 새 안내 문서는 [onboarding.md](design/onboarding.md)다. 코드·런타임 자산·의존성은 변경하지 않았다.
+- 검사: `rtk npm run check`의 lint·format·기존 67개 단위 검사(6개 파일)·TypeScript·일반 빌드가 통과했다. `rtk npm run build:crazygames`도 통과해 마지막 배포 산출물은 CrazyGames 모드다. 문서 변경의 공백 오류와 프로젝트 내부 링크·제목 앵커를 확인했다.
+- 한계: 이 결과는 현재 코드의 기존 검사·빌드 통과다. 새 설계의 UI·안내 저장·실패 연출·목표·상점 복귀는 아직 미구현이며 이번 작업에서 E2E·SDK 브라우저 검사나 사람 플레이를 새로 실행하지 않았다. 개선된 가독성·실패 납득·재도전 효과와 실제 포털 재심사는 구현 후 확인해야 한다.
+
 ## 2026-10-14 — 상하·좌우 여백 배경
 
 - 구현: `Shell`의 fixed 장식 레이어 두 개가 Phaser Texture의 기존 Image 요소를 재사용한다. 새 URL 로딩·Blob 생성 없이 주변 영역만 CSS cover·블러로 표시한다. 게임 안팎은 같은 Session 상태와 `backgroundAlpha()`를 사용한다. 표현 기준은 [아트 방향](ART_DIRECTION.md#플레이-영역-바깥-배경)에 있다.
