@@ -10,6 +10,8 @@
 
 ## Status
 
+- Ready for implementation (2026-10-17): the user selected C for stronger Perfect feedback: a short contact burst followed by a thin coin-edge afterglow, colored by the run's coin skin. Rules are authoritative in [feedback](design/feedback.md); palette starting values and optional particle production are in [art direction](ART_DIRECTION.md#perfect-파티클과-스킨색). No runtime changes, new particles or gameplay validation have been performed for this scope.
+
 - Completed gentle difficulty implementation and local validation (2026-10-17): continued late-run speed growth, bounded model-owned zoom and the agreed background interval are implemented. Authoritative starting values remain in [game design](GAME_DESIGN.md#속도와-화면-추적) and [backgrounds](design/backgrounds.md).
   - `check` passes 109 unit tests, lint/format, TypeScript and standalone build. Focused standalone development was 6/8, then the two corrected background expectations passed 2/2; keep these runs separate in [validation](VALIDATION.md).
   - Final standalone production: 26 passes / 16 development-only skips. CrazyGames development: 28/28. Final CrazyGames production: 26 passes / 2 development-only skips, including the current official SDK in local mode.
@@ -69,6 +71,15 @@
 - Prior validation (presentation change): lint, full formatting, TypeScript and CrazyGames build passed. Scripted Chromium observation used real Space/touch with development time control, reading actual Scene/DOM/audio values and screenshots; no model positions/scores were overwritten. The original presentation slice reached 103 coins/X100; the current contact-shape tuning was observed through 21 coins with matched NICE/Perfect frames, pause/countdown, restart/home, mute, reduced motion and a 360×640 view without page/asset errors. The rebound, popup and audio settings remain unchanged. Development hooks are excluded from production. This is runtime observation, not a regression-suite pass; see [VALIDATION.md](VALIDATION.md).
 - Previous automated checkpoint (before presentation changes): 67 unit tests; full development 29/30 plus clean landing rerun 2/2; CrazyGames production 16/16 (14 fixtures, 2 official SDK local). No unit/E2E/SDK suite was added or rerun for the presentation change. Keep those earlier results separate from the current artifact. Human feel, listening quality, portal integration and physical devices remain unverified.
 
+## Perfect Improvement — Skin-Colored Burst and Afterglow (Ready)
+
+- **Scope:** implement the agreed C composition under [feedback](design/feedback.md): brief contact-end light streaks, thin landed-coin edge afterglow and a few sparkles using the run skin's color. Follow the palette starting values and asset guidance in [art direction](ART_DIRECTION.md#perfect-파티클과-스킨색). Replace the current Perfect contact composition rather than layering the entire old effect underneath. Preserve the existing rebound, gold PERFECT/X presentation, success audio and gameplay timing. NICE skin-color expansion is not required for this slice.
+- **Entry points:** inspect `src/game/feedback.ts`, `scenes.ts`, `skins.ts` and the controller's run-skin selection. Read [architecture](ARCHITECTURE.md), ADR 0002 and ADR 0008 before changing effect timing or projection. Use model-owned elapsed landing time and the existing world projection for contact/coin effects; retain fixed-size feedback UI. Do not introduce a second effect clock or change lifecycle/service contracts to render this effect.
+- **Asset production:** compare procedural rendering with optional small transparent neutral-white sparkle/streak textures. If textures improve the actual scene, use `game-assets-gen`, inspect existing coin/Perfect art as references, preserve sources and record provenance in `ASSET_SOURCES.md`. Follow the optimized runtime packaging contract. Do not count ungenerated proposals as delivered assets; record the selected rendering approach and size impact after implementation.
+- **Continuity:** use the skin captured for the current run, including after a result-origin shop visit; a newly equipped skin applies to the next run. Preserve save schema, ownership, prices, records, rewards and difficulty. Reduced motion uses a static skin-colored contact flash. Pause/countdown hide and freeze feedback; resume must not replay impact audio; restart/HOME clear effects.
+- **Acceptance and verification:** run `check`, PC/touch browser checks and CrazyGames development/production checks per [development](DEVELOPMENT.md). Compare NICE/Perfect at matched times and observe all four skins against all four backgrounds and transitions. Inspect 20/60/100 stacks, zoom transitions/floor, X10/X100, 360×640/390×844 portrait and 821×462/907×510 desktop frames. Confirm contact alignment, visible coin/target, effect cleanup before the next moving coin, bounded strength, reduced motion, mute, interruption and reset without missing assets or page errors. Report scripted observation separately from human feel, physical-device and portal evidence.
+- **Human observation:** compare current and new Perfect for satisfaction, skin recognition, glare/repetition fatigue and distraction from the next input. Runtime correctness alone cannot establish an improvement in success feel.
+
 ## Difficulty Improvement — Gentle Growth and Limited Zoom (Implemented)
 
 Completed the agreed [speed/camera](GAME_DESIGN.md#속도와-화면-추적) and [background](design/backgrounds.md) behavior, preserving landing rules, rewards, saves, original art and fixed-size UI. Local high-stack/PC/touch/SDK evidence and remaining human/platform checks are recorded in [validation](VALIDATION.md) and [play observations](PLAYTEST_NOTES.md); editing and observability entry points are in [development](DEVELOPMENT.md#후반-난이도의-편집관측-위치).
@@ -118,6 +129,8 @@ Completed the agreed [speed/camera](GAME_DESIGN.md#속도와-화면-추적) and 
 - Cloud personal records remain deferred; using a weekly leaderboard does not synchronize browser bests/settings. Revisit applicable progress-save requirements before Full Launch.
 
 ## Next Request
+
+Implement the agreed Perfect scope. Example request: `$game-implement docs/IMPLEMENTATION_PLAN.md의 Perfect Improvement 범위를 구현하고, 필요하면 $game-assets-gen으로 파티클을 제작·적용해줘. PC·터치·CrazyGames 배포본에서 네 스킨·네 배경·고적층·작은 화면을 검증해줘.`
 
 Collect actual PC and phone play observations, then tune within the agreed gentle difficulty behavior. Example request: `$game-implement 아래 PC·휴대폰 각 5판의 도달 높이·판 시간·실패 이유·가독성 피드백으로 docs/GAME_DESIGN.md의 완만형 속도·줌 시작값을 조정하고 PC·터치·CrazyGames 배포본에서 재검증해줘: …` Track zero-balance first-purchase pace separately. Scripted high scores establish mechanics and geometry, not human challenge or enjoyment.
 
