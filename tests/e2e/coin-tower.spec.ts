@@ -234,7 +234,7 @@ test('pause/countdown prevents drops and background return stays paused', async 
   await expect(page.locator('#play')).toBeVisible();
 });
 
-test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset', async ({
+test('deterministic real-input Perfect/combo, late speed growth, camera, miss and reset', async ({
   page,
 }, info) => {
   test.setTimeout(90_000); // 실제 입력 22회와 원본 PNG 로딩·스크린샷을 포함한다.
@@ -294,7 +294,7 @@ test('deterministic real-input Perfect/combo, speed cap, camera, miss and reset'
   expect(high.maxCombo).toBe(13);
   await expect(page.locator('#combo-count')).toHaveText('x13');
   await expectUnfinishedSave(page);
-  expect(high.speed).toBe(rules.maxSpeed);
+  expect(high.speed).toBeGreaterThan(650);
   expect(high.cameraOffset).toBe(rules.coinHeight * 21);
   await page.screenshot({
     path: info.outputPath('stack-combo.png'),

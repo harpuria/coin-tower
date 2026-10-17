@@ -1,4 +1,4 @@
-import { landingKind, moveSpeed, rules } from './rules';
+import { cameraZoom, landingKind, moveSpeed, rules } from './rules';
 import { failureRules } from './feedback';
 import {
   backgroundAt,
@@ -24,6 +24,7 @@ export class Session {
   direction = 1;
   speed = rules.baseSpeed as number;
   cameraOffset = 0;
+  zoom = 1;
   streak = 0;
   maxCombo = 0;
   feedback: 'nice' | 'perfect' | null = null;
@@ -36,6 +37,8 @@ export class Session {
   private settleRemaining = 0;
   private cameraStart = 0;
   private cameraEnd = 0;
+  private zoomStart = 1;
+  private zoomEnd = 1;
   private backgroundFrom: BackgroundTime = 'morning';
   private backgroundTo: BackgroundTime = 'morning';
   private backgroundElapsedMs: number = backgroundRules.fadeMs;
@@ -93,6 +96,7 @@ export class Session {
     this.backgroundElapsedMs = backgroundRules.fadeMs;
     this.cameraOffset = rules.height * rules.targetFraction - this.targetY;
     this.cameraStart = this.cameraEnd = this.cameraOffset;
+    this.zoom = this.zoomStart = this.zoomEnd = 1;
     this.spawn();
   }
 
@@ -192,15 +196,18 @@ export class Session {
       this.feedbackRemaining = rules.feedbackMs;
       this.phase = 'settling';
       this.settleRemaining = rules.settleMs;
+      this.zoomStart = this.zoom;
+      this.zoomEnd = cameraZoom(this.score);
       this.cameraStart = this.cameraOffset;
       this.cameraEnd = rules.height * rules.targetFraction - this.targetY;
       return 'landed';
     } else {
       this.settleRemaining = Math.max(0, this.settleRemaining - deltaMs);
       const t = 1 - this.settleRemaining / rules.settleMs;
+      const eased = t * t * (3 - 2 * t);
       this.cameraOffset =
-        this.cameraStart +
-        (this.cameraEnd - this.cameraStart) * t * t * (3 - 2 * t);
+        this.cameraStart + (this.cameraEnd - this.cameraStart) * eased;
+      this.zoom = this.zoomStart + (this.zoomEnd - this.zoomStart) * eased;
       if (this.settleRemaining === 0) this.spawn();
     }
   }
@@ -218,6 +225,7 @@ export class Session {
       direction: this.direction,
       speed: this.speed,
       cameraOffset: this.cameraOffset,
+      zoom: this.zoom,
       streak: this.streak,
       combo: this.combo,
       maxCombo: this.maxCombo,

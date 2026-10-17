@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { landingKind, rules } from '../../src/game/rules';
+import {
+  cameraZoom,
+  landingKind,
+  moveSpeed,
+  rules,
+} from '../../src/game/rules';
 import { Session } from '../../src/game/session';
 
 function land(run: Session, x = run.targetX) {
@@ -171,7 +176,7 @@ describe('a run', () => {
     expect(run.cameraOffset).toBe(rules.coinHeight);
     expect(run.speed).toBe(rules.baseSpeed + rules.speedPerCoin);
     for (let index = 1; index < 22; index++) land(run);
-    expect(run.speed).toBe(rules.maxSpeed);
+    expect(run.speed).toBeGreaterThan(650);
     const offset = run.cameraOffset;
     run.update(100);
     expect(run.cameraOffset).toBe(offset);
@@ -237,5 +242,71 @@ describe('a run', () => {
     run.update(30_000);
     expect(run.activeX).toBeGreaterThanOrEqual(360 - rules.laneHalfWidth);
     expect(run.activeX).toBeLessThanOrEqual(360 + rules.laneHalfWidth);
+  });
+});
+
+describe('gentle late-run difficulty', () => {
+  it.each([
+    [0, 350, 1],
+    [20, 650, 1],
+    [40, 750, 0.95],
+    [60, 808.4962500721156, 0.9],
+    [100, 882.1928094887362, 0.9],
+  ])('uses the agreed curve at %s coins', (score, speed, zoom) => {
+    expect(moveSpeed(score)).toBeCloseTo(speed, 8);
+    expect(cameraZoom(score)).toBeCloseTo(zoom, 8);
+  });
+  it('continues beyond 100 with a decreasing gain and a fixed zoom floor', () => {
+    expect(moveSpeed(20.000001) - moveSpeed(20)).toBeLessThan(0.00001);
+    for (const score of [21, 40, 60, 100, 200, 1000]) {
+      expect(moveSpeed(score)).toBeGreaterThan(moveSpeed(score - 1));
+      expect(moveSpeed(score + 1) - moveSpeed(score)).toBeLessThan(
+        moveSpeed(score) - moveSpeed(score - 1),
+      );
+      expect(cameraZoom(score)).toBeGreaterThanOrEqual(0.9);
+    }
+    expect(cameraZoom(1000)).toBe(0.9);
+  });
+  it('interpolates zoom only while settling, freezes it and resets after completion', () => {
+    const run = new Session();
+    run.start();
+    for (let i = 0; i < 20; i++) land(run);
+    expect(run.zoom).toBe(1);
+    run.activeX = run.targetX;
+    run.drop();
+    run.update(1000);
+    expect(run.zoom).toBe(1);
+    expect(run.speed).toBe(650);
+    run.update(rules.settleMs / 2);
+    expect(run.zoom).toBeCloseTo(0.99875, 8);
+    run.pause();
+    const held = run.snapshot();
+    run.update(5000);
+    expect(run.snapshot()).toEqual(held);
+    run.resume();
+    run.update(rules.resumeMs);
+    expect(run.zoom).toBe(held.zoom);
+    run.update(rules.settleMs / 2);
+    expect(run.zoom).toBeCloseTo(0.9975, 8);
+    const zoom = run.zoom;
+    const speed = run.speed;
+    run.update(100);
+    run.drop();
+    run.update(100);
+    expect(run.zoom).toBe(zoom);
+    expect(run.speed).toBe(speed);
+    // 현재 목표에서 실패를 만들고 결과에서 배율을 유지한다.
+    run.activeX = run.targetX + 100;
+    run.update(1000);
+    expect(run.mode).toBe('result');
+    run.update(5000);
+    expect(run.zoom).toBe(zoom);
+    run.start();
+    expect(run.zoom).toBe(1);
+    expect(run.speed).toBe(350);
+    for (let i = 0; i < 61; i++) land(run);
+    expect(run.zoom).toBe(0.9);
+    run.home();
+    expect(run.zoom).toBe(1);
   });
 });

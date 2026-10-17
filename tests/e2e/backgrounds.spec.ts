@@ -89,7 +89,7 @@ test('background milestones crossfade and freeze through pause/countdown', async
     preview,
     'precise milestone/render observation uses development-only controls',
   );
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const failedAssets: string[] = [];
@@ -112,13 +112,13 @@ test('background milestones crossfade and freeze through pause/countdown', async
     'morning',
     'noon',
   ] as const;
-  for (let score = 1; score <= 25; score++) {
+  for (let score = 1; score <= 50; score++) {
     const before = (await snapshot(page)).background;
     await land(page, info);
     expect((await snapshot(page)).score).toBe(score);
-    if (score % 5 !== 0) {
+    if (score % 10 !== 0) {
       expect((await snapshot(page)).background.to).toBe(before.to);
-      if ([6, 11, 16, 21].includes(score)) {
+      if ([11, 21, 31, 41].includes(score)) {
         await expect(page.locator('#combo')).toBeVisible();
         await page.screenshot({
           path: info.outputPath(`bg-${score}-perfect.png`),
@@ -127,7 +127,7 @@ test('background milestones crossfade and freeze through pause/countdown', async
       await advance(page, rules.settleMs);
       continue;
     }
-    const stage = score / 5;
+    const stage = score / 10;
     expect((await snapshot(page)).background).toEqual({
       from: times[stage - 1],
       to: times[stage],
@@ -143,7 +143,7 @@ test('background milestones crossfade and freeze through pause/countdown', async
     observations.push(middle);
     expect(middle.scene.next.alpha).toBeCloseTo(0.5, 6);
     await page.screenshot({ path: info.outputPath(`bg-${score}-middle.png`) });
-    if (score === 5) {
+    if (score === 10) {
       await page.locator('#pause').click();
       await advance(page, 5000);
       expect((await snapshot(page)).background).toEqual(middle.run.background);
@@ -212,14 +212,14 @@ test('background mid-fade restart home and first failure preserve/reset correctl
   page.on('pageerror', (error) => errors.push(error.message));
   await ready(page);
   await page.locator('#play').click();
-  async function reachFive() {
-    for (let score = 1; score <= 5; score++) {
+  async function reachTen() {
+    for (let score = 1; score <= 10; score++) {
       await land(page, info);
-      if (score < 5) await advance(page, rules.settleMs);
+      if (score < 10) await advance(page, rules.settleMs);
     }
     expect((await snapshot(page)).background.progress).toBe(0);
   }
-  await reachFive();
+  await reachTen();
   await advance(page, backgroundRules.fadeMs / 2);
   const middle = await rendered(page);
   await page.locator('#pause').click();
@@ -232,7 +232,7 @@ test('background mid-fade restart home and first failure preserve/reset correctl
   expect((await snapshot(page)).phase).toBe('moving');
   await expectMorning(page);
   await page.screenshot({ path: info.outputPath('bg-restarted.png') });
-  await reachFive();
+  await reachTen();
   await advance(page, backgroundRules.fadeMs / 2);
   await page.locator('#pause').click();
   await page.locator('#pause-home').click();
@@ -240,12 +240,12 @@ test('background mid-fade restart home and first failure preserve/reset correctl
   expect((await snapshot(page)).mode).toBe('menu');
   await expectMorning(page);
   await page.locator('#play').click();
-  await reachFive();
+  await reachTen();
   await advance(page, rules.settleMs);
   await land(page, info, rules.diameter * (rules.successFraction + 0.05));
   const result = await snapshot(page);
   expect(result.mode).toBe('result');
-  expect(result.score).toBe(5);
+  expect(result.score).toBe(10);
   expect(result.background.progress).toBeGreaterThan(0);
   expect(result.background.progress).toBeLessThan(1);
   const finished = await assertRender(page);
@@ -256,7 +256,7 @@ test('background mid-fade restart home and first failure preserve/reset correctl
   await page.locator('#retry').click();
   expect((await snapshot(page)).score).toBe(0);
   await expectMorning(page);
-  await reachFive();
+  await reachTen();
   await page.evaluate(() => window.__COIN_TOWER__!.freeze(false));
   await expect
     .poll(async () => (await snapshot(page)).background.progress)

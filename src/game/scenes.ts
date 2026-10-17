@@ -25,6 +25,18 @@ export interface DebugControl {
       height: number;
     };
   };
+  view: () => {
+    active: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      angle: number;
+      visible: boolean;
+    };
+    top: { x: number; y: number; width: number; height: number } | null;
+    visibleCoins: number;
+  };
   freeze: (value: boolean) => void;
   advance: (milliseconds: number) => void;
   feedback: () => {
@@ -116,6 +128,24 @@ export class CoinTowerScene extends Phaser.Scene {
             next: inspect(this.backgroundNext),
           };
         },
+        view: () => {
+          const top = this.stacked.filter((coin) => coin.visible).at(-1);
+          const inspect = (coin: Phaser.GameObjects.Image) => ({
+            x: coin.x,
+            y: coin.y,
+            width: coin.displayWidth,
+            height: coin.displayHeight,
+          });
+          return {
+            active: {
+              ...inspect(this.activeCoin),
+              angle: this.activeCoin.angle,
+              visible: this.activeCoin.visible,
+            },
+            top: top ? inspect(top) : null,
+            visibleCoins: this.stacked.filter((coin) => coin.visible).length,
+          };
+        },
         freeze: (value) => {
           this.debugFrozen = value;
         },
@@ -187,19 +217,30 @@ export class CoinTowerScene extends Phaser.Scene {
       .setAlpha(backgroundAlpha(progress))
       .setVisible(background.from !== background.to);
     const title = run.mode === 'menu';
+    const zoom = run.zoom;
+    const centerX = rules.width / 2;
+    const anchorY = rules.height * rules.targetFraction;
+    const projectX = (x: number) => centerX + (x - centerX) * zoom;
+    const projectY = (y: number) =>
+      anchorY + (y + run.cameraOffset - anchorY) * zoom;
+    // 배경·로고·성공 문구는 고정하고 플레이 그림만 같은 변환으로 투영한다.
+    for (const graphics of [this.sparkles, this.hint])
+      graphics
+        .setPosition(centerX * (1 - zoom), anchorY * (1 - zoom))
+        .setScale(zoom);
     this.logo
       .setPosition(title ? 360 : 116, title ? 150 : 78)
       .setDisplaySize(title ? 420 : 180, title ? 292 : 125);
     this.titleCoin.setVisible(title);
     this.pedestal
-      .setPosition(360, title ? 620 : rules.platformY - 102 + run.cameraOffset)
-      .setDisplaySize(title ? 415 : 560, title ? 405 : 546);
+      .setPosition(360, title ? 620 : projectY(rules.platformY - 102))
+      .setDisplaySize(title ? 415 : 560 * zoom, title ? 405 : 546 * zoom);
     this.pedestal.setVisible(title || this.pedestal.y < rules.height);
     // 화면 밖의 탑까지 sprite를 늘리지 않고 보이는 동전 수만큼 재사용한다.
     const visible = title
       ? []
       : run.coins.filter((coin) => {
-          const y = coin.y + run.cameraOffset;
+          const y = projectY(coin.y);
           return y > -102 && y < rules.height + 102;
         });
     visible.forEach((coin, index) => {
@@ -217,8 +258,8 @@ export class CoinTowerScene extends Phaser.Scene {
       sprite
         .setTexture(coinTexture, 'art')
         .setVisible(true)
-        .setDisplaySize(width, height)
-        .setPosition(coin.x, coin.y + run.cameraOffset + (102 - height) / 2);
+        .setDisplaySize(width * zoom, height * zoom)
+        .setPosition(projectX(coin.x), projectY(coin.y + (102 - height) / 2));
     });
     for (let index = visible.length; index < this.stacked.length; index++)
       this.stacked[index]!.setVisible(false);
@@ -227,9 +268,10 @@ export class CoinTowerScene extends Phaser.Scene {
     this.activeCoin
       .setDepth(2)
       .setPosition(
-        run.activeX + (failing ? miss.x : 0),
-        run.activeY + run.cameraOffset + (failing ? miss.y : 0),
+        projectX(run.activeX + (failing ? miss.x : 0)),
+        projectY(run.activeY + (failing ? miss.y : 0)),
       )
+      .setDisplaySize(rules.diameter * zoom, 102 * zoom)
       .setAngle(failing ? miss.angle : 0)
       .setAlpha(failing ? miss.alpha : 1)
       .setVisible(

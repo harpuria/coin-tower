@@ -50,12 +50,20 @@ Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`
 - 가독성은 `src/style.css`에서 실제 표시 크기로 조정합니다. 결과는 세로 흐름, TRY AGAIN·MENU는 한 줄이며 저장 실패 안내도 같은 작은 프레임에서 확인합니다. 공통 입력 계약은 유지합니다.
 - `tests/support/quality.ts`가 일반·CrazyGames 개발/배포본에서 같은 실제 클릭·터치 흐름을 등록합니다. 기존 `test:e2e`·`test:crazygames` 명령에 포함되며, 개발 전용 20개 관측만 배포본에서 제외합니다. 배포 검사는 브라우저 시간 제어를 사용하며 게임에 관측 API를 추가하지 않습니다.
 
+## 후반 난이도의 편집·관측 위치
+
+- `src/game/rules.ts`의 `speedRampCoins`·`lateSpeedGain`·`lateSpeedSpan`과 `moveSpeed()`가 초반/후반 속도 곡선을 소유합니다. `zoomStartCoins`·`zoomEndCoins`·`minZoom`과 `cameraZoom()`이 목표 배율을 정합니다. 시작값의 의도는 [게임 설계](GAME_DESIGN.md#속도와-화면-추적)를 따릅니다.
+- `Session.zoom`은 정착 중 카메라와 같은 진행률로 변하고 이동·낙하·정지·카운트다운·결과에서 유지됩니다. 새 판/메뉴에서 기본 배율로 돌아갑니다. Scene은 모델 좌표를 투영하고 배경·Perfect·UI의 크기는 유지합니다.
+- 개발 `snapshot().zoom`은 모델 배율, `view()`는 실제 Scene의 이동 동전/탑 상단 좌표·표시 크기·실패 각도·보이는 동전 수를 읽습니다. `feedback()`은 축소되지 않는 성공 문구와 실제 최상단 스킨을 함께 확인합니다. production에서는 모두 제외합니다.
+- `tests/support/difficulty.ts`는 기존 일반/CrazyGames 검사에 고적층 흐름을 등록합니다. 개발 훅 또는 배포본의 브라우저 시간 제어로 실제 Space·터치 입력을 보내고 점수·좌표는 덮어쓰지 않습니다. 작은 프레임·실패·재시작·동작 줄이기를 포함하며 사람의 성공률을 측정하는 검사는 아닙니다. 긴 고적층 검사는 연속 trace를 끄고 구간별 PNG·실제 관측 JSON을 결과 디렉터리에 저장합니다.
+
 ## 개발 전용 시간 제어
 
 개발 서버에서 `http://localhost:5173/?debug`를 엽니다. 브라우저 콘솔에 다음 API가 생깁니다. production 빌드에는 없습니다.
 
 ```js
-window.__COIN_TOWER__.snapshot(); // 모드·단계·위치·콤보·배경·failureRemaining·failureDirection·resultReady
+window.__COIN_TOWER__.snapshot(); // 모드·단계·위치·콤보·배경·zoom·failureRemaining·failureDirection·resultReady
+window.__COIN_TOWER__.view(); // 실제 이동 동전·탑 상단·보이는 동전 수
 window.__COIN_TOWER__.background(); // 실제 배경 두 Image의 texture key·alpha·visible·표시 크기
 window.__COIN_TOWER__.freeze(true); // 자동 시간 진행만 정지; 실제 UI/포인터 입력은 유지
 window.__COIN_TOWER__.advance(100); // 게임 시간을 100ms 진행
@@ -79,10 +87,10 @@ window.__COIN_TOWER__.freeze(false);
 
 ## 시간대 배경 집중 브라우저 검사
 
-`rtk npm run test:e2e -- backgrounds.spec.ts`는 desktop/Pixel 7 Chromium에서 실제 마우스·Space·터치 입력과 개발 시간 제어로 구간에 도달한다. 동전 위치나 점수를 직접 덮어쓰지 않는다. 5·10·15·20·25개 전환의 시작·25%·50%·75%·완료 시점에 모델과 실제 Scene Image의 texture·alpha·표시 크기를 비교한다.
+`rtk npm run test:e2e -- backgrounds.spec.ts`는 desktop/Pixel 7 Chromium에서 실제 마우스·Space·터치 입력과 개발 시간 제어로 구간에 도달한다. 동전 위치나 점수를 직접 덮어쓰지 않는다. 10·20·30·40·50개 전환의 시작·25%·50%·75%·완료 시점에 모델과 실제 Scene Image의 texture·alpha·표시 크기를 비교한다.
 
 - 페이드 중 수동 정지, 재개 카운트다운, 합성 blur/focus로 인한 재중단, 확인 취소·재시작·HOME, 첫 실패 시 유지·TRY AGAIN을 검사한다. 마지막에는 자동 RAF로 페이드가 진행하고 완료되는지도 확인한다.
-- `test-results/standalone/`의 해당 프로젝트별 디렉터리에 `bg-{5,10,15,20,25}-{start,middle,complete}.png`, 각 시간대의 `bg-{6,11,16,21}-perfect.png`, 재시작·결과 캡처를 저장한다. JSON attachment에는 모델과 실제 렌더 객체 값이 들어간다. 이후 같은 출력 디렉터리의 검사를 실행하면 교체될 수 있다.
+- `test-results/standalone/`의 해당 프로젝트별 디렉터리에 `bg-{10,20,30,40,50}-{start,middle,complete}.png`, 각 시간대의 `bg-{11,21,31,41}-perfect.png`, 재시작·결과 캡처를 저장한다. JSON attachment에는 모델과 실제 렌더 객체 값이 들어간다. 이후 같은 출력 디렉터리의 검사를 실행하면 교체될 수 있다.
 - 이 검사는 개발 훅이 없는 production에서는 의도적으로 제외한다. 실제 포털·기기·사람의 조작 체감·실제 탭 전환 검증을 대신하지 않는다.
 
 ## 5·10·20개 터치 플레이 테스트

@@ -10,7 +10,11 @@
 
 ## Status
 
-- Difficulty workshop completed: the user selected the gentle speed curve with limited zoom-out and a longer background-stage interval. Agreed rules and starting values are authoritative in [game design](GAME_DESIGN.md#속도와-화면-추적) and [backgrounds](design/backgrounds.md). This follow-up slice is ready for implementation; runtime still uses its previous speed cap, fixed scale and background interval. Earlier validation below does not cover the new design.
+- Completed gentle difficulty implementation and local validation (2026-10-17): continued late-run speed growth, bounded model-owned zoom and the agreed background interval are implemented. Authoritative starting values remain in [game design](GAME_DESIGN.md#속도와-화면-추적) and [backgrounds](design/backgrounds.md).
+  - `check` passes 109 unit tests, lint/format, TypeScript and standalone build. Focused standalone development was 6/8, then the two corrected background expectations passed 2/2; keep these runs separate in [validation](VALIDATION.md).
+  - Final standalone production: 26 passes / 16 development-only skips. CrazyGames development: 28/28. Final CrazyGames production: 26 passes / 2 development-only skips, including the current official SDK in local mode.
+  - Actual-input runs cover 101 coins, 20/40/60/100/101 checkpoints, small portrait/landscape frames, both miss directions, reduced motion, interruption and reset. Completed records/rewards and existing progress remain intact. Final CrazyGames `dist/`: 14,709,590 bytes.
+  - Human failure distribution, run duration, fairness, readability comfort and first-purchase pacing remain unverified. Physical Android/iPhone and actual CrazyGames Preview/re-review are external verification. See [play observations](PLAYTEST_NOTES.md).
 
 - Completed first quality-improvement implementation and local validation (2026-10-17): portrait readability/focused HUD, persistent onboarding, missed-coin presentation and result goals/shop return. Common service APIs, dependencies and raster/audio source assets are unchanged.
   - `check` passes 89 unit tests, lint, format, TypeScript and standalone build.
@@ -65,15 +69,9 @@
 - Prior validation (presentation change): lint, full formatting, TypeScript and CrazyGames build passed. Scripted Chromium observation used real Space/touch with development time control, reading actual Scene/DOM/audio values and screenshots; no model positions/scores were overwritten. The original presentation slice reached 103 coins/X100; the current contact-shape tuning was observed through 21 coins with matched NICE/Perfect frames, pause/countdown, restart/home, mute, reduced motion and a 360×640 view without page/asset errors. The rebound, popup and audio settings remain unchanged. Development hooks are excluded from production. This is runtime observation, not a regression-suite pass; see [VALIDATION.md](VALIDATION.md).
 - Previous automated checkpoint (before presentation changes): 67 unit tests; full development 29/30 plus clean landing rerun 2/2; CrazyGames production 16/16 (14 fixtures, 2 official SDK local). No unit/E2E/SDK suite was added or rerun for the presentation change. Keep those earlier results separate from the current artifact. Human feel, listening quality, portal integration and physical devices remain unverified.
 
-## Difficulty Improvement — Gentle Growth and Limited Zoom (Ready)
+## Difficulty Improvement — Gentle Growth and Limited Zoom (Implemented)
 
-- **Goal:** replace the late-run difficulty plateau with continued gentle speed growth and bounded visual zoom, while preserving readable targets and controls. Apply the agreed background interval in the same playable slice.
-- **Rules:** use the linked [speed/camera design](GAME_DESIGN.md#속도와-화면-추적) and [background transitions](design/backgrounds.md). Their numerical values remain the authoritative source. Preserve logical landing tolerances, falling speed, rewards, saves and existing records.
-- **Scope and entry points:** `src/game/rules.ts`, `session.ts`, `scenes.ts` and `backgrounds.ts`; update related observability/tests and UI rendering only as needed. Keep model-owned time and existing interruption ownership. Retain original art and dependency versions.
-- **Observable acceptance:** compare early play and 20/40/60/100 coins; speed keeps increasing beyond the previous cap and zoom stops at its agreed floor. A moving/dropping coin never changes speed or camera scale mid-input. The tower top and next coin remain visible while HUD/Perfect/control sizes stay fixed. Pause/countdown freezes camera progress; result retains it; new run/menu reset it. Verify both miss directions and reduced motion after zoom.
-- **Background acceptance:** exercise before/at/after each new transition, a full cycle and another repeated stage. Surface and surrounding background share progress; no transition on the former halfway milestones. Preserve crossfade, pause/resume and result/reset behavior.
-- **Validation:** update fixed-cap and old-background expectations in existing unit/browser checks, cover curve continuity and continued growth, then run `check`, PC/touch E2E and CrazyGames development/production checks. Inspect small frames at the zoom floor and actual rendered target/coin visibility; do not infer visual readability or human difficulty from scripted high scores.
-- **Human observation:** record failures and run duration from repeated actual play, distinguish reached segments from scripted setup, and ask whether misses feel fair and targets remain readable. Recheck zero-balance skin-purchase pacing because the difficulty curve may change shard acquisition rate. Current evidence does not establish a target failure distribution or ideal run length.
+Completed the agreed [speed/camera](GAME_DESIGN.md#속도와-화면-추적) and [background](design/backgrounds.md) behavior, preserving landing rules, rewards, saves, original art and fixed-size UI. Local high-stack/PC/touch/SDK evidence and remaining human/platform checks are recorded in [validation](VALIDATION.md) and [play observations](PLAYTEST_NOTES.md); editing and observability entry points are in [development](DEVELOPMENT.md#후반-난이도의-편집관측-위치).
 
 ## Quality Improvement — First Implementation Slice (Implemented)
 
@@ -121,6 +119,6 @@
 
 ## Next Request
 
-Implement the agreed difficulty slice as a playable comparison. Example request: `$game-implement docs/IMPLEMENTATION_PLAN.md의 Difficulty Improvement 범위를 구현해줘. 완만형 속도·제한된 줌아웃·새 배경 간격을 적용하고 PC·터치·CrazyGames 배포본에서 고적층 구간과 작은 화면을 검증해줘.` Then collect actual human failure/readability feedback before further tuning.
+Collect actual PC and phone play observations, then tune within the agreed gentle difficulty behavior. Example request: `$game-implement 아래 PC·휴대폰 각 5판의 도달 높이·판 시간·실패 이유·가독성 피드백으로 docs/GAME_DESIGN.md의 완만형 속도·줌 시작값을 조정하고 PC·터치·CrazyGames 배포본에서 재검증해줘: …` Track zero-balance first-purchase pace separately. Scripted high scores establish mechanics and geometry, not human challenge or enjoyment.
 
 Actual Android Chrome/iPhone Safari and CrazyGames Preview checks remain external verification. Confirm the revised portal build's Load size, input, pause/resume and layout before review submission. Native leaderboard integration still depends on access and operational decisions; ads remain later work.

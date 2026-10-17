@@ -2,9 +2,25 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-17 — 후반 난이도 구현·높은 적층 구간 검증
+
+- 범위: 설계 체크포인트 `1db4546`의 완만형 속도·모델 시간의 제한된 줌·새 배경 간격을 구현했다. `rules.ts`에서 곡선/배율을 조정하고 Session이 정착 중 줌을 보간한다. Scene의 플레이 투영과 고정 UI의 분리는 [ADR 0008](adr/0008-project-world-with-model-owned-zoom.md)을 따른다. 저장 schema·기록·재화 규칙·의존성·원본 아트는 변경하지 않았다.
+- 정적 검사: `rtk npm run check`의 lint·format·단위 검사 **109/109(8개 파일)**·TypeScript·일반 빌드가 통과했다. 곡선 대표값/연속성/계속 증가·줌 하한/보간/중단·배경 경계의 검사를 추가하고 이전 상한/구간 기대값을 갱신했다. 일반 산출물은 **14,804,360 bytes**다.
+- 일반 개발 집중 검사: `--grep 'difficulty:|background milestones|background mid-fade|late speed growth'`는 **6/8 통과**(10.1분)했다. PC·터치 각각의 101개 고적층/작은 화면/동작 줄이기, 배경 중단/결과/초기화, 실제 입력/속도 증가가 통과했다. 실패 2개는 배경 검사 반복 범위를 늘리는 편집에서 50 대신 100까지 순회해 기대값 표 밖을 참조한 동일한 검사 오류였다. 실제 50개까지의 전환과 alpha는 해당 실행에서도 확인됐으며 범위를 바로잡아 `rtk proxy npm run test:e2e -- --grep 'background milestones'` 재실행은 **2/2 통과**(3.4분)했다. 이 초기 실행을 전체 통과로 표현하지 않는다.
+- 일반 배포 초기 실행: **8 통과 / 6 skip / 1 중단 / 27 미실행**(6.0분). 첫 PC 고적층에서 101개 도달 후 동작 줄이기 재플레이까지 진행했으며 기능 실패는 관측되지 않았다. 실제 RAF를 진행하는 배포 검사가 기존 시간 제한을 넘을 것으로 예상돼 자체 실행을 중단하고, 고적층 검사 제한을 늘렸다. 연속 trace의 프레임 기록 부하도 제외하고 구간별 PNG·JSON을 보존하도록 조정했다. 이는 통과 결과가 아니며 뒤의 최종 전체 실행과 구분한다.
+- 일반 배포 최종 전체 실행: 시간 제한/관측 방식 조정 뒤 `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`는 **26 통과 / 16 개발 전용 skip**(12.8분)했다. PC·터치 모두 개발 훅 없이 101개·작은 프레임·축소 상태의 실패/동작 줄이기·재시작을 완료했다. 두 완료 판 뒤 최고 101·완료 2회·별조각 161과 금화 보유/장착·안내 완료도 확인했다.
+- CrazyGames 개발 전체 검사: `rtk proxy env CG_SDK_FILE=/private/tmp/coin-tower-difficulty-sdk-v3.js npm run test:crazygames`는 **28/28 통과**(7.6분)했다. 통제 fixture 26개와 수정 없는 공식 SDK local 2개다. PC·터치 고적층·작은 화면·일반/동작 줄이기 실패·저장/재시작, 기존 플레이 이벤트·플랫폼 mute·SDK 오류/영어/전체화면 숨김을 확인했다.
+- CrazyGames 배포 전체 검사: 최종 `rtk npm run build:crazygames`의 TypeScript·빌드가 통과했다. 이어 `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-difficulty-sdk-v3.js npm run test:crazygames`는 **26 통과 / 2 개발 전용 skip**(16.3분)했다. 통제 fixture 24개·공식 SDK local 2개이며 PC·터치 모두 개발 훅 없이 고적층·작은 화면·동작 줄이기·결과/저장/재시작을 완료했다. 산출물은 **14,709,590 bytes(14.71MB), 39개 파일**, 원본 PNG는 없다. 이번에 초기 네트워크 전송량이나 실제 포털 Load를 새로 측정한 것은 아니다.
+- 실제 개발 관측: 20/40/60/100/101개의 속도는 각각 650 / 750 / 808.4963 / 882.1928 / 883.6283 논리 px/s, 배율은 1 / 0.95 / 0.9 / 0.9 / 0.9였다. 실제 Scene 이동 동전 폭은 166 / 157.7 / 149.4 / 149.4 / 149.4이며 렌더링 대상으로 유지한 탑 sprite는 8~9개였다. Perfect 표시 폭은 기존 320을 유지했다. 수치는 `difficulty-observations.json`과 구간 캡처에 보존한다.
+- 관측 방법: 개발에서는 실제 Space·터치 API와 시간 훅을 사용하고 점수·좌표를 덮어쓰지 않았다. `snapshot().zoom`과 실제 `view()`/`feedback()`의 동전 크기·탑 상단·라벨 크기를 비교한다. 배포에서는 게임 개발 훅 없이 브라우저 시간 제어·실제 입력으로 높은 점수까지 진행한다. 작은 프레임은 360×640·390×844·821×462·907×510, 터치는 Pixel 7 Chromium 에뮬레이션이다.
+- SDK: 공식 v3 CDN 원본을 새로 받아 `/private/tmp/coin-tower-difficulty-sdk-v3.js`로 준비했다. **112,919 bytes**, SHA-256 `d4c44671cafbb694a0fd054078303242681bdf1b5908d6fb9f766d1de3f25911`. 통제된 fixture의 상세 검사와 수정 없는 공식 SDK의 local 초기화/정지/재개 검증을 구분한다.
+- 산출물: 초기 일반 개발 캡처와 실패 trace는 `test-results/difficulty-final/standalone-development/`, 수정된 배경 검사는 `backgrounds-corrected/`, 중단한 초기 preview는 `standalone-preview-initial/`에 보존했다. 최종 일반 배포는 같은 상위 경로의 `standalone-production/`, CrazyGames 개발/배포는 `crazygames-development/`·`crazygames-production/`에 보존했다. 구간별 PNG·`difficulty-observations.json`이 있고 모두 Git에서 제외한다. 현재 측정은 사람의 난이도·기기 입력 지연이나 실제 포털 수치의 근거가 아니다.
+- 문서 검사: 변경 문서의 프로젝트 내부 링크·제목 앵커 220개, 전체 format 검사와 공백 오류를 확인했다. 원본 모바일 프로젝트의 기존 외부 형제 경로 4개는 현재 워크스페이스의 검사 대상에서 제외했다.
+- 결과/한계: 로컬 브라우저·배포 검사를 완료하고 세로/가로 고적층·좌측 실패·동작 줄이기 캡처를 시각적으로 확인했다. 정상 고적층 경로의 pageerror·자산 HTTP 오류는 없었으며 의도한 SDK 오류 fixture의 warning은 구분한다. 실제 Android/iPhone·Safari/Firefox·CrazyGames 호스트·사람의 실패 높이/판 시간/공정함·수집 속도는 미확인이다. [플레이 관측](PLAYTEST_NOTES.md#2026-10-17--완만형-후반-난이도와-제한된-줌)에 자동 관측과 사람 플레이 과제를 구분한다.
+
 ## 2026-10-17 — 완만형 난이도·제한된 줌·배경 간격 설계
 
-- 사용자가 완만형 후반 속도 상승과 작은 줌아웃을 첫 비교안으로 선택하고, 배경 전환 간격을 변경했다. [게임 설계](GAME_DESIGN.md#속도와-화면-추적)와 [배경 규칙](design/backgrounds.md)에 현재 합의와 검증할 시작값을 정리하고 [구현 계획](IMPLEMENTATION_PLAN.md#difficulty-improvement--gentle-growth-and-limited-zoom-ready)에 후속 범위·관측 조건을 추가했다.
+- 사용자가 완만형 후반 속도 상승과 작은 줌아웃을 첫 비교안으로 선택하고, 배경 전환 간격을 변경했다. [게임 설계](GAME_DESIGN.md#속도와-화면-추적)와 [배경 규칙](design/backgrounds.md)에 현재 합의와 검증할 시작값을 정리하고 [구현 계획](IMPLEMENTATION_PLAN.md#difficulty-improvement--gentle-growth-and-limited-zoom-implemented)에 후속 범위·관측 조건을 추가했다.
 - 문서 검사: 관련 내부 링크·제목 앵커 120개와 공백 오류를 확인했다. 원본 모바일 프로젝트의 기존 외부 형제 경로는 이번 내부 링크 검사에서 제외했다.
 - 프로젝트 검사: `rtk npm run check`의 lint·format·기존 단위 검사 89개(7개 파일)·TypeScript·일반 빌드와 `rtk npm run build:crazygames`가 통과했다. 최종 dist는 기존 실행물의 CrazyGames 모드다.
 - 범위/한계: 코드·런타임 자산·의존성은 변경하지 않았다. 새 속도·줌·배경 간격은 아직 미구현이며 이번 검사로 새 난이도나 가독성을 검증한 것은 아니다. E2E·브라우저 관측·사람 플레이는 새로 실행하지 않았다. 구현 후 높은 적층 구간·작은 화면·중단/재시작과 실제 사람의 실패 높이·판 시간·가독성을 비교해야 한다.

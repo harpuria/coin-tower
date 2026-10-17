@@ -11,7 +11,12 @@ export const rules = {
   perfectFraction: 0.1,
   baseSpeed: 350,
   speedPerCoin: 15,
-  maxSpeed: 650,
+  speedRampCoins: 20,
+  lateSpeedGain: 100,
+  lateSpeedSpan: 20,
+  zoomStartCoins: 20,
+  zoomEndCoins: 60,
+  minZoom: 0.9,
   fallSpeed: 1550,
   spawnGap: 410,
   settleMs: 280,
@@ -32,5 +37,24 @@ export function landingKind(x: number, targetX: number, first: boolean) {
 }
 
 export function moveSpeed(score: number) {
-  return Math.min(rules.maxSpeed, rules.baseSpeed + score * rules.speedPerCoin);
+  const early =
+    rules.baseSpeed +
+    rules.speedPerCoin * Math.min(score, rules.speedRampCoins);
+  const late = Math.max(0, score - rules.speedRampCoins);
+  return (
+    early + rules.lateSpeedGain * Math.log2(1 + late / rules.lateSpeedSpan)
+  );
+}
+
+/** 표시만 축소하며 논리 좌표의 판정 폭은 바꾸지 않는다. */
+export function cameraZoom(score: number) {
+  const progress = Math.min(
+    1,
+    Math.max(
+      0,
+      (score - rules.zoomStartCoins) /
+        (rules.zoomEndCoins - rules.zoomStartCoins),
+    ),
+  );
+  return 1 - (1 - rules.minZoom) * progress;
 }

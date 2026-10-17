@@ -29,6 +29,8 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 스킨 목록·가격·이미지/텍스처와 `nextSkinGoal()`은 `game/skins.ts`가 소유합니다. controller의 `skinsOpen`·`skinPurchase`·`skinMessage`는 메뉴·완료 결과 위의 일시적 화면 상태이며 Session이나 저장 데이터에 넣지 않습니다. 원래 Session 모드와 RunResult를 유지한 채 상점 오버레이를 열고 닫아 BACK으로 원래 화면에 복귀합니다. Shell은 SKINS·확인창·포커스·입력 차단을 표시하고, controller만 구매·장착을 확정합니다. Scene은 메뉴에서는 현재 장착 스킨을, 진행·결과에서는 시작할 때 고정한 `GameController.runSkin`을 같은 art frame으로 그립니다. 결과에서 구매·자동 장착해도 완료된 탑의 외형은 유지하고 다음 판부터 새 스킨을 적용합니다. 플레이 중에는 스킨 변경을 허용하지 않습니다.
 
+`Session.zoom`과 카메라 오프셋은 같은 정착 진행률로 보간합니다. Scene은 화면 가로 중앙·착지 목표 세로 위치를 기준으로 논리 동전 좌표를 표시 좌표로 투영하며 모델의 이동 경로·판정은 바꾸지 않습니다. 동전·받침대·접점 Graphics만 같은 변환을 사용하고 배경·로고·성공 문구·HTML UI는 기본 크기를 유지합니다. 보이는 동전의 판별도 투영된 좌표를 사용합니다. [ADR 0008](adr/0008-project-world-with-model-owned-zoom.md)을 따릅니다.
+
 배경 시간대·전환 경과 시간도 Session이 소유합니다. Scene은 불투명한 이전 배경 위에 다음 배경의 불투명도를 올려 그리며 별도 tween 시간을 진행하지 않습니다. Shell의 주변 배경도 같은 상태와 `backgroundAlpha()`를 읽고 전환 중에만 RAF로 갱신합니다. 중단·결과에서 모델 시간이 멈추면 배경 전환도 멈추며 Shell 폐기 시 RAF를 정리합니다.
 
 배포 아트의 설정은 `game/art-manifest.json`, 생성 해시·크기는 `art-generated.json`이 소유합니다. `game/art.ts`가 원본 이름을 WebP URL로 연결해 HTML·Phaser가 같은 파일을 사용합니다. Python 생성기는 원본 PNG를 보존하며 Vite 패키징은 해시를 확인한 파생 파일·WAV·favicon만 업로드 산출물에 넣습니다. 원본 frame 좌표를 유지하고 작은 아이콘만 축소합니다. [ADR 0006](adr/0006-preserve-source-art-and-package-optimized-derivatives.md)을 따릅니다.

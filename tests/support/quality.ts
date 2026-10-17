@@ -1,7 +1,7 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { gameConfig } from '../../src/config/game';
 import { progressSchema, type Progress } from '../../src/game/save';
-import { rules } from '../../src/game/rules';
+import { moveSpeed, rules } from '../../src/game/rules';
 import { crazyGamesSdkUrl } from '../../src/services/crazygames';
 
 declare global {
@@ -63,7 +63,7 @@ async function finishLanding(page: Page) {
   throw new Error('Landing did not return to movement');
 }
 async function aligned(page: Page, info: TestInfo, score: number) {
-  await page.clock.runFor((232 / Math.min(350 + score * 15, 650)) * 1000);
+  await page.clock.runFor((232 / moveSpeed(score)) * 1000);
   await tap(page, info);
   await finishLanding(page);
   await expect(page.locator('#score')).toHaveText(String(score + 1));

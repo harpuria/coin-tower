@@ -1,6 +1,6 @@
 /** 테스트용 구간과 전환 시간. 의도와 조정 기준은 design/backgrounds.md를 따른다. */
 export const backgroundRules = {
-  coinsPerStage: 5,
+  coinsPerStage: 10,
   fadeMs: 1200,
 } as const;
 
