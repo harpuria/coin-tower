@@ -2,6 +2,25 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-18 — 스킨별 Perfect 구현과 브라우저 검증
+
+- 범위: 설계 체크포인트 `c74c797`의 C안을 구현했다. Perfect의 짧은 접점 폭발·테두리 잔광·별빛을 해당 판의 금화·은화·루비·에메랄드 팔레트로 그린다. Graphics의 선·타원·재사용 별 꼭짓점을 사용하며 새 이미지·음원·의존성·저장 필드를 추가하지 않았다. 기존 반동·PERFECT/X·소리·다음 동전의 정착 시간·판정·난이도·재화 규칙은 유지한다.
+- 정적 검사: 관측 helper의 준비 대기 보완까지 반영한 `rtk npm run check`의 lint·format·단위 검사 **109/109(8개 파일)**·TypeScript·일반 빌드가 통과했다. 네 스킨 카탈로그의 필수 팔레트·24비트 RGB 정수 범위·고유 ID/색·원본 파일 참조도 Node 검사로 확인했다. 일반 산출물은 **14,805,669 bytes**, 이전 난이도 체크포인트보다 **1,309 bytes** 증가했다.
+- PC 초기 연출 관측: `rtk proxy npm run test:e2e -- perfect.spec.ts --project=desktop --output=test-results/perfect-desktop-development`는 **5/5 통과(3.6분)**했다. 네 스킨 각각 101개/X100·네 배경·작은 프레임·중단/재개·무음·NICE 비교·초기화를 확인했다. 이 시점의 동작 줄이기 검사는 루비만 다뤘으며 뒤의 보강 검사와 구분한다. 앞선 첫 금화 prototype 1개는 소리 버튼 포커스가 남은 상태에서 Space를 보내 다음 낙하가 발생하지 않아 실패했다. 기존 버튼 포커스 입력 차단은 정상이며, 검사에서 게임 영역에 실제 마우스 클릭을 보내도록 수정했다.
+- 일반 개발 회귀: `--grep-invert 'difficulty:|perfect: (gold|silver|ruby|emerald)'`는 **42/42 통과(15.4분)**했다. PC·터치의 기존 입력·배경·실패·기록/재화·상점·저장 오류·재시작 흐름과 네 스킨 각각의 고정 접점 빛/메뉴 장착을 확인했다. 이미 별도 연출 관측으로 다룬 고적층 중복 시나리오와 팔레트 시나리오만 제외했다.
+- 터치 연출 집중 검사: `perfect.spec.ts --project=mobile --grep 'perfect: (gold|silver|ruby|emerald)'`는 **4/4 통과(5.1분)**했다. Pixel 7 Chromium 터치 에뮬레이션에서 네 스킨 각각 101개/X100, 네 배경과 전환, 모델 줌과 실제 Graphics의 변환·그리기 색, 250ms의 효과 정리와 280ms의 다음 동전 시작을 확인했다. PC 초기 검사와 별도 실행이며 단일 전체 스위트 통과로 합산하지 않는다.
+- 일반 배포 검사: `rtk proxy env E2E_PREVIEW=1 npm run test:e2e -- --grep-invert 'difficulty:|perfect: (gold|silver|ruby|emerald)' --trace=off`는 **26 통과 / 16 개발 전용 skip(2.9분)**했다. 개발 훅 없는 실제 입력·완료/저장·재시작·상점·네 스킨의 동작 줄이기를 확인했다. 스킨별 전체 배경/고적층 연출은 일반 개발 관측과 아래 CrazyGames 배포 집중 검사로 다룬다.
+- CrazyGames 개발 검사: 새로 받은 공식 SDK 파일을 지정해 같은 제외 필터와 `--trace=off`로 실행한 결과는 **27/28 통과(2.8분)**다. 실패 1개는 게임 시작 가능 표시 직후 아직 없는 개발 관측 훅의 `freeze`를 읽은 기존 quality helper의 준비 대기 누락이었다. `quality.ts`와 새 Perfect helper에서 실제 훅 준비를 기다리게 보완했다. `--grep '20-coin presentation'`으로 해당 PC·터치 경로를 재실행해 **2/2 통과(49.4초)**했다. 최초 실행을 전체 통과로 표현하지 않는다. 전체 SDK 실행 중 수정 없는 공식 SDK local 2개는 통과했고 의도한 다운로드/초기화/disabled 실패 fixture의 warning은 정상 경로 오류와 구분한다.
+- CrazyGames 배포 검사: 최종 `rtk npm run build:crazygames`의 TypeScript·빌드가 통과했다. 이어 `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-perfect-sdk-v3.js npm run test:crazygames -- --grep-invert 'difficulty:' --trace=off`는 **34 통과 / 2 개발 전용 skip(15.2분)**했다. 통제 fixture 32개와 수정 없는 공식 SDK local 2개다. 이전 난이도의 중복 고적층 시나리오만 제외하고 새 연출의 PC·터치 네 스킨/네 배경·고적층·작은 화면·동작 줄이기와 기존 SDK/입력/저장 경로를 확인했다. 정상 연출 경로의 pageerror·자산 HTTP 오류는 없었다.
+- 배포 관측 범위: 금화·은화·루비는 각각 36개, 대표 에메랄드는 101개까지 PC·터치에서 실제 입력으로 진행했다. 여덟 팔레트 실행 모두 네 배경에서 실제 Perfect를 수집했다. 작은 네 프레임은 일반 세 스킨 32개·에메랄드 97개의 실제 Perfect 시점에 캡처했다. 배포본에는 NICE가 섞여 101개 때 콤보는 PC X35·터치 X8이었다. X100 배치는 개발본의 네 스킨/두 입력 방식에서 확인한 결과이며 배포본 콤보로 표현하지 않는다. 각 관측 JSON과 실제 스크린샷을 대조했다.
+- 최종 산출물: CrazyGames `dist/`는 **14,710,899 bytes(14.71MB), 39개 파일**, 원본 PNG는 없다. 런타임 `index-Da-Flc6F.js`의 SHA-256은 `509923b2290f4ed75ee6e0e7b66681c2df81cc5c5617628f20d85916346001af`다. 추가 이미지 다운로드 없이 이전 배포보다 1,309 bytes 증가했다. 실제 포털의 Load나 초기 네트워크 전송량을 새로 측정한 결과는 아니다.
+- SDK: 공식 v3 CDN에서 `/private/tmp/coin-tower-perfect-sdk-v3.js`로 새로 받은 수정 없는 파일은 **112,919 bytes**, SHA-256 `d4c44671cafbb694a0fd054078303242681bdf1b5908d6fb9f766d1de3f25911`다. 상세 시나리오의 통제 fixture와 공식 SDK의 실제 local 초기화/중단/재개 검사를 구분하며 실제 CrazyGames 호스트 검증을 대신하지 않는다.
+- 관측 방법: 준비한 보유/장착 저장 fixture와 실제 마우스·터치 입력을 사용하며 점수·동전 좌표를 덮어쓰지 않는다. 개발본은 `feedback()`의 실제 Graphics 명령·변환과 동전 크기를 읽는다. 배포본은 게임 개발 훅 없이 브라우저 시간 제어를 사용하고 NICE를 Perfect 관측으로 세지 않는다. 새 연출 집중 검사는 trace를 제외하고 구간별 PNG·JSON을 보존한다. 제어한 시간·연속 Perfect는 사람의 성공률·입력 지연·실제 FPS 측정이 아니다.
+- 화면/접근성: 360×640·390×844·821×462·907×510에서 네 스킨의 접점·윤곽·문구를 관측했고 X100은 개발본에서 확인했다. 확인한 PC·터치/배포 프레임에서 중심 왕관과 성공 문구는 드러나고 빛은 동전 윤곽을 따른다. 무음에서도 형태·색을 유지하고 동작 줄이기에서는 이동 입자·반동·팝 대신 짧은 고정 접점 빛을 사용한다.
+- 산출물: `test-results/perfect-prototype/`는 초기 검사 오류, `test-results/perfect-desktop-development/`는 PC 초기 통과다. `test-results/perfect-final/` 아래 `standalone-development-regression/`·`standalone-development-touch/`·`standalone-production/`·`crazygames-development/`·`crazygames-development-corrected/`·`crazygames-production/`는 각 명령의 관측과 검사 오류를 보존한다. 각 스킨의 착지·잔광·작은 화면 PNG와 실제 모델/Graphics 또는 배포 UI의 `perfect-observations.json`이 있으며 Git에서 제외한다.
+- 최종 문서/번들 대조: 전체 format 검사·공백 오류 검사와 변경 문서의 내부 링크/제목 앵커 **217개**가 통과했다. 배포 관측 JSON 여덟 실행의 실제 Perfect/배경 수집과 작은 화면 시점을 대조했고, 최종 배포 파일 수·크기·런타임 JS 해시가 검증한 빌드와 같음을 확인했다.
+- 가설/한계: 스킨에 맞춘 형태·색·시간·중단·줌의 연결은 로컬 개발/배포 관측으로 지지된다. 더 기분 좋은지, 반복 시 눈부심과 다음 입력의 주의 분산이 줄었는지는 사람 비교 플레이가 필요하다. 실제 Android/iPhone·Safari/Firefox·CrazyGames 호스트 검증은 별도다. [플레이 관측](PLAYTEST_NOTES.md)을 따른다.
+
 ## 2026-10-17 — 후반 난이도 구현·높은 적층 구간 검증
 
 - 범위: 설계 체크포인트 `1db4546`의 완만형 속도·모델 시간의 제한된 줌·새 배경 간격을 구현했다. `rules.ts`에서 곡선/배율을 조정하고 Session이 정착 중 줌을 보간한다. Scene의 플레이 투영과 고정 UI의 분리는 [ADR 0008](adr/0008-project-world-with-model-owned-zoom.md)을 따른다. 저장 schema·기록·재화 규칙·의존성·원본 아트는 변경하지 않았다.

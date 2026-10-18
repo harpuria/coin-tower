@@ -78,6 +78,14 @@ window.__COIN_TOWER__.freeze(false);
 
 `window.__COIN_TOWER__.feedback()`는 착지 피드백 잔여 시간, 실제 최상단 Scene 동전의 좌표·표시 크기, NICE/PERFECT 표시 크기·가시성, 접점 Graphics의 가시성·불투명도를 읽습니다. `advance(42)`의 일반 최대 눌림, `advance(54)`의 Perfect 최대 눌림, `advance(90)`의 Perfect 팝 최대점을 관찰할 수 있습니다. 모두 착지 직후부터의 경과 시간입니다. 숫자 팝은 `.combo-glyphs`의 실제 CSS transform에서 함께 확인합니다. 이 관측 API도 production에서 제외합니다.
 
+## 스킨별 Perfect 집중 관측
+
+- 팔레트는 `src/game/skins.ts`의 각 `perfectPalette.color`·`highlight`, 반동·별 수/크기·표시 시간은 `src/game/feedback.ts`에서 조정한다. `CoinTowerScene.drawPerfectImpact()`가 짧은 접점 빛줄기와 고정된 동전 윗면 테두리 잔광을 그린다. 잔광은 실제 동전의 눌림·복원·카메라 이동·줌과 같은 좌표를 따르며 별도 tween이나 텍스처를 사용하지 않는다.
+- 개발 `feedback().particles`의 `x/y/scale`과 `commands`는 실제 Graphics 변환·그리기 명령을 읽는다. 팔레트가 그리기에 사용됐는지, 정지/카운트다운에서 숨었다가 동일 프레임으로 복귀하는지 확인할 수 있다. production에는 이 훅이 없다.
+- `rtk npm run test:e2e -- perfect.spec.ts` 및 `rtk npm run test:crazygames -- perfect.spec.ts`는 PC 마우스·Pixel 7 터치 에뮬레이션으로 네 스킨·네 배경과 전환·무음·중단/초기화를 관측한다. `E2E_PREVIEW=1`이면 해당 빌드의 개발 훅 없이 브라우저 시간 제어를 사용한다. 개발본에서는 모든 스킨 101개/X100, 배포본에서는 모든 스킨 36개와 대표 에메랄드 101개를 확인한다. 배포본에는 NICE가 섞일 수 있으므로 실제 Perfect가 나온 프레임을 네 배경에서 각각 수집했는지도 확인한다. 이 차이를 검증 기록에 구분한다.
+- 배포본의 작은 프레임은 각 실행의 마지막 5개 구간에서 실제 Perfect가 나온 시점에 캡처한다. 파일명의 적층 수가 실제 캡처 시점이며, 101개 실행에서 97개 작은 화면 이미지가 생길 수 있다. 개발본의 X100 레이아웃 검사와 배포본의 실제 콤보를 혼동하지 않는다. 화면 크기 반영을 위한 브라우저 시간 진행도 착지 후 관측 시간에 포함한다.
+- `tests/support/perfect.ts`는 준비된 보유/장착 저장 fixture에서 시작하고 실제 입력으로 적층한다. 점수·동전 좌표를 덮어쓰지 않는다. `*-burst.png`·`*-afterglow.png`·작은 화면 PNG와 `perfect-observations.json`을 저장한다. 네 작은 프레임은 360×640·390×844·821×462·907×510이다. 연속 trace는 제외하며 정상 게임 시간의 타이밍·FPS나 사람의 성공률을 측정하는 검사는 아니다.
+
 ## 착지 허용 범위 집중 브라우저 검사
 
 `rtk npm run test:e2e -- landing.spec.ts`는 desktop/Pixel 7 Chromium에서 실제 마우스·Space·터치 입력과 개발 시간 제어를 사용한다. 새 판에서 첫 동전을 중앙에 놓고, 다음 동전의 좌우 성공 경계·경계 바로 밖·이전 범위에서는 실패했던 치우침·Perfect 경계와 바로 밖을 각각 확인한다. 점수·동전 위치를 직접 덮어쓰지 않는다.

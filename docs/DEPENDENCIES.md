@@ -26,6 +26,7 @@ CI는 `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` 모두
 - 현행 LTS 채널은 없어 최신 안정판을 정확한 버전으로 고정했습니다.
 - v4는 렌더러가 크게 바뀌었습니다. Phaser 3 예제의 렌더링 관련 코드는 설치된 타입/소스로 확인한 뒤 사용합니다.
 - 2026-10-11 착지 연출: 설치된 4.2.1의 `Graphics.strokeEllipse`/`fillTriangle`/`fillPoints`와 재사용 `Math.Vector2` 꼭짓점, `SoundConfig.rate`, `WebAudioSound`의 재생 속도 적용과 완료·destroy 수명을 확인했다. Scene Image 크기 변경과 HTML 숫자 transform, Web Audio의 실제 0.88/1.24 재생 속도는 Chromium에서 관찰했다. 새 패키지·lockfile·라이선스 변경은 없다.
+- 2026-10-17 Perfect 강화: 같은 Phaser 4.2.1의 `Graphics.lineStyle`·`lineBetween`·`fillEllipse`·`strokeEllipse`·`fillCircle`·`fillPoints`를 사용했다. 설치 타입의 공개 `commandBuffer`를 개발 전용 관측으로 읽어 실제 그리기에 사용된 스킨색·중단 전후 동일 프레임을 확인한다. 새 패키지·lockfile·이미지 생성 서비스·라이선스 변경은 없다.
 
 ## Asset과 서비스
 

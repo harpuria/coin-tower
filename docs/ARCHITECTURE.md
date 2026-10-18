@@ -37,6 +37,8 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 착지 반동·접점 입자·PERFECT/X 팝도 `Session.feedbackRemaining`에서 경과 시간을 계산합니다. `game/feedback.ts`는 조정값과 표시 계산을 제공하고 Scene과 Shell이 같은 계산을 사용합니다. 표시용 변형은 모델의 동전 좌표·판정·정착 시간을 바꾸지 않습니다. 별도 tween이나 CSS 애니메이션 시계는 진행하지 않습니다.
 
+Perfect의 접점 폭발·테두리 잔광은 Scene의 Graphics로 그리며 `game/skins.ts`의 `perfectPalette`를 현재 `GameController.runSkin`으로 선택합니다. 잔광의 크기·위치는 최상단 동전의 실제 반동 크기와 같은 투영을 따릅니다. NICE의 기존 금색 표현과 고정 크기 PERFECT/X는 별도로 유지하며, 새 텍스처·저장 필드·서비스 계약을 추가하지 않습니다.
+
 실패 시 `Session`은 즉시 result 모드로 전환하고 finished를 한 번 반환합니다. `failureRemaining`과 `failureDirection`이 실패 표현을 소유하며 `resultReady`가 참이 될 때 결과 조작을 엽니다. controller는 백그라운드에서 실패 연출 시간을 진행하지 않고, Scene의 `failureVisual()`은 표시 위치·각도·불투명도만 계산합니다. `game/goals.ts`의 `heightGoalRules`와 `nextHeightGoal()`은 결과의 다음 높이 안내를 소유합니다. [ADR 0007](adr/0007-complete-runs-before-result-presentation.md)을 따릅니다.
 
 ## 용어

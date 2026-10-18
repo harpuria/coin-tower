@@ -49,7 +49,14 @@ export interface DebugControl {
       texture: string;
     } | null;
     label: { width: number; height: number; visible: boolean };
-    particles: { visible: boolean; alpha: number };
+    particles: {
+      visible: boolean;
+      alpha: number;
+      x: number;
+      y: number;
+      scale: number;
+      commands: number[];
+    };
   };
 }
 declare global {
@@ -170,6 +177,10 @@ export class CoinTowerScene extends Phaser.Scene {
             particles: {
               visible: this.sparkles.visible,
               alpha: this.sparkles.alpha,
+              x: this.sparkles.x,
+              y: this.sparkles.y,
+              scale: this.sparkles.scaleX,
+              commands: [...this.sparkles.commandBuffer] as number[],
             },
           };
         },
@@ -295,7 +306,7 @@ export class CoinTowerScene extends Phaser.Scene {
     this.sparkles
       .clear()
       .setVisible(feedbackVisible && visual.particleAlpha > 0)
-      .setAlpha(visual.particleAlpha);
+      .setAlpha(run.feedback === 'perfect' ? 1 : visual.particleAlpha);
     if (feedbackVisible && run.feedback) {
       const perfect = run.feedback === 'perfect';
       this.feedback
@@ -309,46 +320,42 @@ export class CoinTowerScene extends Phaser.Scene {
           (perfect ? 160 : 135) * visual.pop,
         );
       const coin = run.coins.at(-1);
-      if (coin && visual.particleAlpha > 0)
-        this.drawImpact(
-          coin.x,
-          coin.y + run.cameraOffset + 43,
-          perfect,
-          visual.particleT,
-          reducedMotion,
-        );
+      if (coin && visual.particleAlpha > 0) {
+        if (perfect) {
+          const height = 102 * visual.height;
+          this.drawPerfectImpact(
+            coin.x,
+            coin.y + run.cameraOffset + (102 - height) / 2,
+            rules.diameter * visual.width,
+            height,
+            visual.particleT,
+            reducedMotion,
+          );
+        } else
+          this.drawNiceImpact(
+            coin.x,
+            coin.y + run.cameraOffset + 43,
+            visual.particleT,
+            reducedMotion,
+          );
+      }
     }
   }
 
-  private drawImpact(
+  private drawNiceImpact(
     x: number,
     y: number,
-    perfect: boolean,
     t: number,
     reducedMotion: boolean,
   ) {
     const graphics = this.sparkles;
-    const config = feedbackRules[perfect ? 'perfect' : 'nice'];
-    // 동전 중앙을 덮지 않고 접점 좌우에 짧은 빛과 입자를 둔다.
+    const config = feedbackRules.nice;
     for (const side of [-1, 1]) {
       const edgeX = x + side * rules.diameter * 0.51;
-      const length = perfect ? 14 : 6;
-      graphics.lineStyle(
-        perfect ? 3 : 1.5,
-        config.highlight,
-        perfect ? 1 : 0.7,
-      );
-      graphics.lineBetween(edgeX - length, y, edgeX + length, y);
-      if (perfect) graphics.lineBetween(edgeX, y - 9, edgeX, y + 9);
+      graphics.lineStyle(1.5, config.highlight, 0.7);
+      graphics.lineBetween(edgeX - 6, y, edgeX + 6, y);
     }
     if (reducedMotion) return;
-    if (perfect) {
-      // Perfect만 두 겹의 밝은 링을 퍼뜨려 일반 착지의 작은 점과 구분한다.
-      graphics.lineStyle(3, config.highlight, 1);
-      graphics.strokeEllipse(x, y, 180 + t * 100, 22 + t * 30);
-      graphics.lineStyle(2, config.color, 0.7);
-      graphics.strokeEllipse(x, y, 164 + t * 76, 16 + t * 22);
-    }
     for (let i = 0; i < config.particles; i++) {
       const side = i % 2 === 0 ? -1 : 1;
       const lane = Math.floor(i / 2);
@@ -358,24 +365,98 @@ export class CoinTowerScene extends Phaser.Scene {
           (rules.diameter * 0.55 + t * (config.particleSpread + lane * 10));
       const py = y - 8 - t * (config.particleRise + lane * 14) + t * t * 16;
       const size = config.particleSize * (1 - t * 0.45);
-      graphics.fillStyle(
-        perfect && lane % 2 === 0 ? config.highlight : config.color,
-        1,
-      );
-      if (perfect) {
-        const inset = size * 0.28;
-        // Phaser 4의 Vector2 타입을 재사용해 프레임마다 별 꼭짓점을 할당하지 않는다.
-        const points = this.starPoints;
-        points[0]!.set(px, py - size);
-        points[1]!.set(px + inset, py - inset);
-        points[2]!.set(px + size, py);
-        points[3]!.set(px + inset, py + inset);
-        points[4]!.set(px, py + size);
-        points[5]!.set(px - inset, py + inset);
-        points[6]!.set(px - size, py);
-        points[7]!.set(px - inset, py - inset);
-        graphics.fillPoints(points, true);
-      } else graphics.fillCircle(px, py, size);
+      graphics.fillStyle(config.color, 1).fillCircle(px, py, size);
     }
+  }
+
+  /** 접점의 빠른 빛줄기와 동전 윤곽의 느린 잔광을 같은 착지 시간으로 그린다. */
+  private drawPerfectImpact(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    t: number,
+    reducedMotion: boolean,
+  ) {
+    const graphics = this.sparkles;
+    const palette = skinById(this.controller.runSkin).perfectPalette;
+    const contactY = y + height * 0.36;
+    if (reducedMotion) {
+      for (const side of [-1, 1]) {
+        const edge = x + side * width * 0.49;
+        graphics.lineStyle(6, palette.color, (1 - t) * 0.6);
+        graphics.lineBetween(edge - 10, contactY, edge + 10, contactY);
+        graphics.lineStyle(2, palette.highlight, 1 - t);
+        graphics.lineBetween(edge - 8, contactY, edge + 8, contactY);
+      }
+      return;
+    }
+
+    const burst = Math.max(0, 1 - t / 0.55);
+    const afterglow = Math.sin(Math.PI * (0.15 + t * 0.85)) * (1 - t * 0.4);
+    // 원본 윗면 테두리를 따라가며 왕관과 다음 착지 목표는 채우지 않는다.
+    for (const [lineWidth, alpha] of [
+      [14, 0.12],
+      [7, 0.3],
+      [2.5, 0.9],
+    ] as const) {
+      graphics.lineStyle(lineWidth, palette.color, alpha * afterglow);
+      graphics.strokeEllipse(x, y - height * 0.15, width * 0.96, height * 0.64);
+    }
+    graphics.lineStyle(1.3, palette.highlight, afterglow * 0.85);
+    graphics.strokeEllipse(x, y - height * 0.15, width * 0.95, height * 0.63);
+
+    const travel = 1 - (1 - t) ** 3;
+    for (const side of [-1, 1]) {
+      const edge = x + side * width * 0.49;
+      if (burst > 0) {
+        graphics.fillStyle(palette.color, burst * 0.24);
+        graphics.fillEllipse(edge, contactY, 52 * (1 + t), 30);
+        graphics.fillStyle(palette.highlight, burst * 0.85);
+        graphics.fillEllipse(edge, contactY, 13, 7);
+        for (let lane = 0; lane < 3; lane++) {
+          const startX = edge + side * (4 + travel * (18 + lane * 9));
+          const startY = contactY - travel * lane * 14;
+          const endX = startX + side * (25 + lane * 12) * (1 - t * 0.5);
+          const endY = startY - 5 - lane * 13;
+          for (const [lineWidth, color, alpha] of [
+            [10, palette.color, 0.14],
+            [6, palette.color, 0.9],
+            [2, palette.highlight, 1],
+          ] as const) {
+            graphics.lineStyle(lineWidth, color, alpha * burst);
+            graphics.lineBetween(startX, startY, endX, endY);
+          }
+        }
+      }
+    }
+    const config = feedbackRules.perfect;
+    for (let i = 0; i < config.particles; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      const lane = Math.floor(i / 2);
+      const px = x + side * (width * 0.53 + travel * (22 + lane * 16));
+      const py = contactY - 14 - travel * (20 + lane * 26);
+      const size = config.particleSize * (1 - t * 0.7) * (1 - lane * 0.12);
+      graphics.fillStyle(palette.color, (1 - t) * 0.16);
+      graphics.fillCircle(px, py, size * 1.8);
+      graphics.fillStyle(palette.color, 1 - t);
+      this.drawStar(px, py, size);
+      graphics.fillStyle(palette.highlight, (1 - t) * 0.95);
+      this.drawStar(px, py, size * 0.5);
+    }
+  }
+
+  private drawStar(x: number, y: number, size: number) {
+    const inset = size * 0.23;
+    const points = this.starPoints;
+    points[0]!.set(x, y - size);
+    points[1]!.set(x + inset, y - inset);
+    points[2]!.set(x + size, y);
+    points[3]!.set(x + inset, y + inset);
+    points[4]!.set(x, y + size);
+    points[5]!.set(x - inset, y + inset);
+    points[6]!.set(x - size, y);
+    points[7]!.set(x - inset, y - inset);
+    this.sparkles.fillPoints(points, true);
   }
 }

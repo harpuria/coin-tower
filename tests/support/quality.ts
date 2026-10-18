@@ -44,7 +44,12 @@ async function seed(
 async function ready(page: Page, debug = false) {
   await page.goto(debug ? '/?debug' : '/');
   await expect(page.locator('#play')).toBeEnabled();
-  if (debug) await page.evaluate(() => window.__COIN_TOWER__!.freeze(true));
+  if (debug) {
+    await expect
+      .poll(() => page.evaluate(() => !!window.__COIN_TOWER__))
+      .toBe(true);
+    await page.evaluate(() => window.__COIN_TOWER__!.freeze(true));
+  }
 }
 async function clockReady(page: Page, info: TestInfo) {
   await ready(page);
