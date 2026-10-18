@@ -65,10 +65,11 @@ export function packageArt(): Plugin {
         mkdirSync(dirname(destination), { recursive: true });
         copyFileSync(join(sourceRoot, expected), destination);
       }
-      copyFileSync(
-        join(sourceRoot, 'stack.wav'),
-        join(output, 'assets/coin-tower/stack.wav'),
-      );
+      for (const file of ['stack.wav', 'arcade-sparkle.m4a'])
+        copyFileSync(
+          join(sourceRoot, file),
+          join(output, 'assets/coin-tower', file),
+        );
       copyFileSync(
         join(root, 'public/favicon.svg'),
         join(output, 'favicon.svg'),

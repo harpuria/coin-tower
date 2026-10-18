@@ -27,6 +27,7 @@ export const assetKeys = {
   fullscreenEnterIcon: 'fullscreenEnterIcon',
   fullscreenExitIcon: 'fullscreenExitIcon',
   stack: 'stack',
+  music: 'music',
 } as const;
 
 export const backgroundTextures: Record<BackgroundTime, string> = {
@@ -82,6 +83,7 @@ export function queueAssets(load: Phaser.Loader.LoaderPlugin) {
   for (const glyph of 'x0123456789')
     load.image(`combo-${glyph}`, artFile(`combo/${glyph}.png`));
   load.audio(assetKeys.stack, 'stack.wav');
+  load.audio(assetKeys.music, 'arcade-sparkle.m4a');
 }
 export function installAssetFrames(textures: Phaser.Textures.TextureManager) {
   const skinRegions = Object.fromEntries(

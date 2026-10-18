@@ -79,6 +79,7 @@ export class GameController {
     this.run.start();
     if (this.background) this.run.pause();
     this.sync();
+    this.app.audio?.playMusic(assetKeys.music);
   }
   tap() {
     if (this.skinsOpen) return;

@@ -23,7 +23,7 @@
 
 원본 PNG는 보존하고 런타임에는 같은 위치의 최적화 WebP를 사용합니다. `src/game/art-manifest.json`에서 해상도·인코딩·플랫폼 제외를 조정하고 `rtk npm run assets:optimize`로 갱신합니다. 일반 Node 빌드는 커밋된 파생 파일을 사용하며 오래된 해시·설정 또는 20MB 이상 CrazyGames 산출물은 빌드를 실패시킵니다. 파일 추가·재생성·배포 구조는 [최적화 안내](art/optimized-assets.md)를 따릅니다. 기존 아트 문서의 PNG 크기·해시는 보존 원본 기준입니다.
 
-`rtk npm run dev` 후 `http://localhost:5173`을 엽니다. 휴대폰에서는 같은 네트워크의 Network 주소를 사용합니다. 자동 재생 제한에 따라 첫 소리는 사용자 입력 뒤에만 재생합니다. 현재 BGM은 없고 템플릿에서 가져온 짧은 착지 효과음만 사용합니다.
+`rtk npm run dev` 후 `http://localhost:5173`을 엽니다. 휴대폰에서는 같은 네트워크의 Network 주소를 사용합니다. 자동 재생 제한에 따라 첫 소리는 사용자 입력 뒤에만 재생합니다. 첫 게임 시작부터 사용자 제공 `Arcade Sparkle`을 반복 재생하며 템플릿의 짧은 착지 효과음을 함께 사용합니다. 음악 동작은 [배경음](design/feedback.md#배경음)을 따릅니다. 음원 경로는 `src/game/assets.ts`, 시작 연결은 `controller.ts`, 초기 음악 음량은 `src/core/settings.ts`의 `music`에서 편집합니다. 배포 음원을 교체하면 `scripts/package-art.ts`의 복사 목록도 맞춥니다. 원본·변환 정보는 [자산 출처](ASSET_SOURCES.md#배경음--arcade-sparkle)를 따릅니다.
 
 메인 화면의 `#play`는 파란 판 없이 원본 `tap_to_play.png`의 배포용 WebP를 표시하는 네이티브 버튼입니다. 표시 문구는 TAP TO PLAY이며 접근성 이름은 Tap to play입니다. 클릭/키보드 활성화는 시작만 수행하고 포커스를 게임 영역으로 옮깁니다. 일반 캔버스 클릭·터치와 문서 Space도 메뉴 시작을 지원합니다. 필수 이미지 로더가 완료될 때까지 시작을 비활성화합니다.
 

@@ -10,6 +10,8 @@
 
 ## Status
 
+- Completed supplied BGM integration and local validation (2026-10-19): Suno-created `Arcade Sparkle` starts on first play, loops and preserves one music instance across results/shop/menu/retries using the existing audio service. The original is preserved; only the AAC derivative ships. `check` passes 109 unit tests and all static/build checks; focused standalone production E2E passes 4/4, CrazyGames production E2E passes 4/4 including official SDK local checks, and PC/touch WebAudio observations pass in both builds. The full natural loop was observed on standalone PC. Final CrazyGames `dist/`: 17,187,712 bytes, 40 files. Listening balance, musical loop continuity and physical-device/portal behavior remain unverified; see [validation](VALIDATION.md#2026-10-19--arcade-sparkle-배경음-적용) and [source record](ASSET_SOURCES.md#배경음--arcade-sparkle).
+
 - Completed Perfect implementation and local validation (2026-10-18): C's contact burst, thin coin-edge afterglow and run-skin palette use Graphics with no new raster assets. Rules remain in [feedback](design/feedback.md), with palette direction in [art direction](ART_DIRECTION.md#perfect-파티클과-스킨색).
   - `check` passes 109 unit tests, lint/format, TypeScript and the standalone build. Initial PC Perfect observation passes 5/5; standalone PC/touch regression passes 42/42 and focused touch palettes pass 4/4. These are separate runs. All skins reach 101 coins/X100 in development.
   - Standalone production: 26 passes / 16 development-only skips. CrazyGames development: 27/28, then the corrected PC/touch observation path passes 2/2. Final CrazyGames production: 34 passes / 2 development-only skips, including two official SDK local checks.

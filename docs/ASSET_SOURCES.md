@@ -87,12 +87,19 @@ PNG는 수정 없이 복사했다. 원본과 아래 파일의 SHA-256이 일치�
 
 ## 효과음과 기타
 
-- `public/assets/coin-tower/stack.wav`: phaser-web-template 0.2.0, commit `b953c81b31cfdb36f73c6462d707a45ec2b8a46d`의 `public/assets/demo/collect.wav`를 재사용한 합성 효과음. 템플릿은 직접 합성한 WAV라고 기록한다. 현재 착지 소리용 임시 음원이며 BGM은 없다.
+- `public/assets/coin-tower/stack.wav`: phaser-web-template 0.2.0, commit `b953c81b31cfdb36f73c6462d707a45ec2b8a46d`의 `public/assets/demo/collect.wav`를 재사용한 합성 효과음. 템플릿은 직접 합성한 WAV라고 기록한다. 현재 착지 소리용 임시 음원이다.
   - 착지 연출 개선에서도 파일 원본은 유지한다. 일반/Perfect에 다른 재생 속도와 상대 음량을 적용하며 조정값은 `src/game/feedback.ts`를 따른다. 별도 금속음 녹음·AI 생성이나 외부 음원 추가는 하지 않았다.
 - `public/favicon.svg`: 이 프로젝트 초기화 중 작성한 SVG.
-- 신규 생성 이미지는 위 동전 스킨·콤보 숫자·시간대 배경·기록/별조각 아이콘·TAP TO PLAY 글자·SHOP/소리/전체화면 아이콘이다. 외부 폰트·제삼자 음원은 추가하지 않았다.
+- 신규 생성 이미지는 위 동전 스킨·콤보 숫자·시간대 배경·기록/별조각 아이콘·TAP TO PLAY 글자·SHOP/소리/전체화면 아이콘이다. 외부 폰트는 추가하지 않았다. 사용자 제공 배경음은 아래 기록을 따른다.
 
 첫 플레이 버전은 이미지 원본을 보존한다. 파일 크기와 실제 휴대폰 첫 로딩 시간은 후속 기기 플레이에서 함께 관찰한다.
+
+## 배경음 — Arcade Sparkle
+
+- 출처: 사용자가 2026-10-18 제공한 `Arcade Sparkle.m4a`. 사용자가 Suno에서 제작했다고 확인했다. 파일 메타데이터도 `made with suno`, 생성 시각 `2026-10-18T14:43:33Z`, ID `eeedec5d-4611-4174-902d-d5409041b982`를 기록한다. 제작 당시 구독·상업 이용 조건의 세부 정보는 제공되지 않았다.
+- 보존 원본: `public/assets/coin-tower/source-audio/arcade-sparkle.m4a`, 2,220,234 bytes, SHA-256 `a62ad179aa883b3ede516f5181bbcb2154a7ea02dbadd1b2de3bb89433fc4ff6`. 루트의 제공 파일을 이 위치로 옮겨 바이트 그대로 보존한다. 내부는 MP4 컨테이너의 Opus, 48kHz stereo다.
+- 배포 파일: `public/assets/coin-tower/arcade-sparkle.m4a`, AAC-LC 160kbps 목표·48kHz stereo·약 119.573초, 2,476,726 bytes, SHA-256 `bf53b69f1d92952856d15aeaee98ae345a0bc1b60603a903813da00349329c28`. FFmpeg 7.1(imageio-ffmpeg 0.6.0 임시 환경)로 `-map 0:a:0 -vn -c:a aac -b:a 160k -map_metadata -1 -movflags +faststart` 변환했다. 원본 파형의 편집·루프 구간 자르기·음량 정규화는 하지 않았다. 프로젝트 의존성은 추가하지 않았다.
+- 필수 로더에서 디코딩하고 기존 공통 음악 서비스로 재생한다. 보존 원본은 `dist/`에 복사하지 않는다. 동작·초기 음량은 [배경음](design/feedback.md#배경음), 실제 검사와 청취 한계는 [검증 기록](VALIDATION.md)을 따른다.
 
 ## 첫 플레이 안내의 인라인 제스처
 

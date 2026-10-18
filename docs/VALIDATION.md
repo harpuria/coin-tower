@@ -2,6 +2,18 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-19 — Arcade Sparkle 배경음 적용
+
+- 범위: 사용자 제공 Suno 제작곡을 필수 로더에 추가하고 첫 게임 시작 입력에서 기존 `AudioService.playMusic()`으로 재생한다. 공통 서비스·저장 schema·기본 음량은 변경하지 않았다. 결과·상점·메뉴·재시작은 같은 음악을 이어간다.
+- 음원: 제공된 Opus-in-MP4 원본 2,220,234 bytes를 `source-audio/`로 옮겨 보존했다. 배포본은 AAC-LC·48kHz stereo·119.573초·2,476,726 bytes다. FFmpeg 전체 디코딩 오류가 없고 macOS `afinfo`도 AAC를 읽었다. 변환 명령·해시·출처 확인 상태는 [자산 출처](ASSET_SOURCES.md#배경음--arcade-sparkle)를 따른다.
+- 정적 검사: `rtk npm run check`의 lint·format·단위 검사 **109/109(8개 파일)**·TypeScript·일반 빌드가 통과했다. 일반 `dist/`는 **17,282,482 bytes, 42개 파일**이며 음악은 한 파일만 포함하고 보존 음원 폴더는 제외했다.
+- 관측 방법: Git에서 제외된 `test-results/bgm-observe.mjs`로 배포본 Chromium PC·Pixel 7 터치 에뮬레이션의 실제 WebAudio 소스 시작 시각·offset·중단·GainNode·음원 요청을 읽었다. 페이지에만 관측 코드를 주입하며 제품에 추가한 디버그 API나 새 회귀 테스트는 없다. 소스가 멈춘 상태의 master gain 읽기만으로 정지를 판정하던 초기 helper 기대가 실패해, 실제 소스 중단과 카운트다운 중 새 소스 부재를 확인하도록 관측 기준을 보완했다. 기능 코드는 변경하지 않았다.
+- 일반 배포 집중 관측: `rtk proxy node test-results/bgm-observe.mjs standalone`의 PC·터치 두 실행이 통과했다. 시작 전 음악 소스 부재, 음원 1회 요청/디코딩, master 0.7·music 0.35, 착지음 동시 재생, 사용자 음소거, 정지/카운트다운·blur/focus 후 명시적 재개, 재개 offset 보존, MENU·SHOP·새 판·정지 중 재시작에서 음악 인스턴스 하나를 확인했다. PC에서는 곡 끝까지 기다려 다음 반복의 실제 재생과 후속 반복 예약도 확인했다. Phaser가 현재 곡과 다음 반복을 같은 음악 인스턴스에 미리 예약하며, 동시에 재생되는 곡은 하나다. 관측 JSON/PNG는 `test-results/bgm/standalone/`에 있다.
+- 일반 배포 기존 E2E: 기존 preview를 재사용하는 임시 config로 `rtk proxy env E2E_PREVIEW=1 npm run test:e2e -- --config=test-results/bgm-regression.config.ts --grep 'real mouse/touch start|pause/countdown prevents' --trace=off`가 **4/4 통과(55.7초)**했다. 실제 시작·첫 낙하·실패·재도전·메뉴·저장과 정지·카운트다운·백그라운드 복귀를 PC/터치에서 확인했다. 산출물은 `test-results/bgm/standalone-regression/`이다. 고적층·스킨 전체 행렬은 음악 연결과 독립적인 이전 검증을 반복하지 않았다.
+- CrazyGames 배포: `rtk npm run build:crazygames`의 TypeScript·빌드가 통과했다. 최종 `dist/`는 **17,187,712 bytes(17.19MB), 40개 파일**이며 AAC 한 파일만 추가되고 보존 원본은 제외됐다. `rtk proxy node test-results/bgm-observe.mjs crazygames`의 PC·터치 두 실행에서 초기 플랫폼 무음·해제, 사용자 mute 보존과 일반 배포와 같은 음악 중단/위치 보존/중복 방지를 확인했다. 다른 Chromium 검사와 병행한 첫 관측은 포커스 후 재개의 7초 대기에서 시간 초과됐으며, 검사 종료 후 같은 코드·같은 관측 스크립트의 단독 재실행은 두 프로필 모두 통과했다. 결과는 `test-results/bgm/crazygames/`이다. 이 실행은 SDK settings 통제 fixture이며 실제 포털은 아니다.
+- CrazyGames 기존 E2E: `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-perfect-sdk-v3.js npm run test:crazygames -- --grep 'platform mute|official CDN SDK' --trace=off --output=test-results/bgm/crazygames-regression`가 **4/4 통과(36.4초)**했다. PC·터치 각각 플랫폼 mute/사용자 설정·reload와 수정 없는 공식 SDK local 초기화/정지/재개를 확인했다. SDK 파일은 같은 세션의 이전 검증에서 받은 공식 v3 스크립트다. 전체 CrazyGames 스위트 재실행으로 표현하지 않는다.
+- 한계: WebAudio의 디코딩·실행·반복 관측은 사람이 들은 음질·곡 경계의 음악적 자연스러움·착지음과의 체감 균형을 증명하지 않는다. 실제 Android/iPhone·Safari와 CrazyGames 포털 Preview는 별도 확인이 필요하다. 48kHz stereo 전체곡의 디코딩 PCM은 약 45.9MB이며 최소 기기의 메모리·첫 로딩 시간은 새로 측정하지 않았다.
+
 ## 2026-10-18 — 스킨별 Perfect 구현과 브라우저 검증
 
 - 범위: 설계 체크포인트 `c74c797`의 C안을 구현했다. Perfect의 짧은 접점 폭발·테두리 잔광·별빛을 해당 판의 금화·은화·루비·에메랄드 팔레트로 그린다. Graphics의 선·타원·재사용 별 꼭짓점을 사용하며 새 이미지·음원·의존성·저장 필드를 추가하지 않았다. 기존 반동·PERFECT/X·소리·다음 동전의 정착 시간·판정·난이도·재화 규칙은 유지한다.
