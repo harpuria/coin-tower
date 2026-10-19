@@ -2,6 +2,17 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-19 — 플레이 중에만 배경음 재생
+
+- 요청/변경: 사용자가 진행 중에만 음악을 켜고 게임 오버 때 끊도록 요청했다. controller의 상태 동기화에서 `playing` 밖의 음악을 종료한다. 실패 연출·결과·메뉴·상점은 음악 없이 유지하고, 메뉴 시작/결과 재도전은 처음부터 재생한다. 정지·카운트다운의 위치 보존과 사용자/플랫폼 음소거는 기존 서비스를 사용한다. 음악 종료를 `PauseState` 해제보다 먼저 실행해 MENU 복귀에서 잠깐 재개되지 않도록 한다. 게임 오버 효과음은 추가하지 않았다.
+- 정적 검사: `rtk npm run check`의 lint·format·단위 검사 **109/109(8개 파일)**·TypeScript·일반 빌드가 통과했다. 일반 산출물은 **17,282,537 bytes, 42개 파일**이다. 음원·공통 서비스·저장 schema는 변경하지 않았다.
+- 일반 배포 관측: `rtk proxy node test-results/bgm-play-only.mjs standalone`의 PC·Pixel 7 터치 에뮬레이션 두 실행이 통과했다. 실제 WebAudio 소스의 중단과 DOM 상태 변경을 같은 MutationObserver 시점에서 읽어 결과 화면이 아직 숨겨진 실패 연출 시작에 현재 곡/예약 반복이 모두 멈췄음을 확인했다. 결과에서 mute 해제·포커스 복귀를 해도 재생하지 않으며, 재도전/메뉴 시작은 offset 0에서 재생한다. MENU·SHOP은 음악 없이 유지하고 정지/카운트다운 후에는 같은 위치를 잇는다. 정상 경로 pageerror·음원 요청 오류는 없다. 관측 JSON은 `test-results/bgm-play-only/standalone/`이다.
+- 관측 보완: 초기 임시 스크립트는 정지·재개 후 두 번째 낙하가 반드시 실패한다고 가정했으나 실제로 정상 착지해 결과 대기가 실패했다. 시간에 따라 달라지는 동전 위치를 실패로 간주하지 않도록, 첫 실패 관측 후 재도전에서 정지·재개를 확인하는 순서로 고쳤다. 제품 코드 수정이나 모델 좌표 덮어쓰기는 없었다.
+- 일반 배포 E2E: `rtk proxy env E2E_PREVIEW=1 npm run test:e2e -- --config=test-results/bgm-regression.config.ts --grep 'real mouse/touch start' --trace=off --output=test-results/bgm-play-only/standalone-regression`는 **2/2 통과(19.4초)**했다. 기존 시작·낙하·실패·재도전·메뉴·저장 경로를 PC/터치에서 확인했다.
+- CrazyGames 배포 관측: `rtk npm run build:crazygames`의 TypeScript·빌드가 통과했다. 최종 산출물은 **17,187,767 bytes, 40개 파일**이다. `rtk proxy node test-results/bgm-play-only.mjs crazygames`의 PC/터치 두 실행에서 SDK settings 통제 fixture를 사용해 같은 실패 즉시 중단·재도전·메뉴/상점 무음·정지/재개를 확인했다. 플랫폼 mute 해제도 결과의 음악을 다시 시작하지 않는다. 관측 JSON은 `test-results/bgm-play-only/crazygames/`이며 정상 경로 pageerror·음원 요청 오류는 없다.
+- CrazyGames 배포 E2E: `rtk proxy env E2E_PREVIEW=1 npm run test:crazygames -- --grep 'reports play' --trace=off --output=test-results/bgm-play-only/crazygames-regression`는 **2/2 통과(33.1초)**했다. PC·터치에서 실제 시작·정지·카운트다운·실패·재도전·MENU의 SDK 보고가 한 번씩 유지됨을 확인했다. 전체 스위트나 공식 SDK local 검사를 이번에 다시 실행한 것으로 표현하지 않는다. 네 배포 관측 JSON 모두 결과 화면 전 음악 중단·페이지 오류 부재를 대조했고 마지막 문서 편집 후 format/공백 검사도 통과했다.
+- 한계: Chromium 로컬 배포 관측이며 실제 휴대폰·Safari·CrazyGames 포털 검증과 사람 청취를 대신하지 않는다. 이번 변경은 음악의 종료 시점이며 곡·효과음의 청취 균형은 이전 미확인 상태를 유지한다.
+
 ## 2026-10-19 — Arcade Sparkle 배경음 적용
 
 - 범위: 사용자 제공 Suno 제작곡을 필수 로더에 추가하고 첫 게임 시작 입력에서 기존 `AudioService.playMusic()`으로 재생한다. 공통 서비스·저장 schema·기본 음량은 변경하지 않았다. 결과·상점·메뉴·재시작은 같은 음악을 이어간다.

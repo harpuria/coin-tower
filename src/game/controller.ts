@@ -41,6 +41,7 @@ export class GameController {
     return this.app.pause.has('hidden') || this.app.pause.has('focus');
   }
   private sync(reportGameplay = true) {
+    if (this.run.mode !== 'playing') this.app.audio?.stopMusic();
     const active =
       this.run.mode === 'playing' && !this.run.frozen && !this.background;
     if (reportGameplay && active !== this.gameplayActive) {
