@@ -10,7 +10,7 @@
 
 2026-10-17 확정한 첫 품질 개선 범위의 집중형 HUD·실패 연출·첫 플레이 안내·결과 목표와 상점 복귀를 실행물에 반영했다. 구현 상태와 검증 결과는 [구현 계획](IMPLEMENTATION_PLAN.md#quality-improvement--first-implementation-slice-implemented)을 따른다.
 
-2026-10-19 결과 화면을 기록 중심 A안으로 단순화하도록 확정했다. 아래 결과 규칙은 새 설계이며 목표·구매 안내 제거와 기록 위계 조정은 구현 대기다. [다음 구현 범위](IMPLEMENTATION_PLAN.md#game-over-improvement--record-focused-summary-design-ready)를 따른다.
+2026-10-19 확정한 기록 중심 A안을 2026-10-20 실행물에 반영했다. 목표·구매 안내를 제거하고 이번 점수를 가장 크게, 콤보·획득량을 보조 정보로 표시한다. [구현 상태](IMPLEMENTATION_PLAN.md#game-over-improvement--record-focused-summary-implemented)를 따른다.
 
 ### 첫 범위에 포함하는 화면
 

@@ -633,19 +633,17 @@ test('result rows and menu bests distinguish each record break, ties and large c
         await page.setViewportSize(viewport);
         const panel = (await page.locator('.result-stats').boundingBox())!;
         const heading = (await page.locator('.result-heading').boundingBox())!;
-        const caption = (await page.locator('.result-caption').boundingBox())!;
+        const reward = (await page.locator('.shard-reward').boundingBox())!;
         const actions = (await page.locator('.result-actions').boundingBox())!;
         expect(heading.y + heading.height).toBeLessThan(panel.y);
-        expect(panel.y + panel.height).toBeLessThan(caption.y);
-        expect(caption.y + caption.height).toBeLessThan(actions.y);
+        expect(panel.y + panel.height).toBeLessThan(reward.y);
+        expect(reward.y + reward.height).toBeLessThan(actions.y);
         expect(
           await page
             .locator('.result-stats')
             .evaluate((el) =>
               [
-                ...el.querySelectorAll<HTMLElement>(
-                  'th, td, strong, .record-badge',
-                ),
+                ...el.querySelectorAll<HTMLElement>('strong, .record-badge'),
               ].every((cell) => cell.scrollWidth <= cell.clientWidth),
             ),
         ).toBe(true);

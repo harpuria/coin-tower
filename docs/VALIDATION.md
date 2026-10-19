@@ -2,6 +2,19 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-20 — 기록 중심 GAME OVER
+
+- 범위: 확정한 A안의 큰 이번 점수·작은 BEST·보조 콤보 비교·별조각 아이콘+획득량·세로 TRY AGAIN/MENU를 구현했다. THIS RUN/EARNED/TOTAL 제목·총잔액·NEXT GOAL·스킨 안내·결과 SHOP과 사용하지 않는 목표 계산을 제거했다. 상점은 controller에서도 메뉴에 한정하며 BACK의 포커스는 메뉴 SHOP으로 복귀한다. 판정·난이도·가격·보상 정산·저장 schema·음원·런타임 의존성은 변경하지 않았다.
+- 정적 검사: `rtk npm run check`의 lint·format·**104개 단위 검사(8개 파일)**·TypeScript·일반 빌드가 통과했다. 이전 115개에서 사용하지 않는 높이/스킨 목표의 11개 검사만 제거하고, 기존 완료/상점 단위 검사를 메뉴 전용 동선으로 갱신했다. `RunResult.shardsTotal`은 정산 스냅샷으로 유지하며 결과 UI에는 출력하지 않는다.
+- 첫 개발 검사: `rtk proxy npm run test:e2e -- --grep 'result rows|quality:' --trace=off --output=test-results/game-over/development-initial`는 **10/12 통과(3.2분)**했다. 실패한 2건은 PC/터치의 예전 “결과에서 구매 후 완료된 탑 유지” 기대였다. 새 동선의 MENU가 판을 비우므로 메뉴 상태·구매 저장·다음 판 외형을 확인하도록 검사만 수정했다. 이때 기존 기록 경신/동점/x100과 상점·저장 불가·전체 소유 경로는 통과했다.
+- 수정 후 개발 검사: `rtk proxy npm run test:e2e -- --grep 'game over:|20-coin presentation' --trace=off --output=test-results/game-over/development-corrected`는 **10/10 통과(7.9분)**했다. PC 마우스/터치 에뮬레이션 각각 2·12·22·32개 실제 입력으로 아침·낮·저녁·밤 결과를 만들고 적층만 경신·콤보만 경신·동점·두 기록 경신을 확인했다. 821×462·907×510·360×640의 영역·최소 글자 14px·최소 버튼 44px·조작 순서·utility 비가림·긴 값 배치를 검사했다. 페이지/정상 자산 HTTP 오류는 없었다. 수정한 20개/실패 양방향·메뉴 구매·새 스킨·동작 줄이기 경로도 두 프로필에서 통과했다.
+- 숫자 관측 구분: 실제 기록/보상은 실제 입력으로 만들었다. `layout-only-*` 캡처는 이미 완료한 결과의 DOM 텍스트만 0과 `Number.MAX_SAFE_INTEGER`로 바꾼 배치 스트레스 검사다. 0개 완료 판·해당 고득점 달성·보상 지급의 증거가 아니다. 첫 동전은 어디에 내려도 성공하는 기존 규칙을 유지한다. 기본 경로의 x0/x1·x100은 별도 기존 실제/개발 입력 검사로 확인한다.
+- 일반 배포: `rtk proxy env E2E_PREVIEW=1 npm run test:e2e -- --grep-invert 'difficulty:|perfect: (gold|silver|ruby|emerald)' --trace=off --output=test-results/game-over/standalone-production`는 **38 통과 / 16 개발 전용 skip(14.3분)**했다. PC/터치의 네 배경 결과·경신/동점·보상 한 번 정산·재시도·메뉴 상점 구매/복귀/재접속, 기존 입력·정지·이행·저장 오류·선택 자산 지연/실패/복구·네 스킨의 동작 줄이기를 확인했다. 개발 훅은 제외됐다. 변경하지 않은 긴 난이도/스킨별 고적층 Perfect 반복은 필터로 제외했으며 이번에 전체 고적층 회귀를 반복했다고 해석하지 않는다.
+- CrazyGames 배포: `rtk proxy env E2E_PREVIEW=1 CG_SDK_FILE=/private/tmp/coin-tower-game-over-sdk-v3.js npm run test:crazygames -- --grep-invert 'difficulty:|perfect: (gold|silver|ruby|emerald)' --trace=off --output=test-results/game-over/crazygames-production`는 **38 통과 / 2 개발 전용 skip(7.7분)**했다. PC/터치 네 배경 결과·경신/동점·한 번 정산·메뉴 구매/복귀/재접속과 지연/실패/복구, 플랫폼 초기화·mute·start/stop·초기화 오류·작은 프레임을 확인했다. `build:crazygames`도 통과했다. 새로 받은 공식 `https://sdk.crazygames.com/crazygames-sdk-v3.js`를 `/private/tmp/coin-tower-game-over-sdk-v3.js`로 제공한 실제 SDK local 검사는 PC/터치 **2건 모두 통과**했다. 파일은 112,919 bytes, SHA-256 `d4c44671cafbb694a0fd054078303242681bdf1b5908d6fb9f766d1de3f25911`이며 나머지 결정적 fixture 검사와 구분한다. 공식 SDK local은 실제 포털 Preview 검증이 아니다.
+- 캡처: CrazyGames 배포의 PC 네 배경과 360×640 터치 밤 결과, 개발 단계의 16자리 PC 배치 캡처를 직접 열어 확인했다. 일반/개발/SDK 배포 캡처는 각각 `test-results/game-over/standalone-production/`·`development-corrected/`·`crazygames-production/`에 있다.
+- 배포 식별: 마지막 출력은 CrazyGames `dist/` **17,219,886 bytes / 41 files**다. runtime `index-BJgz0GzU.js` SHA-256은 `1c9a139ef10c5b0d7d05e7f250fe743bf3a8d117b6f0ef2a6e6ca62ca4427d52`, stylesheet `index-Bh1kfUwV.css` SHA-256은 `aa97aab8063f80f984426fc2c52ed6103a10301c80ab545bed53946fdb22439b`다. 업로드 산출물은 dist 내부 전체이며 이번 작업에서 포털 업로드·심사 제출은 하지 않았다.
+- 한계: Chromium PC·Pixel 7 합성 터치의 로컬 관측이다. 실제 휴대폰·Safari·CrazyGames 포털 Preview의 검증이나 가독성/눈 피로 개선의 사람 평가를 수행한 것은 아니다. 다음에는 새 빌드로 처음 보는 사람이 PC·실제 휴대폰에서 설명 없이 3판 플레이하며 이번 점수/BEST/획득량의 구별·다음 행동·반복 피로를 관찰한다.
+
 ## 2026-10-19 — 재신청 마감: 작은 화면·게임 오버 소리·초기 로딩
 
 - 범위: 사용자 요청대로 작은 화면 정리 → 게임 오버 효과음 → 초기 로딩 분리를 구현했다. 목표/튜토리얼/판정/난이도/가격/저장 schema는 변경하지 않았다. 수명·선택 자산 준비·fallback은 [ADR 0009](adr/0009-gate-first-play-on-critical-assets.md)를 따른다.

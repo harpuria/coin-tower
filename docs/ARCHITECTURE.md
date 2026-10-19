@@ -25,9 +25,9 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 `App`은 `game/`의 schema와 `Session`을 조립만 하고, 점수·보상 규칙은 `game/`에 둡니다. `Session`은 한 판의 결정적 상태, `GameController`는 행동·완료 저장·오디오 연결을 소유하며 `CoinTowerScene`은 상태를 그립니다.
 게임은 외부 SDK를 직접 부르지 않고 `app.platform`을 거칩니다.
 
-별조각 지급 비율과 보상 계산은 `game/economy.ts`가 소유합니다. controller는 Session의 한 번뿐인 완료 이벤트에서 두 개인 기록과 별조각을 같은 진행 envelope에 갱신·flush합니다. 화면 렌더링·재시작·중단·광고 adapter에서 별도로 보상을 지급하지 않습니다. 획득량·정산 시 누적량은 메모리 완료 결과에, 장기 보유량은 진행 저장에 둡니다. 결과의 TOTAL은 상점 구매 후에도 실제 보유량을 보여 주도록 진행 저장의 현재 잔액을 읽고 EARNED와 기록·경신 표시는 완료 스냅샷을 유지합니다.
+별조각 지급 비율과 보상 계산은 `game/economy.ts`가 소유합니다. controller는 Session의 한 번뿐인 완료 이벤트에서 두 개인 기록과 별조각을 같은 진행 envelope에 갱신·flush합니다. 화면 렌더링·재시작·중단·광고 adapter에서 별도로 보상을 지급하지 않습니다. 획득량·정산 시 누적량은 메모리 완료 결과에, 장기 보유량은 진행 저장에 둡니다. 결과는 완료 스냅샷의 획득량·기록·경신만 표시하며, 메뉴·상점의 총잔액은 진행 저장의 현재 값을 읽습니다.
 
-스킨 목록·가격·이미지/텍스처와 `nextSkinGoal()`은 `game/skins.ts`가 소유합니다. controller의 `skinsOpen`·`skinPurchase`·`skinMessage`는 메뉴·완료 결과 위의 일시적 화면 상태이며 Session이나 저장 데이터에 넣지 않습니다. 원래 Session 모드와 RunResult를 유지한 채 상점 오버레이를 열고 닫아 BACK으로 원래 화면에 복귀합니다. Shell은 SKINS·확인창·포커스·입력 차단을 표시하고, controller만 구매·장착을 확정합니다. Scene은 메뉴에서는 현재 장착 스킨을, 진행·결과에서는 시작할 때 고정한 `GameController.runSkin`을 같은 art frame으로 그립니다. 결과에서 구매·자동 장착해도 완료된 탑의 외형은 유지하고 다음 판부터 새 스킨을 적용합니다. 플레이 중에는 스킨 변경을 허용하지 않습니다.
+스킨 목록·가격·이미지/텍스처는 `game/skins.ts`가 소유합니다. controller의 `skinsOpen`·`skinPurchase`·`skinMessage`는 메뉴 위의 일시적 화면 상태이며 Session이나 저장 데이터에 넣지 않습니다. 상점은 menu 모드에서만 열 수 있고 BACK은 메뉴로 복귀하며, 결과에서의 상점 진입은 controller도 차단합니다. Shell은 SKINS·확인창·포커스·입력 차단을 표시하고, controller만 구매·장착을 확정합니다. Scene은 메뉴에서는 현재 장착 스킨을, 진행·결과에서는 시작할 때 고정한 `GameController.runSkin`을 같은 art frame으로 그립니다. 새 장착은 다음 판부터 적용하며 플레이 중에는 스킨 변경을 허용하지 않습니다.
 
 `Session.zoom`과 카메라 오프셋은 같은 정착 진행률로 보간합니다. Scene은 화면 가로 중앙·착지 목표 세로 위치를 기준으로 논리 동전 좌표를 표시 좌표로 투영하며 모델의 이동 경로·판정은 바꾸지 않습니다. 동전·받침대·접점 Graphics만 같은 변환을 사용하고 배경·로고·성공 문구·HTML UI는 기본 크기를 유지합니다. 보이는 동전의 판별도 투영된 좌표를 사용합니다. [ADR 0008](adr/0008-project-world-with-model-owned-zoom.md)을 따릅니다.
 
@@ -39,7 +39,7 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 Perfect의 접점 폭발·테두리 잔광은 Scene의 Graphics로 그리며 `game/skins.ts`의 `perfectPalette`를 현재 `GameController.runSkin`으로 선택합니다. 잔광의 크기·위치는 최상단 동전의 실제 반동 크기와 같은 투영을 따릅니다. NICE의 기존 금색 표현과 고정 크기 PERFECT/X는 별도로 유지하며, 새 텍스처·저장 필드·서비스 계약을 추가하지 않습니다.
 
-실패 시 `Session`은 즉시 result 모드로 전환하고 finished를 한 번 반환합니다. `failureRemaining`과 `failureDirection`이 실패 표현을 소유하며 `resultReady`가 참이 될 때 결과 조작을 엽니다. controller는 백그라운드에서 실패 연출 시간을 진행하지 않고, Scene의 `failureVisual()`은 표시 위치·각도·불투명도만 계산합니다. `game/goals.ts`의 `heightGoalRules`와 `nextHeightGoal()`은 결과의 다음 높이 안내를 소유합니다. [ADR 0007](adr/0007-complete-runs-before-result-presentation.md)을 따릅니다.
+실패 시 `Session`은 즉시 result 모드로 전환하고 finished를 한 번 반환합니다. `failureRemaining`과 `failureDirection`이 실패 표현을 소유하며 `resultReady`가 참이 될 때 결과 조작을 엽니다. controller는 백그라운드에서 실패 연출 시간을 진행하지 않고, Scene의 `failureVisual()`은 표시 위치·각도·불투명도만 계산합니다. 결과는 높이·스킨 목표 안내 없이 이번 기록·보상과 재시도 조작을 표시합니다. [ADR 0007](adr/0007-complete-runs-before-result-presentation.md)을 따릅니다.
 
 ## 용어
 

@@ -53,7 +53,7 @@ Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`
 
 ## 첫 품질 개선의 편집·관측 위치
 
-- `src/game/goals.ts`의 `heightGoalRules`·`nextHeightGoal()`은 결과의 다음 높이 목표를 조정합니다. 스킨 추천은 `skins.ts`의 `nextSkinGoal()`이 기존 목록·가격과 보유 상태를 사용합니다.
+- 결과의 기록 위계·보조 획득량·세로 버튼 배치는 `Shell.ts`와 `style.css`에서 조정합니다. 결과의 목표 계산·스킨 추천은 제거했으며 상점은 메뉴에서만 엽니다.
 - `src/game/feedback.ts`의 `failureRules`·`failureVisual()`은 실패 동전 표시와 게임 오버 효과음의 상대 음량을 조정합니다. Session은 실패 순간 result로 전환하고 finished를 한 번 발생시키며, 실패 표현 시간이 끝난 `resultReady`에서 결과 조작을 표시합니다. 백그라운드에서는 잔여 시간이 멈추고 완료 기록·보상은 유지됩니다.
 - `GameController.showHints`·`skipHints()`는 실제 이동 중의 힌트와 별도의 안내 완료 저장을 연결합니다. Scene의 중심 눈금과 Shell의 직접 작성한 인라인 SVG 손 제스처는 게임 규칙을 바꾸지 않습니다.
 - 결과 SHOP은 Session과 완료 결과를 유지한 채 상점을 열며 BACK은 원래 메뉴·결과로 복귀합니다. 결과 복귀 후 지갑과 스킨 추천은 갱신하고 EARNED·기록·경신 상태와 `runSkin`은 유지합니다. 결과를 다시 표시한 다음 TRY AGAIN에 포커스를 복원해 Space로 재시작할 수 있습니다. 개발 `feedback().coin.texture`로 실제 적용된 텍스처를 확인할 수 있습니다. [ADR 0007](adr/0007-complete-runs-before-result-presentation.md)을 따릅니다.
@@ -126,9 +126,9 @@ window.__COIN_TOWER__.freeze(false);
 
 `coin-tower-web-v1:save`의 envelope v5에 완료 기록의 최고 적층 수(`best`), 최고 콤보(`bestCombo`), 완료 횟수(`rounds`)와 보유 별조각(`shards`), 보유 스킨(`ownedSkins`)과 장착 스킨(`equippedSkin`), 안내 완료(`onboardingComplete`)를 저장합니다. v1→v2는 최고 적층 수·완료 횟수를 보존하고 최고 콤보 0을 추가하며, v2→v3는 기존 세 값을 보존하고 별조각 0을 추가합니다. v3→v4는 기록·완료 횟수·별조각을 보존하고 무료 금화를 보유·장착으로 추가합니다. v4→v5는 기록·잔액·보유·장착을 검증해 보존하고 안내 미완료를 추가합니다. 과거 기록으로 별조각을 소급 지급하지 않습니다. 이행 사례는 `tests/fixtures/progress-migrations.json`에 있습니다. 진행 중인 판·현재 콤보·중단 판·SKINS 확인창은 저장하지 않습니다. 집계·확정 규칙은 [기록 설계](design/records.md)와 [수집 설계](design/economy.md)를 따릅니다. 설정은 별도 `:settings` 키를 사용합니다. 저장소 접근 실패나 손상 데이터에서는 원본을 덮어쓰지 않고 메모리로 플레이하며 저장 실패를 알립니다.
 
-`GameController.result`는 완료한 판의 값·갱신된 개인 최고·갱신 전 값과 비교한 항목별 경신 여부를 메모리에 보존합니다. Shell은 이 완료 결과로 비교 표와 배지를 그리며 새 판·메뉴에서 결과를 비웁니다. 저장 schema에 배지나 마지막 판을 추가하지 않습니다. 메뉴는 저장 서비스의 두 개인 최고를 읽습니다. 저장 실패 시 메모리 결과는 표시하지만 기존 실패 안내도 유지합니다.
+`GameController.result`는 완료한 판의 값·갱신된 개인 최고·갱신 전 값과 비교한 항목별 경신 여부를 메모리에 보존합니다. Shell은 이 완료 결과로 큰 적층 수·작은 BEST·보조 콤보 비교와 경신 배지를 그리며 새 판·메뉴에서 결과를 비웁니다. 저장 schema에 배지나 마지막 판을 추가하지 않습니다. 메뉴는 저장 서비스의 두 개인 최고를 읽습니다. 저장 실패 시 메모리 결과는 표시하지만 기존 실패 안내도 유지합니다.
 
-완료 결과에는 `shardsEarned`와 `shardsTotal`도 포함합니다. controller가 단 한 번 발생하는 `finished` 이벤트에서 두 기록·완료 횟수·별조각을 같은 envelope에 갱신하고 즉시 flush합니다. 별조각 계산과 정수 범위 보호는 `economy.ts`에 있으며 보유량은 안전한 정수 최댓값에서 포화시켜 저장 유효성을 유지합니다. 결과의 EARNED는 완료 획득량, TOTAL은 저장 서비스의 현재 보유량을 읽어 상점 구매 후에도 잔액을 갱신합니다. 안내 완료는 진행 중인 기록·보상을 확정하지 않고 별도로 update/flush합니다. 저장 불가에서는 같은 페이지의 메모리 완료 상태만 유지합니다. 저장 실패 뒤에도 같은 페이지의 메모리 누적은 유지하지만 원본은 보존하고 자동 복구 저장은 하지 않습니다. 새로고침하면 마지막 정상 저장 상태로 돌아옵니다.
+완료 결과에는 `shardsEarned`와 `shardsTotal`도 포함합니다. controller가 단 한 번 발생하는 `finished` 이벤트에서 두 기록·완료 횟수·별조각을 같은 envelope에 갱신하고 즉시 flush합니다. 별조각 계산과 정수 범위 보호는 `economy.ts`에 있으며 보유량은 안전한 정수 최댓값에서 포화시켜 저장 유효성을 유지합니다. 결과는 완료 획득량을 별조각 아이콘과 +숫자로만 표시합니다. `shardsTotal`은 정산 스냅샷으로 보존하며 총잔액은 메뉴·상점에서 현재 저장 값을 읽습니다. 안내 완료는 진행 중인 기록·보상을 확정하지 않고 별도로 update/flush합니다. 저장 불가에서는 같은 페이지의 메모리 완료 상태만 유지합니다. 저장 실패 뒤에도 같은 페이지의 메모리 누적은 유지하지만 원본은 보존하고 자동 복구 저장은 하지 않습니다. 새로고침하면 마지막 정상 저장 상태로 돌아옵니다.
 
 필수 asset 로딩 실패는 게임을 시작하지 않고 새로고침 안내를 띄웁니다. 처리되지 않은 오류도 화면 위 복구 안내를 보여 줍니다. asset 경로는 Vite BASE_URL을 기준으로 하므로 하위 경로 배포에서도 상대 경로를 유지합니다.
 

@@ -6,8 +6,7 @@ import { resolveBackgroundTextures } from '../game/assets';
 import { backgroundAlpha } from '../game/backgrounds';
 import type { GameController } from '../game/controller';
 import { landingVisual } from '../game/feedback';
-import { skins, skinById, nextSkinGoal } from '../game/skins';
-import { nextHeightGoal } from '../game/goals';
+import { skins, skinById } from '../game/skins';
 
 /** 네이티브 HTML 버튼을 게임 화면 위에 배치해 입력과 접근성을 함께 유지한다. */
 export class Shell {
@@ -64,22 +63,20 @@ export class Shell {
           <div id="miss-feedback" class="miss-feedback" role="status" hidden>MISS</div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
             <img class="result-heading" src="${artUrl('game_over.png')}" alt="GAME OVER" />
-            <div class="result-stats stat-readout">
-              <table aria-label="Run records">
-                <thead><tr><th scope="col"><span class="sr-only">RECORD</span></th><th scope="col">THIS RUN</th><th scope="col">BEST</th></tr></thead>
-                <tbody>
-                  <tr><th scope="row"><span class="sr-only">COINS</span>${icon('coins')}<span id="new-best-coins" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-score">0</strong></td><td><strong id="result-best">0</strong></td></tr>
-                  <tr><th scope="row"><span class="sr-only">PERFECT COMBO</span>${icon('combo')}<span id="new-best-combo" class="record-badge" hidden>NEW BEST</span></th><td><strong id="result-combo">x0</strong></td><td><strong id="result-best-combo">x0</strong></td></tr>
-                </tbody>
-              </table>
+            <div class="result-stats stat-readout" role="group" aria-label="Run records">
+              <section class="result-height" aria-label="Coins stacked">
+                <div class="result-score-line"><span class="sr-only">THIS RUN COINS</span>${icon('coins')}<strong id="result-score">0</strong></div>
+                <div class="result-best-line"><span>BEST<span class="sr-only"> COINS</span></span><strong id="result-best">0</strong></div>
+                <span id="new-best-coins" class="record-badge" hidden>NEW BEST</span>
+              </section>
+              <section class="result-combo-record" aria-label="Longest Perfect combo">
+                <div class="result-combo-line"><span class="sr-only">THIS RUN PERFECT COMBO</span>${icon('combo')}<strong id="result-combo">x0</strong><span class="result-combo-best"><span>BEST<span class="sr-only"> PERFECT COMBO</span></span><strong id="result-best-combo">x0</strong></span></div>
+                <span id="new-best-combo" class="record-badge" hidden>NEW BEST</span>
+              </section>
             </div>
-            <div class="result-caption"><span>NEXT GOAL</span><strong id="height-goal">5 COINS</strong></div>
-            <section class="shard-reward shard-readout" aria-label="Star Shards reward">
-              <span class="shard-label"><span class="sr-only">STAR SHARDS</span>${icon('shards')}</span>
-              <div><span>EARNED</span><strong id="result-shards-earned">+0</strong></div>
-              <div><span>TOTAL</span><strong id="result-shards-total">0</strong></div>
+            <section class="shard-reward shard-readout" aria-label="Star Shards earned this run">
+              ${icon('shards')}<strong id="result-shards-earned">+0</strong>
             </section>
-            <section class="skin-goal" aria-label="Skin collection goal"><span id="goal-skin-preview" class="skin-preview"><img id="goal-skin-image" alt="" draggable="false" /></span><p><strong id="goal-skin-name"></strong><span id="goal-skin-progress"></span></p><button id="result-shop" class="game-button" hidden>SHOP</button></section>
             <div class="result-actions"><button id="retry" class="game-button primary">TRY AGAIN</button><button id="home" class="game-button">MENU</button></div>
           </section>
           <section id="pause-overlay" class="layer veil" aria-label="Pause menu" hidden>
@@ -230,7 +227,6 @@ export class Shell {
     };
     this.on('play', start);
     this.on('skins-menu', () => this.game.openSkins());
-    this.on('result-shop', () => this.game.openSkins());
     this.on('skip-hints', () => {
       this.game.skipHints();
       focusGame();
@@ -406,32 +402,6 @@ export class Shell {
     this.record('title-best-combo', `x${progress.bestCombo}`);
     this.record('title-shards', String(progress.shards));
     this.record('result-shards-earned', `+${result?.shardsEarned ?? 0}`);
-    this.record('result-shards-total', String(progress.shards));
-    this.element('height-goal').textContent =
-      `${nextHeightGoal(result?.score ?? 0)} COINS`;
-    const goal = nextSkinGoal(progress.ownedSkins);
-    const canSave = app.save.status === 'ready' && this.game.saved;
-    const shortage = goal ? Math.max(0, goal.price - progress.shards) : 0;
-    const goalImage = this.element<HTMLImageElement>('goal-skin-image');
-    const goalReady =
-      !!goal && run.resultReady && this.game.assets.isSkinReady(goal.id);
-    goalImage.hidden = !goalReady;
-    this.element('goal-skin-preview').hidden = !goalReady;
-    if (goalReady && goalImage.dataset.skin !== goal.id) {
-      goalImage.src = artUrl(goal.file);
-      goalImage.dataset.skin = goal.id;
-    }
-    this.element('goal-skin-name').textContent = goal
-      ? `${goal.name.toUpperCase()} COIN`
-      : 'COLLECTION COMPLETE';
-    this.element('goal-skin-progress').textContent = !goal
-      ? 'All skins owned'
-      : !canSave
-        ? 'Purchases unavailable · cannot save'
-        : shortage
-          ? `${shortage} Star Shards to go`
-          : 'Ready to unlock!';
-    this.element('result-shop').hidden = !goal || !canSave || shortage > 0;
     this.record('result-score', String(result?.score ?? 0));
     this.record('result-best', String(result?.best ?? 0));
     this.record('result-combo', `x${result?.combo ?? 0}`);
@@ -598,8 +568,6 @@ export class Shell {
     )
       this.element('skins-back').focus({ preventScroll: true });
     else if (!open && wasOpen)
-      this.element(
-        this.app.session.mode === 'result' ? 'retry' : 'skins-menu',
-      ).focus({ preventScroll: true });
+      this.element('skins-menu').focus({ preventScroll: true });
   }
 }

@@ -142,7 +142,7 @@ export function qualityCases(crazygames = false) {
       expect(await page.evaluate(() => window.__COIN_TOWER__)).toBeUndefined();
   });
 
-  test('quality: result delay settles once, goals lead to purchase and the same result', async ({
+  test('quality: result delay settles once and menu leads to purchase', async ({
     page,
   }, info) => {
     test.setTimeout(90_000);
@@ -160,8 +160,10 @@ export function qualityCases(crazygames = false) {
       best: 1,
     });
     await page.clock.runFor(500);
-    await expect(page.locator('#height-goal')).toHaveText('5 COINS');
-    await expect(page.locator('#result-shop')).toBeVisible();
+    await expect(page.locator('#result-screen')).toBeVisible();
+    await expect(
+      page.locator('#height-goal, #result-shop, .skin-goal'),
+    ).toHaveCount(0);
     await page.screenshot({
       path: info.outputPath('quality-result-ready.png'),
       fullPage: true,
@@ -169,18 +171,24 @@ export function qualityCases(crazygames = false) {
     const eventsBefore = crazygames
       ? await page.evaluate(() => window.__QUALITY_EVENTS__)
       : [];
-    await activate(page, info, '#result-shop');
+    await activate(page, info, '#home');
+    await activate(page, info, '#skins-menu');
+    await expect
+      .poll(async () => {
+        await page.clock.runFor(16);
+        return page.locator('#skin-silver').isEnabled();
+      })
+      .toBe(true);
     await activate(page, info, '#skin-silver');
     await activate(page, info, '#skin-confirm-yes');
     await expect(page.locator('#skin-silver')).toHaveText('EQUIPPED');
     await activate(page, info, '#skins-back');
-    await expect(page.locator('#result-screen')).toBeVisible();
-    await expect(page.locator('#retry')).toBeFocused();
-    await expect(page.locator('#result-shards-earned')).toHaveText('+1');
-    await expect(page.locator('#result-shards-total')).toHaveText('0');
-    await expect(page.locator('#goal-skin-name')).toHaveText('RUBY COIN');
-    await expect(page.locator('#goal-skin-progress')).toContainText('150');
-    await expect(page.locator('#result-shop')).toBeHidden();
+    await expect(page.locator('#title-screen')).toBeVisible();
+    await expect(page.locator('#skins-menu')).toBeFocused();
+    await expect(page.locator('#title-shards')).toHaveText('0');
+    await expect(
+      page.locator('#result-shards-total, #goal-skin-name'),
+    ).toHaveCount(0);
     expect((await saved(page)).data).toMatchObject({
       rounds: 1,
       shards: 0,
@@ -190,8 +198,16 @@ export function qualityCases(crazygames = false) {
       expect(await page.evaluate(() => window.__QUALITY_EVENTS__)).toEqual(
         eventsBefore,
       );
-    await page.keyboard.press('Space');
+    await activate(page, info, '#play');
     await expect(page.locator('#score')).toHaveText('0');
+    await page.clock.resume();
+    await page.reload();
+    await expect(page.locator('#play')).toBeEnabled();
+    expect((await saved(page)).data).toMatchObject({
+      rounds: 1,
+      shards: 0,
+      equippedSkin: 'silver',
+    });
     expect(errors).toEqual([]);
   });
 
@@ -222,18 +238,15 @@ export function qualityCases(crazygames = false) {
       }
       await aligned(page, info, 0);
       await miss(page, info);
-      await expect(page.locator('#result-shop')).toBeHidden();
+      await expect(page.locator('#result-shop, .skin-goal')).toHaveCount(0);
       await page.screenshot({
         path: info.outputPath(`quality-${state}-result-821.png`),
         fullPage: true,
       });
-      if (state === 'complete')
-        await expect(page.locator('#goal-skin-name')).toHaveText(
-          'COLLECTION COMPLETE',
-        );
-      else {
-        await expect(page.locator('#goal-skin-progress')).toContainText(
-          'unavailable',
+      await expect(page.locator('#result-shards-earned')).toHaveText('+1');
+      if (state === 'unavailable') {
+        await expect(page.locator('#storage-notice')).toHaveText(
+          'Progress cannot be saved.',
         );
         expect(
           await page.evaluate((key) => localStorage.getItem(key), saveKey),
@@ -294,7 +307,7 @@ export function qualityCases(crazygames = false) {
     });
     await advance(200);
     await expect(page.locator('#result-screen')).toBeVisible();
-    await expect(page.locator('#height-goal')).toHaveText('30 COINS');
+    await expect(page.locator('#height-goal')).toHaveCount(0);
     for (const viewport of [
       { width: 821, height: 462 },
       { width: 907, height: 510 },
@@ -302,7 +315,7 @@ export function qualityCases(crazygames = false) {
       { width: 390, height: 844 },
     ]) {
       await page.setViewportSize(viewport);
-      for (const selector of ['#retry', '#home', '#result-shop', '#mute']) {
+      for (const selector of ['#retry', '#home', '#mute']) {
         const box = (await page.locator(selector).boundingBox())!;
         expect(box.width).toBeGreaterThanOrEqual(44);
         expect(box.height).toBeGreaterThanOrEqual(44);
@@ -310,9 +323,7 @@ export function qualityCases(crazygames = false) {
       const sections = [
         '.result-heading',
         '.result-stats',
-        '.result-caption',
         '.shard-reward',
-        '.skin-goal',
         '.result-actions',
       ];
       const bounds = await Promise.all(
@@ -327,7 +338,7 @@ export function qualityCases(crazygames = false) {
       expect(actions.y + actions.height).toBeLessThanOrEqual(utility.y);
       expect(
         await page
-          .locator('.result-caption')
+          .locator('.result-best-line')
           .evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
       ).toBeGreaterThanOrEqual(14);
       expect(
@@ -340,22 +351,19 @@ export function qualityCases(crazygames = false) {
         fullPage: true,
       });
     }
-    await activate(page, info, '#result-shop');
+    await activate(page, info, '#home');
+    await activate(page, info, '#skins-menu');
     await activate(page, info, '#skin-silver');
     await activate(page, info, '#skin-confirm-yes');
     await activate(page, info, '#skins-back');
-    await expect(page.locator('#retry')).toBeFocused();
-    await advance(0);
-    expect(
-      await page.evaluate(
-        () => window.__COIN_TOWER__!.feedback().coin?.texture,
-      ),
-    ).toBe('coin');
+    await expect(page.locator('#skins-menu')).toBeFocused();
+    expect((await snapshot()).mode).toBe('menu');
+    expect((await saved(page)).data.equippedSkin).toBe('silver');
     await page.screenshot({
-      path: info.outputPath('quality-purchase-completed-tower.png'),
+      path: info.outputPath('quality-purchase-menu.png'),
       fullPage: true,
     });
-    await activate(page, info, '#retry');
+    await activate(page, info, '#play');
     await place();
     expect(
       await page.evaluate(

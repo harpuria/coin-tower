@@ -344,7 +344,7 @@ it('keeps hint completion in-page and protects the source when saving fails', ()
     new Store(storage, 'save', progressSchema).data.onboardingComplete,
   ).toBe(false);
 });
-it('settles once before the result delay and retains a completed run across shop purchase', () => {
+it('settles once before the result delay and permits purchases only after returning to menu', () => {
   const { app, controller: game, events } = fixture();
   app.save.update((data) => ({ ...data, shards: 49 }));
   app.save.flush();
@@ -367,19 +367,23 @@ it('settles once before the result delay and retains a completed run across shop
   expect(game.run.resultReady).toBe(false);
   game.update(1);
   expect(game.run.resultReady).toBe(true);
-  vi.spyOn(game.assets, 'isSkinReady').mockReturnValue(true);
   game.openSkins();
-  game.selectSkin('silver');
-  game.confirmSkinPurchase(true);
-  game.closeSkins();
-  expect(app.save.data.equippedSkin).toBe('silver');
-  expect(game.runSkin).toBe('gold');
-  expect(app.save.data.shards).toBe(0);
+  expect(game.skinsOpen).toBe(false);
   expect(game.result).toBe(result);
   expect(game.result?.shardsEarned).toBe(1);
   game.update(5000);
   expect(app.save.data.rounds).toBe(1);
   expect(events).toEqual(['start', 'stop']);
+  game.home();
+  vi.spyOn(game.assets, 'isSkinReady').mockReturnValue(true);
+  game.openSkins();
+  game.selectSkin('silver');
+  game.confirmSkinPurchase(true);
+  game.closeSkins();
+  expect(game.run.mode).toBe('menu');
+  expect(app.save.data.equippedSkin).toBe('silver');
+  expect(app.save.data.shards).toBe(0);
+  expect(app.save.data.rounds).toBe(1);
   game.start();
   expect(game.runSkin).toBe('silver');
 });

@@ -184,7 +184,7 @@ export class GameController {
   }
 
   private get canUseShop() {
-    return this.run.mode === 'menu' || this.run.resultReady;
+    return this.run.mode === 'menu';
   }
 
   openSkins() {

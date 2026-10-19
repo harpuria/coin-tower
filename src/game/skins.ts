@@ -38,13 +38,3 @@ export type SkinId = (typeof skins)[number]['id'];
 export const isSkinId = (value: unknown): value is SkinId =>
   skins.some((skin) => skin.id === value);
 export const skinById = (id: SkinId) => skins.find((skin) => skin.id === id)!;
-
-export function nextSkinGoal(owned: readonly SkinId[]) {
-  return skins.reduce<(typeof skins)[number] | null>(
-    (target, skin) =>
-      !owned.includes(skin.id) && (!target || skin.price < target.price)
-        ? skin
-        : target,
-    null,
-  );
-}
