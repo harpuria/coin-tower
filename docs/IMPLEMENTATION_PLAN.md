@@ -10,6 +10,8 @@
 
 ## Status
 
+- Design ready for Game Over Improvement (2026-10-19): the user selected record-focused option A to reduce result text and visual fatigue. Runtime remains unchanged at this workshop checkpoint. This supersedes the earlier result goals/shop shortcut and equal-weight comparison table; use the [new slice](#game-over-improvement--record-focused-summary-design-ready) next. Historical implementation/validation results below describe their respective builds.
+
 - Completed the three authorized resubmission improvements (2026-10-19): minimum 14px reward values and persistent SHOP BACK, original 0.34s game-over sound after BGM stops, and critical/equipped-asset first-play loading with deferred backgrounds/skins. `check` passes 115 unit tests and all static/build checks; standalone production passes 30 with 16 development-only skips, development background/presentation checks pass 6/6, and CrazyGames production passes 30 with 2 development-only skips including fresh official SDK local checks. The same 10Mbps/80ms local observation improves readiness from 14.05s to 9.61s and initial transfer from 16.14MB to 10.89MB. Final CrazyGames `dist/`: 17,221,355 bytes / 41 files. See [validation](VALIDATION.md) for separate initial/corrected runs and physical-device/portal/listening limits. No new goals, tutorial or gameplay/economy rules were added.
 
 - Completed pre-resubmission quality review (2026-10-19) against current official guidance and release `2b0cc21`: small-frame reward numerals/shop return, initial-loading waits, audio finishing and human onboarding/replay evidence are the main follow-ups. Recommendations are proposed, not implemented or newly decided. Fresh PC/touch release captures and cache-enabled local network observations are in [quality review](quality-review-2026-10-19.md); actual portal/device/human assessment remains open.
@@ -83,6 +85,16 @@
 - Prior validation (presentation change): lint, full formatting, TypeScript and CrazyGames build passed. Scripted Chromium observation used real Space/touch with development time control, reading actual Scene/DOM/audio values and screenshots; no model positions/scores were overwritten. The original presentation slice reached 103 coins/X100; the current contact-shape tuning was observed through 21 coins with matched NICE/Perfect frames, pause/countdown, restart/home, mute, reduced motion and a 360×640 view without page/asset errors. The rebound, popup and audio settings remain unchanged. Development hooks are excluded from production. This is runtime observation, not a regression-suite pass; see [VALIDATION.md](VALIDATION.md).
 - Previous automated checkpoint (before presentation changes): 67 unit tests; full development 29/30 plus clean landing rerun 2/2; CrazyGames production 16/16 (14 fixtures, 2 official SDK local). No unit/E2E/SDK suite was added or rerun for the presentation change. Keep those earlier results separate from the current artifact. Human feel, listening quality, portal integration and physical devices remain unverified.
 
+## Game Over Improvement — Record-Focused Summary (Design Ready)
+
+- **Authority:** [result records](design/records.md#결과-화면), [reward display and shop flow](design/economy.md#플레이어가-보는-결과와-저장), and [result art direction](ART_DIRECTION.md#결과-화면). The user selected A; no further design choice blocks this slice.
+- **Scope:** implement the large current height with smaller personal best, compact run/best combo and item-specific NEW BEST, icon-only shard reward with a signed earned amount, primary TRY AGAIN and secondary MENU below it. Remove THIS RUN/EARNED/TOTAL headings, wallet balance, NEXT GOAL, skin preview/recommendation/shortage/purchase-ready/collection-complete messaging and the result SHOP shortcut. The menu SHOP opens the gallery and BACK returns to the menu.
+- **Presentation:** retain the existing icons and panel-free records, add breathing room, quiet the result backdrop and reduce secondary-number emphasis while preserving readable contrast and the existing minimum rendered text/target sizes. Tune exact spacing and brightness in the running game.
+- **Preserve:** completion-only records, per-item strict NEW BEST, longest-run combo including x0/x1, one-time shard settlement, save migration/error handling, menu wallet/gallery purchases, first-failure sound/music policy, difficulty and deferred loading. Remove obsolete goal/result-shop-only code and update affected checks without changing shared service contracts unnecessarily.
+- **Local acceptance:** PC and touch Chromium in standalone and CrazyGames production; 360×640 portrait and 821×462/907×510 desktop frames; all four backgrounds; zero/one/large/multi-digit values, height-only/combo-only/both/tied records, unaffordable/affordable/all-owned skins and storage failure. Verify required information/actions fit, removed text/shortcut stay absent, retry starts once, MENU → SHOP → BACK works, purchases/reloads preserve progress and rewards never repeat. Run `check` and relevant development/production E2E; keep official-SDK local checks distinct from fixtures and portal verification.
+- **Human observation:** distinguish current height, personal best and earned shards without explanation; observe the next action and repeated-run fatigue. DOM geometry and automated play establish layout/behavior, not perceived comfort. Physical devices and actual CrazyGames Preview remain external verification.
+- **Status:** design only; no runtime changes or new gameplay validation at this checkpoint.
+
 ## Resubmission Polish — Readability, Failure Audio and First-Play Loading (Implemented)
 
 - [Decided] Implement the first three recommendations in [quality review](quality-review-2026-10-19.md), in that order. The user authorizes a suitable game-over sound without supplying a file.
@@ -145,7 +157,9 @@ Completed the agreed [speed/camera](GAME_DESIGN.md#속도와-화면-추적) and 
 
 ## Next Request
 
-Observe the revised CrazyGames Preview with a new player for three runs on PC and a physical phone. Record first-failure understanding, SHOP return, loading, game-over/landing/music balance and retry motivation with device/browser/build identity. Example request: `$game-implement 새 Preview의 PC·실제 휴대폰 3판 관측 결과를 반영해 제출 전 마지막 문제를 수정해줘: …`
+Implement the agreed result simplification next. Example request: `$game-implement docs/IMPLEMENTATION_PLAN.md의 Game Over Improvement 범위를 구현하고, PC·터치·CrazyGames 배포본에서 작은 화면·네 배경·기록 경신·보상과 상점 동선을 검증해줘.`
+
+After implementation, observe the revised CrazyGames Preview with a new player for three runs on PC and a physical phone. Record result comprehension, first-failure understanding, menu SHOP return, loading, game-over/landing/music balance and retry motivation with device/browser/build identity.
 
 Four-skin Perfect satisfaction, color recognition, glare and repeated-input distraction remain human tuning topics rather than additional requirements for this implemented slice.
 
