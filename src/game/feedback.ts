@@ -32,6 +32,7 @@ const smooth = (t: number) => t * t * (3 - 2 * t);
 
 export const failureRules = {
   durationMs: 400,
+  soundGain: 0.85,
   travel: 160,
   fall: 240,
   angle: 65,

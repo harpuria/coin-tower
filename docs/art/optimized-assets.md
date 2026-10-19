@@ -19,7 +19,7 @@
 
 ## 배포와 로딩
 
-- `scripts/package-art.ts`는 이미지 원본/출력 해시·해상도 설정·인코딩 설정을 확인하고 등록한 WebP·`stack.wav`·배포용 `arcade-sparkle.m4a`·favicon만 복사한다. 보존 음원 `source-audio/`는 업로드에 포함하지 않는다. `vite.config.ts`는 원본 public 디렉터리의 자동 복사를 끈다. 오래된 파생 이미지는 빌드 실패 후 재생성 안내를 표시한다.
+- `scripts/package-art.ts`는 이미지 원본/출력 해시·해상도 설정·인코딩 설정을 확인하고 등록한 WebP·`stack.wav`·`game-over.wav`·배포용 `arcade-sparkle.m4a`·favicon만 복사한다. 보존 음원 `source-audio/`는 업로드에 포함하지 않는다. `vite.config.ts`는 원본 public 디렉터리의 자동 복사를 끈다. 오래된 파생 이미지는 빌드 실패 후 재생성 안내를 표시한다.
 - CrazyGames는 전체화면 아이콘 2개를 HTML src·필수 로더·업로드 파일에서 제외한다. standalone 빌드는 두 아이콘을 포함한다. 플랫폼 음소거·자체 전체화면 숨김·Gameplay Start 시점은 유지한다.
 - CrazyGames 배포 전체가 20,000,000 bytes 이상이면 빌드를 실패시킨다. 이 검사는 전체 산출물 크기이며 실제 초기 전송량과는 다르다. HTML·Phaser의 중복 요청, 캐시·CDN 압축, 외부 SDK 크기가 실제 전송량에 영향을 준다.
 - 업로드 대상은 **새 `dist/` 내부 전체**다. 원본 PNG가 있는 `public/`는 업로드하지 않는다. 이전 업로드의 오래된 PNG가 남지 않도록 포털의 새 빌드에 `index.html`, `favicon.svg`, `assets/` 구조로 올린다.

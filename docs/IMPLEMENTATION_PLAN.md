@@ -10,6 +10,8 @@
 
 ## Status
 
+- Completed the three authorized resubmission improvements (2026-10-19): minimum 14px reward values and persistent SHOP BACK, original 0.34s game-over sound after BGM stops, and critical/equipped-asset first-play loading with deferred backgrounds/skins. `check` passes 115 unit tests and all static/build checks; standalone production passes 30 with 16 development-only skips, development background/presentation checks pass 6/6, and CrazyGames production passes 30 with 2 development-only skips including fresh official SDK local checks. The same 10Mbps/80ms local observation improves readiness from 14.05s to 9.61s and initial transfer from 16.14MB to 10.89MB. Final CrazyGames `dist/`: 17,221,355 bytes / 41 files. See [validation](VALIDATION.md) for separate initial/corrected runs and physical-device/portal/listening limits. No new goals, tutorial or gameplay/economy rules were added.
+
 - Completed pre-resubmission quality review (2026-10-19) against current official guidance and release `2b0cc21`: small-frame reward numerals/shop return, initial-loading waits, audio finishing and human onboarding/replay evidence are the main follow-ups. Recommendations are proposed, not implemented or newly decided. Fresh PC/touch release captures and cache-enabled local network observations are in [quality review](quality-review-2026-10-19.md); actual portal/device/human assessment remains open.
 
 - Completed play-only BGM policy (2026-10-19, superseding the initial persistence below): music stops at failure presentation and on returning to MENU; results/shop remain silent. Menu start and result retry begin at offset zero; pause/countdown still preserve position. Static checks and 109 unit tests pass, focused standalone production E2E passes 2/2, CrazyGames production lifecycle E2E passes 2/2, and PC/touch WebAudio observations pass in both builds. Final CrazyGames `dist/`: 17,187,767 bytes, 40 files. Game-over SFX remains later work. See [validation](VALIDATION.md#2026-10-19--플레이-중에만-배경음-재생).
@@ -81,6 +83,14 @@
 - Prior validation (presentation change): lint, full formatting, TypeScript and CrazyGames build passed. Scripted Chromium observation used real Space/touch with development time control, reading actual Scene/DOM/audio values and screenshots; no model positions/scores were overwritten. The original presentation slice reached 103 coins/X100; the current contact-shape tuning was observed through 21 coins with matched NICE/Perfect frames, pause/countdown, restart/home, mute, reduced motion and a 360×640 view without page/asset errors. The rebound, popup and audio settings remain unchanged. Development hooks are excluded from production. This is runtime observation, not a regression-suite pass; see [VALIDATION.md](VALIDATION.md).
 - Previous automated checkpoint (before presentation changes): 67 unit tests; full development 29/30 plus clean landing rerun 2/2; CrazyGames production 16/16 (14 fixtures, 2 official SDK local). No unit/E2E/SDK suite was added or rerun for the presentation change. Keep those earlier results separate from the current artifact. Human feel, listening quality, portal integration and physical devices remain unverified.
 
+## Resubmission Polish — Readability, Failure Audio and First-Play Loading (Implemented)
+
+- [Decided] Implement the first three recommendations in [quality review](quality-review-2026-10-19.md), in that order. The user authorizes a suitable game-over sound without supplying a file.
+- **Readability:** reward values remain legible in 821×462 / 907×510 / 800×450 DPR 1 frames; SHOP keeps BACK visible while its contents scroll; preserve 44px targets, purchases and origin return.
+- **Failure audio:** create a small original synthesized effect, stop BGM before playing it once on failure, preserve user/platform mute and interruption cleanup. Record source and synthesis settings.
+- **Loading:** critical first-play art/audio and the equipped skin gate readiness; defer later backgrounds and other skins, including hidden HTML image requests. Optional loading must not block input or display missing textures; purchases/equip must wait for usable assets. Recoverable optional failures must leave play and saved ownership intact.
+- **Validation:** run static/unit/build checks and relevant browser flows; explicitly delay/fail deferred assets, exercise all backgrounds and skins after loading, compare first-play transfer/time under the previous 10Mbps / 80ms setup, then finish with the CrazyGames build. Human feel, physical devices and portal submission remain separate.
+
 ## Perfect Improvement — Skin-Colored Burst and Afterglow (Implemented)
 
 Implemented the agreed [contact burst, coin-edge afterglow and run-skin colors](design/feedback.md) using Graphics, preserving rebound, gold PERFECT/X, success audio and gameplay timing. Palette editing and development observation are documented in [development](DEVELOPMENT.md#스킨별-perfect-집중-관측); separate PC/touch/SDK/production results and remaining human/physical-device/portal evidence are in [validation](VALIDATION.md) and [play observations](PLAYTEST_NOTES.md).
@@ -135,7 +145,9 @@ Completed the agreed [speed/camera](GAME_DESIGN.md#속도와-화면-추적) and 
 
 ## Next Request
 
-Collect a human comparison of the four skins: alternate ordinary landings and Perfect, then compare at least five consecutive Perfects in bright and night backgrounds. Record satisfaction, skin-color recognition, glare and distraction from the next input. Example request: `$game-implement 네 스킨의 Perfect를 직접 비교한 아래 피드백으로 docs/design/feedback.md의 연출 강도·색·지속시간을 조정하고 PC·터치·CrazyGames 배포본에서 재검증해줘: …`
+Observe the revised CrazyGames Preview with a new player for three runs on PC and a physical phone. Record first-failure understanding, SHOP return, loading, game-over/landing/music balance and retry motivation with device/browser/build identity. Example request: `$game-implement 새 Preview의 PC·실제 휴대폰 3판 관측 결과를 반영해 제출 전 마지막 문제를 수정해줘: …`
+
+Four-skin Perfect satisfaction, color recognition, glare and repeated-input distraction remain human tuning topics rather than additional requirements for this implemented slice.
 
 Track the agreed gentle difficulty's run height/time, failure understanding, readability and zero-balance first-purchase pacing separately. Scripted high scores establish behavior and geometry, not human challenge or enjoyment.
 

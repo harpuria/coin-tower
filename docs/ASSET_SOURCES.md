@@ -87,6 +87,7 @@ PNG는 수정 없이 복사했다. 원본과 아래 파일의 SHA-256이 일치�
 
 ## 효과음과 기타
 
+- `public/assets/coin-tower/game-over.wav`: 2026-10-19 게임 오버 마감을 위해 이 프로젝트에서 직접 합성했다. 외부 음원·샘플·AI 오디오 생성 서비스를 사용하지 않았다. Python 표준 라이브러리의 사인파·감쇠·짧은 잡음을 조합한 내려가는 동전 잔향이며 재생성 소스는 `scripts/synthesize-game-over.py`다. 44.1kHz mono PCM16, 0.34초 / 14,994 frames / 30,032 bytes, peak 약 0.55(-5.2dBFS), seed 20261019. SHA-256 `15a1946e0663265addf4dce6824d969d82332b0752f3c9dfbc266e03357371c9`. 직접 제작한 소스/음원을 함께 보존하며 제삼자 음원 이용 조건은 없다. 실패 순간 BGM 종료 뒤 기존 효과음 설정과 상대 gain 0.85로 한 번 재생한다. 실제 청취 만족도는 아직 사용자 확인 전이다.
 - `public/assets/coin-tower/stack.wav`: phaser-web-template 0.2.0, commit `b953c81b31cfdb36f73c6462d707a45ec2b8a46d`의 `public/assets/demo/collect.wav`를 재사용한 합성 효과음. 템플릿은 직접 합성한 WAV라고 기록한다. 현재 착지 소리용 임시 음원이다.
   - 착지 연출 개선에서도 파일 원본은 유지한다. 일반/Perfect에 다른 재생 속도와 상대 음량을 적용하며 조정값은 `src/game/feedback.ts`를 따른다. 별도 금속음 녹음·AI 생성이나 외부 음원 추가는 하지 않았다.
 - `public/favicon.svg`: 이 프로젝트 초기화 중 작성한 SVG.

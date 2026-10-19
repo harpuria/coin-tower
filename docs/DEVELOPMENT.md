@@ -41,10 +41,20 @@ Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`
 
 카메라·낙하·피드백은 Session의 게임 시간을 사용합니다. 장면 자체를 pause하면 재개 카운트다운도 멈추므로 이 게임의 `pausableScenes`는 비워 둡니다. 모델이 게임 시간을 멈추고 공통 PauseState는 소리를 멈춥니다. 자세한 이유는 [ADR 0002](adr/0002-run-simulation-and-interruptions.md)에 있습니다.
 
+## 첫 플레이와 선택 자산 로딩
+
+`queueAssets(load, equippedSkin)`는 첫 플레이 아트·콤보 글자·세 음원·장착 스킨만 필수로 준비합니다. 로딩 실패 화면은 이 집합에 적용합니다. `GameController.assets`의 `DeferredAssets`는 playable Scene 로더에 연결되며 첫 Gameplay Start 보고 뒤 다른 스킨과 후반 배경을 두 파일씩 읽습니다. 먼저 SHOP을 열면 스킨만 요청합니다. 숨김 상점/결과의 HTML 이미지도 준비 전에는 URL을 지정하지 않습니다.
+
+장착 스킨은 재방문에도 필수로 읽어 금화로 바꿔 그리지 않습니다. 선택 자산의 실패는 게임 시작을 막지 않습니다. 로딩 중/실패한 스킨은 미리보기 상태와 비활성 버튼으로 표시하고 `RETRY SKINS`로 재시도합니다. controller도 준비 전 구매/장착을 거부하며 보유·잔액은 변경하지 않습니다. 배경 fallback과 수명 계약은 [ADR 0009](adr/0009-gate-first-play-on-critical-assets.md)를 따릅니다.
+
+`rtk npm run test:e2e -- loading.spec.ts` / `rtk npm run test:crazygames -- loading.spec.ts`는 PC·터치의 지연/실패·복구·구매 보호·장착 후 재로딩을 검사합니다. 배포 검사에는 각 모드 빌드 뒤 `E2E_PREVIEW=1`을 지정합니다. 이 검사는 요청을 통제하므로 초기 전송량 측정과 분리합니다. 실제 전송 비교는 새 브라우저 세션에서 interception/캐시 강제 비활성화 없이 첫 Gameplay Start 시점까지 측정합니다.
+
+게임 오버 음원은 `rtk proxy python3 scripts/synthesize-game-over.py`로 재생성합니다. 원본 합성 설정과 출처는 [자산 출처](ASSET_SOURCES.md#효과음과-기타), 상대 음량은 `failureRules.soundGain`에서 확인합니다.
+
 ## 첫 품질 개선의 편집·관측 위치
 
 - `src/game/goals.ts`의 `heightGoalRules`·`nextHeightGoal()`은 결과의 다음 높이 목표를 조정합니다. 스킨 추천은 `skins.ts`의 `nextSkinGoal()`이 기존 목록·가격과 보유 상태를 사용합니다.
-- `src/game/feedback.ts`의 `failureRules`·`failureVisual()`은 실패 동전의 표시만 조정합니다. Session은 실패 순간 result로 전환하고 finished를 한 번 발생시키며, 실패 표현 시간이 끝난 `resultReady`에서 결과 조작을 표시합니다. 백그라운드에서는 잔여 시간이 멈추고 완료 기록·보상은 유지됩니다.
+- `src/game/feedback.ts`의 `failureRules`·`failureVisual()`은 실패 동전 표시와 게임 오버 효과음의 상대 음량을 조정합니다. Session은 실패 순간 result로 전환하고 finished를 한 번 발생시키며, 실패 표현 시간이 끝난 `resultReady`에서 결과 조작을 표시합니다. 백그라운드에서는 잔여 시간이 멈추고 완료 기록·보상은 유지됩니다.
 - `GameController.showHints`·`skipHints()`는 실제 이동 중의 힌트와 별도의 안내 완료 저장을 연결합니다. Scene의 중심 눈금과 Shell의 직접 작성한 인라인 SVG 손 제스처는 게임 규칙을 바꾸지 않습니다.
 - 결과 SHOP은 Session과 완료 결과를 유지한 채 상점을 열며 BACK은 원래 메뉴·결과로 복귀합니다. 결과 복귀 후 지갑과 스킨 추천은 갱신하고 EARNED·기록·경신 상태와 `runSkin`은 유지합니다. 결과를 다시 표시한 다음 TRY AGAIN에 포커스를 복원해 Space로 재시작할 수 있습니다. 개발 `feedback().coin.texture`로 실제 적용된 텍스처를 확인할 수 있습니다. [ADR 0007](adr/0007-complete-runs-before-result-presentation.md)을 따릅니다.
 - 가독성은 `src/style.css`에서 실제 표시 크기로 조정합니다. 결과는 세로 흐름, TRY AGAIN·MENU는 한 줄이며 저장 실패 안내도 같은 작은 프레임에서 확인합니다. 공통 입력 계약은 유지합니다.
@@ -72,7 +82,7 @@ window.__COIN_TOWER__.freeze(false);
 
 `freeze`는 사용자의 일시정지와 별개인 검사용 기능입니다. `advance`도 실제 한 판이 일시정지된 동안에는 게임을 진행하지 않습니다. 착지 시 남은 시간을 정착/다음 동전에 넘기지 않으므로 단계를 각각 진행해야 합니다.
 
-`snapshot().background`는 `from`/`to` 시간대와 0~1의 `progress`를 포함합니다. Scene은 이 진행률에 부드러운 곡선을 적용해 다음 배경을 덮습니다. 배경 시간도 `advance`를 따르며 정지·카운트다운·결과에서 진행하지 않습니다. 두 이미지는 같은 논리 화면 크기로 표시합니다. 시간대 자산 세 장은 필수 로더로 미리 읽으며 추가 요청을 기다리느라 전환을 멈추지 않습니다.
+`snapshot().background`는 `from`/`to` 시간대와 0~1의 `progress`를 포함합니다. Scene은 이 진행률에 부드러운 곡선을 적용해 다음 배경을 덮습니다. 배경 시간도 `advance`를 따르며 정지·카운트다운·결과에서 진행하지 않습니다. 두 이미지는 같은 논리 화면 크기로 표시합니다. 후반 시간대 자산 세 장은 첫 플레이 뒤 미리 읽습니다. 준비 전에는 사용할 수 있는 배경을 유지하며 모델 전환을 멈추지 않습니다. 준비가 늦어 전환 시간이 이미 끝났다면 별도 tween 없이 해당 모델 배경을 표시합니다.
 
 `Shell`의 `#ambient-backdrop`은 두 HTML 레이어에 Phaser Texture의 기존 Image 요소를 붙여 게임 밖 여백을 채웁니다. `getSourceImage()`의 같은 노드를 사용하고 src를 복사하거나 새 Blob을 만들지 않아, 로더가 해제한 Blob URL 문제와 재다운로드를 피합니다. 필수 로딩 완료 후 표시합니다. `src/game/backgrounds.ts`의 파일 매핑·`backgroundAlpha()`와 `assets.ts`의 texture 매핑을 Scene/로더와 공유하고 Session 상태만 읽습니다. 전환 중에는 RAF로 불투명도를 맞추고 정지·결과·전환 완료 때 반복을 멈춥니다. `#stage` 안의 fixed 장식 레이어이므로 standalone 전체화면에도 포함되며 `#surface`는 그 위에서 기존 9:16 FIT를 유지합니다. 블러·확장·어둡기는 CSS에서 조정합니다.
 
@@ -122,7 +132,7 @@ window.__COIN_TOWER__.freeze(false);
 
 필수 asset 로딩 실패는 게임을 시작하지 않고 새로고침 안내를 띄웁니다. 처리되지 않은 오류도 화면 위 복구 안내를 보여 줍니다. asset 경로는 Vite BASE_URL을 기준으로 하므로 하위 경로 배포에서도 상대 경로를 유지합니다.
 
-스킨 목록·가격·텍스처/이미지 파일은 `src/game/skins.ts`에서 조정합니다. 구매와 장착은 controller의 `Store.commit` 경로로 저장 성공 후에만 반영하며, 완료 정산은 기존 update/flush로 스킨 보유·장착을 보존합니다. 읽을 수 없는 저장이나 저장 불가 상태에서는 구매·장착 교체를 차단하지만 플레이는 유지합니다. 세 스킨은 필수 로더에 등록하고 원본과 동일한 art frame을 사용합니다. 기술 계약은 [ADR 0005](adr/0005-persist-before-publishing-skin-purchases.md)를 따릅니다.
+스킨 목록·가격·텍스처/이미지 파일은 `src/game/skins.ts`에서 조정합니다. 구매와 장착은 controller의 `Store.commit` 경로로 저장 성공 후에만 반영하며, 완료 정산은 기존 update/flush로 스킨 보유·장착을 보존합니다. 읽을 수 없는 저장이나 저장 불가 상태에서는 구매·장착 교체를 차단하지만 플레이는 유지합니다. 장착 스킨은 필수 로더에, 다른 스킨은 선택 로더에 등록하고 준비가 끝난 뒤 원본과 동일한 art frame을 사용합니다. 기술 계약은 [ADR 0005](adr/0005-persist-before-publishing-skin-purchases.md)를 따릅니다.
 
 ## 검증과 배포
 

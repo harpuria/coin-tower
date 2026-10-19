@@ -2,7 +2,7 @@ import type { App } from '../app';
 import { gameConfig } from '../config/game';
 import { fullscreenAvailable, toggleFullscreen } from '../core/screen';
 import { artUrl } from '../game/art';
-import { backgroundTextures } from '../game/assets';
+import { resolveBackgroundTextures } from '../game/assets';
 import { backgroundAlpha } from '../game/backgrounds';
 import type { GameController } from '../game/controller';
 import { landingVisual } from '../game/feedback';
@@ -97,13 +97,14 @@ export class Shell {
                 (
                   skin,
                 ) => `<article class="skin-card" aria-label="${skin.name} coin">
-              <span class="skin-preview" aria-hidden="true"><img src="${artUrl(skin.file)}" alt="" draggable="false" /></span>
+              <span class="skin-preview" aria-hidden="true"><img id="skin-image-${skin.id}" alt="" draggable="false" hidden /><span id="skin-loading-${skin.id}" class="skin-preview-loading">Loading…</span></span>
               <h3>${skin.name.toUpperCase()}</h3><p id="skin-state-${skin.id}" class="skin-state"></p>
               <button id="skin-${skin.id}" class="game-button" aria-describedby="skin-state-${skin.id}"></button>
             </article>`,
               )
               .join('')}</div>
             <p id="skins-message" class="skins-message" role="status" aria-live="polite"></p>
+            <button id="skins-retry" class="game-button skins-retry" hidden>RETRY SKINS</button>
             <button id="skins-back" class="game-button skins-back">BACK</button>
           </section>
           <section id="skin-confirm-overlay" class="layer veil skin-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="skin-confirm-title" hidden>
@@ -136,24 +137,25 @@ export class Shell {
     if (!this.app.ready || !this.app.game) return;
     const run = this.app.session;
     const background = run.background;
+    const backdrop = resolveBackgroundTextures(background, (key) =>
+      this.app.game!.textures.exists(key),
+    );
     const base = this.element('backdrop-base');
     const next = this.element('backdrop-next');
-    next.hidden = background.from === background.to;
-    for (const [layer, time] of [
-      [base, background.from],
-      [next, background.to],
+    next.hidden = !backdrop.changing;
+    for (const [layer, key] of [
+      [base, backdrop.base],
+      [next, backdrop.next],
     ] as const) {
       if (layer.hidden) continue;
-      if (layer.dataset.time !== time || !layer.firstElementChild) {
+      if (layer.dataset.time !== key || !layer.firstElementChild) {
         // Phaser가 디코딩한 원본 Image를 붙여 재다운로드·추가 인코딩을 피한다.
-        const image = this.app.game.textures
-          .get(backgroundTextures[time])
-          .getSourceImage();
+        const image = this.app.game.textures.get(key).getSourceImage();
         if (image instanceof HTMLImageElement) {
           image.alt = '';
           image.draggable = false;
           layer.replaceChildren(image);
-          layer.dataset.time = time;
+          layer.dataset.time = key;
         }
       }
     }
@@ -234,6 +236,7 @@ export class Shell {
       focusGame();
     });
     this.on('skins-back', () => this.game.closeSkins());
+    this.on('skins-retry', () => this.game.assets.retry());
     for (const skin of skins)
       this.on(`skin-${skin.id}`, () => this.game.selectSkin(skin.id));
     this.on('skin-confirm-yes', () => this.game.confirmSkinPurchase(true));
@@ -410,9 +413,11 @@ export class Shell {
     const canSave = app.save.status === 'ready' && this.game.saved;
     const shortage = goal ? Math.max(0, goal.price - progress.shards) : 0;
     const goalImage = this.element<HTMLImageElement>('goal-skin-image');
-    goalImage.hidden = !goal;
-    this.element('goal-skin-preview').hidden = !goal;
-    if (goal && goalImage.dataset.skin !== goal.id) {
+    const goalReady =
+      !!goal && run.resultReady && this.game.assets.isSkinReady(goal.id);
+    goalImage.hidden = !goalReady;
+    this.element('goal-skin-preview').hidden = !goalReady;
+    if (goalReady && goalImage.dataset.skin !== goal.id) {
       goalImage.src = artUrl(goal.file);
       goalImage.dataset.skin = goal.id;
     }
@@ -520,6 +525,16 @@ export class Shell {
     this.element<HTMLButtonElement>('skins-menu').disabled =
       !this.app.ready || !!this.app.fatalError;
     for (const skin of skins) {
+      const ready = this.game.assets.isSkinReady(skin.id);
+      const failed = this.game.assets.skinFailed(skin.id);
+      if (open) {
+        const image = this.element<HTMLImageElement>(`skin-image-${skin.id}`);
+        image.hidden = !ready;
+        if (ready && !image.getAttribute('src')) image.src = artUrl(skin.file);
+        const placeholder = this.element(`skin-loading-${skin.id}`);
+        placeholder.hidden = ready;
+        placeholder.textContent = failed ? 'Unavailable' : 'Loading…';
+      }
       const owned = progress.ownedSkins.includes(skin.id);
       const equipped = progress.equippedSkin === skin.id;
       const shortage = Math.max(0, skin.price - progress.shards);
@@ -531,16 +546,21 @@ export class Shell {
           : `${skin.price} STAR SHARDS`;
       this.element(`skin-state-${skin.id}`).textContent =
         shortage && !owned ? `${state} · Need ${shortage} more` : state;
-      button.textContent = equipped
-        ? 'EQUIPPED'
-        : owned
-          ? 'EQUIP'
-          : `BUY ${skin.price}`;
+      button.textContent = !ready
+        ? failed
+          ? 'UNAVAILABLE'
+          : 'LOADING…'
+        : equipped
+          ? 'EQUIPPED'
+          : owned
+            ? 'EQUIP'
+            : `BUY ${skin.price}`;
       button.setAttribute(
         'aria-label',
         `${equipped ? 'Equipped' : owned ? 'Equip' : 'Buy'} ${skin.name}${owned ? '' : ` for ${skin.price} Star Shards`}`,
       );
       button.disabled =
+        !ready ||
         equipped ||
         this.app.save.status !== 'ready' ||
         (!owned && shortage > 0);
@@ -550,7 +570,10 @@ export class Shell {
       this.game.skinMessage ||
       (this.app.save.status !== 'ready'
         ? 'Progress cannot be saved. Purchases and skin changes are unavailable. You can keep playing.'
-        : 'Owned skins are yours to keep on this browser.');
+        : this.game.assets.hasSkinFailures
+          ? 'Some skins could not load. Retry to view or equip them.'
+          : 'Owned skins are yours to keep on this browser.');
+    this.element('skins-retry').hidden = !this.game.assets.hasSkinFailures;
     if (pending) {
       const skin = skinById(pending);
       this.element('skin-confirm-title').textContent = `Unlock ${skin.name}?`;

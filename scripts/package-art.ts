@@ -65,7 +65,7 @@ export function packageArt(): Plugin {
         mkdirSync(dirname(destination), { recursive: true });
         copyFileSync(join(sourceRoot, expected), destination);
       }
-      for (const file of ['stack.wav', 'arcade-sparkle.m4a'])
+      for (const file of ['stack.wav', 'game-over.wav', 'arcade-sparkle.m4a'])
         copyFileSync(
           join(sourceRoot, file),
           join(output, 'assets/coin-tower', file),

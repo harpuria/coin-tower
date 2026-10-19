@@ -253,12 +253,15 @@ button:focus-visible,
 .skins-screen {
   z-index: 6;
   pointer-events: auto;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   overscroll-behavior: contain;
   padding: 6cqw;
   background: linear-gradient(160deg, #163f71f5, #102e55fa);
 }
 .skins-header {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -279,6 +282,7 @@ button:focus-visible,
   font-size: min(4.5cqw, calc(25cqw / var(--record-digits, 1)));
 }
 .skins-subtitle {
+  flex-shrink: 0;
   font-size: max(14px, 3.3cqw);
   margin: 2cqw 0 4cqw;
   color: #d1e9ff;
@@ -287,6 +291,10 @@ button:focus-visible,
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 3cqw;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  align-content: start;
 }
 .skin-card {
   min-width: 0;
@@ -317,6 +325,15 @@ button:focus-visible,
   top: -28.5714%;
   pointer-events: none;
 }
+.skin-preview-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d4edff;
+  font-size: 14px;
+}
 .skin-card h3 {
   font-size: max(14px, 3.6cqw);
   margin: 2cqw 0 0;
@@ -336,11 +353,19 @@ button:focus-visible,
   padding: 1cqw 2cqw;
   font-size: max(14px, 3.5cqw);
 }
+.skins-retry {
+  flex-shrink: 0;
+  min-height: 44px;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
 .skin-card button:disabled {
   cursor: default;
 }
 .skins-message {
-  min-height: max(44px, 10cqw);
+  flex-shrink: 0;
+  max-height: 20%;
+  overflow-y: auto;
   margin: 3cqw 0 1cqw;
   font-size: max(14px, 3.2cqw);
   line-height: 1.4;
@@ -348,6 +373,7 @@ button:focus-visible,
 }
 .skins-back {
   display: block;
+  flex-shrink: 0;
   width: 60%;
   margin: 0 auto;
 }
@@ -398,7 +424,11 @@ button:focus-visible,
   gap: 1cqw;
 }
 .shard-reward strong {
-  font-size: min(4.8cqw, calc(30cqw / var(--record-digits, 1)));
+  font-size: max(14px, min(4.8cqw, calc(30cqw / var(--record-digits, 1))));
+  overflow-wrap: anywhere;
+}
+.shard-reward > div {
+  min-width: 0;
 }
 .shard-reward .stat-icon {
   --stat-icon-size: 8cqw;

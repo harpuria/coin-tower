@@ -33,7 +33,7 @@ tests/unit/ tests/e2e/    공통 경계 단위 검사 / 실제 브라우저 흐�
 
 배경 시간대·전환 경과 시간도 Session이 소유합니다. Scene은 불투명한 이전 배경 위에 다음 배경의 불투명도를 올려 그리며 별도 tween 시간을 진행하지 않습니다. Shell의 주변 배경도 같은 상태와 `backgroundAlpha()`를 읽고 전환 중에만 RAF로 갱신합니다. 중단·결과에서 모델 시간이 멈추면 배경 전환도 멈추며 Shell 폐기 시 RAF를 정리합니다.
 
-배포 아트의 설정은 `game/art-manifest.json`, 생성 해시·크기는 `art-generated.json`이 소유합니다. `game/art.ts`가 원본 이름을 WebP URL로 연결해 HTML·Phaser가 같은 파일을 사용합니다. Python 생성기는 원본 PNG를 보존하며 Vite 패키징은 해시를 확인한 파생 파일·WAV·favicon만 업로드 산출물에 넣습니다. 원본 frame 좌표를 유지하고 작은 아이콘만 축소합니다. [ADR 0006](adr/0006-preserve-source-art-and-package-optimized-derivatives.md)을 따릅니다.
+배포 아트의 설정은 `game/art-manifest.json`, 생성 해시·크기는 `art-generated.json`이 소유합니다. `game/art.ts`가 원본 이름을 WebP URL로 연결해 HTML·Phaser가 같은 파일을 사용합니다. Python 생성기는 원본 PNG를 보존하며 Vite 패키징은 해시를 확인한 파생 이미지·WAV/AAC·favicon만 업로드 산출물에 넣습니다. 원본 frame 좌표를 유지하고 작은 아이콘만 축소합니다. [ADR 0006](adr/0006-preserve-source-art-and-package-optimized-derivatives.md)을 따릅니다.
 
 착지 반동·접점 입자·PERFECT/X 팝도 `Session.feedbackRemaining`에서 경과 시간을 계산합니다. `game/feedback.ts`는 조정값과 표시 계산을 제공하고 Scene과 Shell이 같은 계산을 사용합니다. 표시용 변형은 모델의 동전 좌표·판정·정착 시간을 바꾸지 않습니다. 별도 tween이나 CSS 애니메이션 시계는 진행하지 않습니다.
 
@@ -56,8 +56,8 @@ Perfect의 접점 폭발·테두리 잔광은 Scene의 Graphics로 그리며 `ga
 
 1. `main.ts`가 `App`과 `Shell`을 만들고 처리되지 않은 오류 감시를 시작합니다.
 2. CrazyGames 모드에서는 `app.platform.initialize()`로 SDK를 먼저 준비한 뒤 Phaser를 만듭니다. 초기화/다운로드는 10초로 제한하며 실패하면 영어 재시도 화면을 표시합니다. 일반 모드에서는 외부 SDK를 로드하지 않습니다. `BootScene`이 `app.attach(game)`으로 오디오, 플랫폼 음소거, 탭 숨김/pagehide 처리, 자동 저장 타이머를 연결합니다.
-3. `PreloadScene`이 게임의 `queueAssets`로 asset을 불러오며 진행률을 표시합니다.
-   하나라도 실패하면 안내를 띄우고 멈춥니다. 모두 성공하면 `app.ready = true` 후 `startScene`으로 넘어갑니다.
+3. `PreloadScene`이 게임의 `queueAssets`로 첫 플레이 아트·음원·현재 장착 스킨을 불러오며 진행률을 표시합니다.
+   이 필수 집합에서 하나라도 실패하면 안내를 띄우고 멈춥니다. 성공하면 `app.ready = true` 후 `startScene`으로 넘어갑니다. 후반 배경·다른 스킨은 첫 Gameplay Start 보고 뒤에 `GameController.assets`가 playable Scene 로더로 읽습니다. 먼저 SHOP을 열면 스킨만 요청합니다. 준비 전/실패 스킨은 구매·장착을 controller와 UI 양쪽에서 막고 재시도를 제공합니다. 숨김 HTML도 준비 전 URL을 요청하지 않습니다. 배경 미준비는 공통 fallback으로 처리하며 모델 시간을 멈추지 않습니다. [ADR 0009](adr/0009-gate-first-play-on-critical-assets.md)를 따릅니다.
 4. 현재 게임은 CoinTower 장면 안의 모델 모드로 시작·플레이·결과를 전환합니다. 별도 장면이 필요한 기능은 기존 `transition()`의 중복 요청 방지 계약을 사용할 수 있습니다.
 5. HMR 때는 오류 감시, HTML listener, 타이머, 오디오, 플랫폼 listener/진행 중 초기화, Phaser 게임을 정리합니다. 폐기된 앱의 늦은 초기화 완료는 게임이나 listener를 만들지 않습니다.
 

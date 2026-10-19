@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { App } from '../app';
-import { assetKeys, backgroundTextures } from './assets';
+import { assetKeys, resolveBackgroundTextures } from './assets';
 import { backgroundAlpha } from './backgrounds';
 import type { GameController } from './controller';
 import { feedbackRules, landingVisual, failureVisual } from './feedback';
@@ -90,6 +90,15 @@ export class CoinTowerScene extends Phaser.Scene {
   }
 
   create() {
+    this.controller.assets.attach(this.load, this.textures);
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.controller.assets.detach,
+    );
+    this.events.once(
+      Phaser.Scenes.Events.DESTROY,
+      this.controller.assets.detach,
+    );
     this.backgroundBase = this.add
       .image(360, 640, assetKeys.background)
       .setDisplaySize(rules.width, rules.height)
@@ -218,15 +227,18 @@ export class CoinTowerScene extends Phaser.Scene {
     );
     const background = run.background;
     const progress = background.progress;
+    const backdrop = resolveBackgroundTextures(background, (key) =>
+      this.textures.exists(key),
+    );
     // 아래 배경은 불투명하게 두고 새 배경으로 덮어 검은 중간 화면을 막는다.
     this.backgroundBase
-      .setTexture(backgroundTextures[background.from])
+      .setTexture(backdrop.base)
       .setDisplaySize(rules.width, rules.height);
     this.backgroundNext
-      .setTexture(backgroundTextures[background.to])
+      .setTexture(backdrop.next)
       .setDisplaySize(rules.width, rules.height)
       .setAlpha(backgroundAlpha(progress))
-      .setVisible(background.from !== background.to);
+      .setVisible(backdrop.changing);
     const title = run.mode === 'menu';
     const zoom = run.zoom;
     const centerX = rules.width / 2;

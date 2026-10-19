@@ -2,7 +2,7 @@ import type Phaser from 'phaser';
 import { gameConfig } from '../config/game';
 import { artFile, standaloneArt } from './art';
 import { backgroundFiles, type BackgroundTime } from './backgrounds';
-import { skins } from './skins';
+import { skins, type SkinId } from './skins';
 
 export const assetKeys = {
   coin: 'coin',
@@ -28,6 +28,7 @@ export const assetKeys = {
   fullscreenExitIcon: 'fullscreenExitIcon',
   stack: 'stack',
   music: 'music',
+  failure: 'failure',
 } as const;
 
 export const backgroundTextures: Record<BackgroundTime, string> = {
@@ -61,6 +62,29 @@ const images = {
   fullscreenExitIcon: 'icons/fullscreen-exit.png',
 } as const;
 
+export const deferredImages: Record<string, string> = {
+  ...Object.fromEntries(
+    skins
+      .filter((skin) => skin.id !== 'gold')
+      .map((skin) => [skin.texture, skin.file]),
+  ),
+  backgroundNoon: backgroundFiles.noon,
+  backgroundEvening: backgroundFiles.evening,
+  backgroundNight: backgroundFiles.night,
+};
+
+/** 늦은 배경이 아직 없으면 준비된 배경을 유지해 missing texture를 피한다. */
+export function resolveBackgroundTextures(
+  background: { from: BackgroundTime; to: BackgroundTime },
+  has: (key: string) => boolean,
+) {
+  const from = backgroundTextures[background.from];
+  const to = backgroundTextures[background.to];
+  const base = has(from) ? from : has(to) ? to : assetKeys.background;
+  const next = has(to) ? to : base;
+  return { base, next, changing: base !== next };
+}
+
 /** 원본과 동일한 좌표로 투명 여백을 텍스처 frame에서 제외한다. */
 const regions: Record<string, readonly [number, number, number, number]> = {
   coin: [300, 180, 1000, 630],
@@ -72,18 +96,24 @@ const regions: Record<string, readonly [number, number, number, number]> = {
   paused: [110, 80, 1940, 530],
 };
 
-export function queueAssets(load: Phaser.Loader.LoaderPlugin) {
+export function queueAssets(
+  load: Phaser.Loader.LoaderPlugin,
+  equippedSkin: SkinId = 'gold',
+) {
   load.setPath(`${import.meta.env.BASE_URL}assets/coin-tower/`);
   for (const [key, file] of Object.entries(images)) {
     if (gameConfig.crazygames && standaloneArt.has(file)) continue;
+    if (key in deferredImages) continue;
     load.image(key, artFile(file));
   }
   for (const skin of skins)
-    if (skin.id !== 'gold') load.image(skin.texture, artFile(skin.file));
+    if (skin.id !== 'gold' && skin.id === equippedSkin)
+      load.image(skin.texture, artFile(skin.file));
   for (const glyph of 'x0123456789')
     load.image(`combo-${glyph}`, artFile(`combo/${glyph}.png`));
   load.audio(assetKeys.stack, 'stack.wav');
   load.audio(assetKeys.music, 'arcade-sparkle.m4a');
+  load.audio(assetKeys.failure, 'game-over.wav');
 }
 export function installAssetFrames(textures: Phaser.Textures.TextureManager) {
   const skinRegions = Object.fromEntries(
@@ -93,6 +123,7 @@ export function installAssetFrames(textures: Phaser.Textures.TextureManager) {
     ...regions,
     ...skinRegions,
   })) {
+    if (!textures.exists(key)) continue;
     const texture = textures.get(key);
     if (!texture.has('art')) texture.add('art', 0, x, y, width, height);
   }

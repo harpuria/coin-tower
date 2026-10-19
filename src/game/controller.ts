@@ -1,7 +1,8 @@
 import type { App } from '../app';
 import { assetKeys } from './assets';
 import { shardReward } from './economy';
-import { feedbackRules } from './feedback';
+import { DeferredAssets } from './deferred-assets';
+import { failureRules, feedbackRules } from './feedback';
 import type { RunAction } from './session';
 import { skinById, type SkinId } from './skins';
 
@@ -26,7 +27,9 @@ export class GameController {
   skinMessage = '';
   runSkin: SkinId;
   result: Readonly<RunResult> | null = null;
+  readonly assets: DeferredAssets;
   constructor(readonly app: App) {
+    this.assets = new DeferredAssets(() => app.onState());
     this.runSkin = app.save.data.equippedSkin;
     app.onBackground = () => {
       this.run.pause();
@@ -81,6 +84,7 @@ export class GameController {
     if (this.background) this.run.pause();
     this.sync();
     this.app.audio?.playMusic(assetKeys.music);
+    this.assets.prefetch();
   }
   tap() {
     if (this.skinsOpen) return;
@@ -131,6 +135,8 @@ export class GameController {
       if (this.run.score >= 5) this.completeHints();
     }
     if (event === 'finished') {
+      this.app.audio?.stopMusic();
+      this.app.audio?.sfx(assetKeys.failure, { gain: failureRules.soundGain });
       const previous = this.app.save.data;
       const reward = shardReward(this.run.score, previous.shards);
       // 갱신 전 개인 최고와 비교한 결과를 보존해 동점을 경신으로 표시하지 않는다.
@@ -184,6 +190,7 @@ export class GameController {
   openSkins() {
     if (!this.app.ready || this.app.fatalError || !this.canUseShop) return;
     this.skinsOpen = true;
+    this.assets.requestSkins();
     this.skinMessage = '';
     this.app.onState();
   }
@@ -195,6 +202,7 @@ export class GameController {
   }
   selectSkin(id: SkinId) {
     if (!this.skinsOpen || this.skinPurchase || !this.canUseShop) return;
+    if (!this.assets.isSkinReady(id)) return;
     const progress = this.app.save.data;
     this.skinMessage = '';
     if (progress.ownedSkins.includes(id)) {
@@ -220,6 +228,11 @@ export class GameController {
     if (!this.skinsOpen || !this.skinPurchase || !this.canUseShop) return;
     const id = this.skinPurchase;
     this.skinPurchase = null;
+    if (accepted && !this.assets.isSkinReady(id)) {
+      this.skinMessage = 'This skin is not ready yet. Please try again.';
+      this.app.onState();
+      return;
+    }
     if (accepted) {
       const skin = skinById(id);
       const progress = this.app.save.data;

@@ -7,6 +7,7 @@ import { Store } from '../../src/core/store';
 import { progressSchema, type Progress } from '../../src/game/save';
 import { failureRules } from '../../src/game/feedback';
 import { rules } from '../../src/game/rules';
+import { assetKeys } from '../../src/game/assets';
 
 const progressDefaults = () => ({
   ...progressSchema.defaults(),
@@ -366,6 +367,7 @@ it('settles once before the result delay and retains a completed run across shop
   expect(game.run.resultReady).toBe(false);
   game.update(1);
   expect(game.run.resultReady).toBe(true);
+  vi.spyOn(game.assets, 'isSkinReady').mockReturnValue(true);
   game.openSkins();
   game.selectSkin('silver');
   game.confirmSkinPurchase(true);
@@ -380,4 +382,47 @@ it('settles once before the result delay and retains a completed run across shop
   expect(events).toEqual(['start', 'stop']);
   game.start();
   expect(game.runSkin).toBe('silver');
+});
+
+it('does not spend or equip an unavailable skin, including a lost-ready purchase confirmation', () => {
+  const { app, controller: game } = fixture();
+  app.save.update((data) => ({ ...data, shards: 50 }));
+  game.openSkins();
+  game.selectSkin('silver');
+  expect(game.skinPurchase).toBeNull();
+  expect(app.save.data.shards).toBe(50);
+  const ready = vi.spyOn(game.assets, 'isSkinReady').mockReturnValue(true);
+  game.selectSkin('silver');
+  expect(game.skinPurchase).toBe('silver');
+  ready.mockReturnValue(false);
+  game.confirmSkinPurchase(true);
+  expect(app.save.data.shards).toBe(50);
+  expect(app.save.data.ownedSkins).toEqual(['gold']);
+  expect(app.save.data.equippedSkin).toBe('gold');
+  ready.mockReturnValue(true);
+  game.selectSkin('silver');
+  game.confirmSkinPurchase(true);
+  expect(app.save.data.shards).toBe(0);
+  expect(app.save.data.equippedSkin).toBe('silver');
+});
+
+it('stops music before the one failure sound and does not replay it during result updates', () => {
+  const { app, controller: game } = fixture();
+  const audio = { playMusic: vi.fn(), stopMusic: vi.fn(), sfx: vi.fn() };
+  Object.assign(app, { audio });
+  game.start();
+  land(game);
+  land(game, -100);
+  const failure = audio.sfx.mock.calls.findIndex(
+    ([key]) => key === assetKeys.failure,
+  );
+  expect(failure).toBeGreaterThanOrEqual(0);
+  expect(audio.stopMusic.mock.invocationCallOrder[0]).toBeLessThan(
+    audio.sfx.mock.invocationCallOrder[failure]!,
+  );
+  game.update(5000);
+  game.update(5000);
+  expect(
+    audio.sfx.mock.calls.filter(([key]) => key === assetKeys.failure),
+  ).toHaveLength(1);
 });
