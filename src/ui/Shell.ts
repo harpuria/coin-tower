@@ -13,6 +13,8 @@ export class Shell {
   private controller = new AbortController();
   private root: HTMLElement;
   private displayedCombo = -1;
+  /** 디코딩을 마친 콤보 글자 원본. 표시할 때는 복제본만 붙여 새 요청·빈 프레임을 막는다. */
+  private comboGlyphs = new Map<string, HTMLImageElement>();
   private comboFrame = 0;
   private milestoneFrame = 0;
   private backdropFrame = 0;
@@ -243,6 +245,27 @@ export class Shell {
     element.style.transform = `scale(${visual.scale})`;
     this.milestoneFrame = requestAnimationFrame(() => this.renderMilestone());
   }
+  private prepareComboGlyphs() {
+    for (const glyph of 'x0123456789') {
+      const image = this.createComboGlyph(glyph);
+      // 실패해도 표시 시 같은 URL로 다시 요청되므로 미리 준비만 시도한다.
+      image.decode().catch(() => {});
+      this.comboGlyphs.set(glyph, image);
+    }
+  }
+  private createComboGlyph(glyph: string) {
+    const image = document.createElement('img');
+    image.src = artUrl(`combo/${glyph}.png`);
+    image.alt = '';
+    image.draggable = false;
+    return image;
+  }
+  private comboGlyph(glyph: string) {
+    const source = this.comboGlyphs.get(glyph);
+    return source
+      ? (source.cloneNode() as HTMLImageElement)
+      : this.createComboGlyph(glyph);
+  }
   private on(id: string, handler: () => void) {
     this.element(id).addEventListener('click', handler, {
       signal: this.controller.signal,
@@ -450,16 +473,13 @@ export class Shell {
     this.element('side-score').hidden = !playing;
     this.renderComboFeedback();
     this.renderMilestone();
+    if (app.ready && !this.comboGlyphs.size) this.prepareComboGlyphs();
     if (this.displayedCombo !== run.combo) {
       this.displayedCombo = run.combo;
       this.element('combo-count').textContent = `x${run.combo}`;
-      const glyphs = [...`x${run.combo}`].map((glyph) => {
-        const image = document.createElement('img');
-        image.src = artUrl(`combo/${glyph}.png`);
-        image.alt = '';
-        image.draggable = false;
-        return image;
-      });
+      const glyphs = [...`x${run.combo}`].map((glyph) =>
+        this.comboGlyph(glyph),
+      );
       this.element('combo')
         .querySelector('.combo-glyphs')!
         .replaceChildren(...glyphs);

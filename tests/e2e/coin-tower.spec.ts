@@ -234,6 +234,56 @@ test('pause/countdown prevents drops and background return stays paused', async 
   await expect(page.locator('#play')).toBeVisible();
 });
 
+test('Perfect combo glyphs show on the landing frame after restart even on a slow network', async ({
+  page,
+}, info) => {
+  await ready(page, true);
+  // 캐시를 끄지 않는 지연만 걸어, 표시 시점의 새 이미지 요청이 숫자를 늦추는지 확인한다.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Network.enable');
+  await cdp.send('Network.emulateNetworkConditions', {
+    offline: false,
+    latency: 800,
+    downloadThroughput: -1,
+    uploadThroughput: -1,
+  });
+  for (const restart of [false, true]) {
+    if (restart) {
+      await page.locator('#pause').click();
+      await page.locator('#restart').click();
+      await page.locator('#confirm-yes').click();
+    } else await page.locator('#play').click();
+    await place(page, info);
+    for (const combo of [1, 2]) {
+      const run = await snapshot(page);
+      await advance(
+        page,
+        (Math.abs(run.activeX - run.targetX) / run.speed) * 1000,
+      );
+      await tapGame(page, info);
+      await advance(page, Math.ceil((rules.spawnGap / rules.fallSpeed) * 1000));
+      expect((await snapshot(page)).combo).toBe(combo);
+      await expect(page.locator('#combo')).toBeVisible();
+      await expect
+        .poll(
+          () =>
+            page
+              .locator('.combo-glyphs img')
+              .evaluateAll((images) =>
+                images.map(
+                  (image) =>
+                    (image as HTMLImageElement).complete &&
+                    (image as HTMLImageElement).naturalWidth > 0,
+                ),
+              ),
+          { timeout: 300 },
+        )
+        .toEqual([true, true]);
+      await advance(page, rules.settleMs);
+    }
+  }
+});
+
 test('deterministic real-input Perfect/combo, late speed growth, camera, miss and reset', async ({
   page,
 }, info) => {
