@@ -209,6 +209,23 @@ button:focus-visible,
   padding: 0 2cqw;
   gap: 1.2cqw;
 }
+.title-record {
+  position: relative;
+}
+/* 첫 방문자도 아이콘의 뜻을 알 수 있게 짧은 이름을 함께 표시한다. */
+.stat-readout .title-caption {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  font-size: max(14px, 3cqw);
+}
+.shard-readout .shards-caption {
+  font-size: max(14px, 3cqw);
+  margin-right: 0.5cqw;
+}
 .title-record-columns strong {
   font-size: min(8cqw, calc(28cqw / var(--record-digits, 1)));
 }
@@ -413,6 +430,7 @@ button:focus-visible,
 }
 .title-shards strong {
   max-width: 80%;
+  font-size: max(14px, min(5cqw, calc(32cqw / var(--record-digits, 1))));
 }
 .shard-reward {
   position: static;
@@ -514,6 +532,26 @@ button:focus-visible,
   align-items: center;
   justify-content: center;
 }
+.milestone {
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 70%;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 1.5cqw;
+  padding: 0;
+  transform-origin: center;
+  pointer-events: none;
+}
+.stat-readout.milestone strong {
+  font-size: max(24px, 9cqw);
+}
+.stat-readout.milestone span {
+  font-size: max(16px, 5cqw);
+  font-weight: 850;
+  color: #fff3d0;
+}
 .combo-glyphs {
   display: flex;
   align-items: center;
@@ -530,12 +568,18 @@ button:focus-visible,
 .tap-prompt {
   position: absolute;
   top: 79%;
-  left: 4%;
-  width: 92%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 92%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1cqw;
+  gap: 1.5cqw;
+  padding: 4px 6px 4px 10px;
+  border-radius: 14px;
+  background: #0b2f62c7;
+  box-shadow: 0 4px 14px #06183080;
   font-size: max(14px, 3.5cqw);
   text-shadow: 0 2px 4px #123b77;
 }
@@ -696,6 +740,24 @@ button:focus-visible,
   font-size: max(14px, 24cqw);
   color: #ffdc65;
   font-weight: 900;
+}
+/* 세로 화면의 플레이 중에는 탑 하단을 비우고 소리 버튼만 일시정지 아래로 옮긴다. */
+#surface[data-active='true'] > .utility {
+  top: calc(15% + max(44px, 10cqw) + 1.5%);
+  bottom: auto;
+  right: 4%;
+}
+#surface[data-active='true'] > .utility #fullscreen {
+  display: none;
+}
+#surface[data-active='true'] > .utility .utility-button {
+  width: max(44px, 10cqw);
+  min-height: max(44px, 10cqw);
+  padding: 0;
+}
+#surface[data-active='true'] > .utility .utility-button img {
+  width: clamp(32px, 8cqw, 60px);
+  height: clamp(32px, 8cqw, 60px);
 }
 .utility {
   position: absolute;
@@ -883,4 +945,167 @@ button:focus-visible,
   left: 30%;
   width: 66%;
   text-align: center;
+}
+
+/* 넓은 가로 창: 9:16 플레이 기둥 양옆에 기록·안내·조작을 둔다. */
+.side-panel {
+  display: none;
+}
+@media (min-aspect-ratio: 4/3) {
+  #stage,
+  #stage:fullscreen {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    --surface-width: calc(
+      (
+          100dvh - max(8px, env(safe-area-inset-top)) -
+            max(8px, env(safe-area-inset-bottom))
+        ) *
+        9 / 16
+    );
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--surface-width) minmax(0, 1fr);
+    grid-template-rows: 100%;
+    overflow: visible;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  #stage:fullscreen {
+    --surface-width: calc(100dvh * 9 / 16);
+  }
+  /* 플레이 기둥은 열 너비(높이의 9:16)를 그대로 채운다. */
+  #surface,
+  #stage:fullscreen #surface {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 18px;
+    box-shadow:
+      0 24px 100px #0007,
+      0 0 0 1px #ffe1a935;
+  }
+  .side-panel {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(16px, 5vh, 48px);
+    min-width: 0;
+    padding: 2vh clamp(12px, 3vw, 56px);
+    container-type: inline-size;
+  }
+  .side-left {
+    grid-column: 1;
+    grid-row: 1;
+    align-items: flex-end;
+    text-align: right;
+  }
+  .side-right {
+    grid-column: 3;
+    grid-row: 1;
+    align-items: flex-start;
+  }
+  .side-score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: clamp(6px, 2vh, 20px);
+  }
+  .side-panel .hud-stats,
+  .side-panel .hud-records {
+    position: static;
+    width: auto;
+    padding: 0;
+    align-items: flex-end;
+  }
+  .side-panel .hud-stats span {
+    font-size: clamp(14px, 3.2vh, 28px);
+  }
+  .side-panel .hud-stats strong {
+    font-size: clamp(36px, 13vh, 120px);
+    line-height: 1;
+  }
+  .side-panel .hud-records .icon-stat {
+    flex-direction: row;
+    gap: 6px;
+    --stat-icon-size: clamp(22px, 5vh, 44px);
+  }
+  .side-panel .hud-records .hud-best-label {
+    position: static;
+    width: auto;
+    margin-right: 4px;
+    font-size: clamp(14px, 3vh, 26px);
+  }
+  .side-panel .hud-records strong {
+    font-size: clamp(18px, 5.5vh, 48px);
+  }
+  .side-help {
+    max-width: min(100%, 300px);
+    padding: clamp(10px, 2.4vh, 20px) clamp(12px, 2.6vh, 22px);
+    border-radius: 14px;
+    border: 1px solid #ffe1a955;
+    background: #0b2f62b3;
+    box-shadow: 0 8px 26px #0618307a;
+    text-align: left;
+    font-size: clamp(14px, 2.6vh, 18px);
+    line-height: 1.4;
+    color: #e8f3ff;
+  }
+  .side-help h2 {
+    margin: 0 0 0.5em;
+    font-size: clamp(14px, 2.8vh, 20px);
+    color: #ffe486;
+    letter-spacing: 0.04em;
+  }
+  .side-help dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35em 0.8em;
+    margin: 0 0 0.6em;
+  }
+  .side-help dt {
+    font-weight: 800;
+    color: #fff3d0;
+    white-space: nowrap;
+  }
+  .side-help dd {
+    margin: 0;
+  }
+  .side-help p {
+    margin: 0;
+    color: #c9def2;
+  }
+  .side-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(10px, 3vh, 28px);
+  }
+  .side-panel .pause-button {
+    position: static;
+    width: clamp(44px, 10vh, 80px);
+    height: clamp(44px, 10vh, 80px);
+    font-size: clamp(18px, 4.4vh, 36px);
+  }
+  .side-panel .utility {
+    position: static;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(6px, 2vh, 18px);
+  }
+  .side-panel .utility-button {
+    width: clamp(44px, 10vh, 80px);
+    min-height: clamp(44px, 10vh, 80px);
+    padding: 0;
+  }
+  .side-panel .utility-button img {
+    width: clamp(36px, 8.5vh, 68px);
+    height: clamp(36px, 8.5vh, 68px);
+    filter: drop-shadow(0 2px 3px #092340b3);
+  }
 }

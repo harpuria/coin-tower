@@ -1,5 +1,5 @@
 import { cameraZoom, landingKind, moveSpeed, rules } from './rules';
-import { failureRules } from './feedback';
+import { failureRules, isMilestone, milestoneRules } from './feedback';
 import {
   backgroundAt,
   backgroundRules,
@@ -29,6 +29,9 @@ export class Session {
   maxCombo = 0;
   feedback: 'nice' | 'perfect' | null = null;
   feedbackRemaining = 0;
+  /** 마지막으로 도달한 높이 이정표와 축하 표시의 남은 시간. */
+  milestone = 0;
+  milestoneRemaining = 0;
   failureRemaining = 0;
   failureDirection = 1;
   paused = false;
@@ -54,6 +57,10 @@ export class Session {
   }
   get targetX() {
     return this.coins.at(-1)?.x ?? rules.width / 2;
+  }
+  /** 카메라가 따라 오른 동전 수. 정착 중에는 소수로 이어진다. */
+  get climb() {
+    return this.cameraOffset / rules.coinHeight;
   }
   get targetY() {
     return rules.platformY - rules.coinHeight * (this.score + 0.5);
@@ -86,6 +93,8 @@ export class Session {
     this.maxCombo = 0;
     this.feedback = null;
     this.feedbackRemaining = 0;
+    this.milestone = 0;
+    this.milestoneRemaining = 0;
     this.failureRemaining = 0;
     this.failureDirection = 1;
     this.paused = false;
@@ -150,6 +159,7 @@ export class Session {
       return;
     }
     this.feedbackRemaining = Math.max(0, this.feedbackRemaining - deltaMs);
+    this.milestoneRemaining = Math.max(0, this.milestoneRemaining - deltaMs);
     this.backgroundElapsedMs = Math.min(
       backgroundRules.fadeMs,
       this.backgroundElapsedMs + deltaMs,
@@ -179,6 +189,7 @@ export class Session {
         this.streak = 0;
         this.feedback = null;
         this.feedbackRemaining = 0;
+        this.milestoneRemaining = 0;
         this.failureRemaining = failureRules.durationMs;
         this.failureDirection = this.activeX < this.targetX ? -1 : 1;
         return 'finished';
@@ -194,6 +205,10 @@ export class Session {
       this.maxCombo = Math.max(this.maxCombo, this.streak);
       this.feedback = kind;
       this.feedbackRemaining = rules.feedbackMs;
+      if (isMilestone(this.score)) {
+        this.milestone = this.score;
+        this.milestoneRemaining = milestoneRules.durationMs;
+      }
       this.phase = 'settling';
       this.settleRemaining = rules.settleMs;
       this.zoomStart = this.zoom;
@@ -230,6 +245,9 @@ export class Session {
       combo: this.combo,
       maxCombo: this.maxCombo,
       feedback: this.feedback,
+      milestone: this.milestone,
+      milestoneRemaining: this.milestoneRemaining,
+      climb: this.climb,
       failureRemaining: this.failureRemaining,
       failureDirection: this.failureDirection,
       resultReady: this.resultReady,

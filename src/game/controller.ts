@@ -2,7 +2,7 @@ import type { App } from '../app';
 import { assetKeys } from './assets';
 import { shardReward } from './economy';
 import { DeferredAssets } from './deferred-assets';
-import { failureRules, feedbackRules } from './feedback';
+import { failureRules, feedbackRules, milestoneRules } from './feedback';
 import type { RunAction } from './session';
 import { skinById, type SkinId } from './skins';
 
@@ -60,6 +60,7 @@ export class GameController {
       this.run.combo,
       this.run.feedback,
       this.run.feedbackRemaining > 0,
+      this.run.milestoneRemaining > 0,
       this.run.paused,
       Math.ceil(this.run.countdownMs / 1000),
       this.run.confirmation,
@@ -132,6 +133,11 @@ export class GameController {
         rate: feedback.soundRate,
         gain: feedback.soundGain,
       });
+      if (this.run.milestoneRemaining === milestoneRules.durationMs)
+        this.app.audio?.sfx(assetKeys.stack, {
+          rate: milestoneRules.soundRate,
+          gain: milestoneRules.soundGain,
+        });
       if (this.run.score >= 5) this.completeHints();
     }
     if (event === 'finished') {
@@ -159,6 +165,8 @@ export class GameController {
         shards: result.shardsTotal,
       }));
       this.saved = this.app.save.flush();
+      // 플랫폼 축하는 의미 있는 개인 최고 기록에만 드물게 요청한다.
+      if (result.newBest && result.score >= 10) this.app.platform.happytime();
     }
     this.sync();
   }

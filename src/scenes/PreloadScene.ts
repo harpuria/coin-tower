@@ -29,11 +29,13 @@ export class PreloadScene extends Phaser.Scene {
       this.app.onState();
       label.setText('Unable to load game files.\nPlease reload to try again.');
     });
+    this.app.platform.loadingStart();
     queueAssets(this.load, this.app.save.data.equippedSkin);
   }
   create() {
     if (this.failed) return;
     installAssetFrames(this.textures);
+    this.app.platform.loadingStop();
     this.app.ready = true;
     this.app.onState();
     this.scene.start(gameConfig.startScene);

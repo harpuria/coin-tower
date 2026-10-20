@@ -65,6 +65,17 @@ export class PlatformServices {
   gameplayStop() {
     this.integration?.gameplayStop();
   }
+  /** 첫 플레이에 필요한 자산을 불러오는 구간을 플랫폼에 알린다. */
+  loadingStart() {
+    this.integration?.loadingStart();
+  }
+  loadingStop() {
+    this.integration?.loadingStop();
+  }
+  /** 드문 성취 순간에만 플랫폼 축하 연출을 요청한다. */
+  happytime() {
+    this.integration?.happytime();
+  }
   destroy() {
     this.integration?.destroy();
     this.onMute = () => {};

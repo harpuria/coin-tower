@@ -41,6 +41,12 @@ Perfect 콤보는 원본 Perfect PNG 아래에 `public/assets/coin-tower/combo/`
 
 카메라·낙하·피드백은 Session의 게임 시간을 사용합니다. 장면 자체를 pause하면 재개 카운트다운도 멈추므로 이 게임의 `pausableScenes`는 비워 둡니다. 모델이 게임 시간을 멈추고 공통 PauseState는 소리를 멈춥니다. 자세한 이유는 [ADR 0002](adr/0002-run-simulation-and-interruptions.md)에 있습니다.
 
+## 넓은 가로 창 배치와 이정표
+
+- `Shell.applyLayout()`은 `(min-aspect-ratio: 4/3)`일 때 `.hud-stats`·`.hud-records`를 `#side-score`로, `#pause`·`.utility`를 `#side-controls`로 옮기고, 아니면 원래 위치로 되돌립니다. id·listener는 그대로 유지되므로 테스트 선택자도 같습니다. 배치·크기는 `src/style.css` 끝의 같은 media query에서 조정합니다. `#stage`는 이때 3열 grid(측면·`--surface-width`·측면)가 됩니다.
+- 이정표는 `Session.milestone`/`milestoneRemaining`, 배너 표시는 `Shell.renderMilestone()`, 값은 `feedback.ts`의 `milestoneRules`입니다. 개발 `snapshot()`에 `milestone`·`milestoneRemaining`·`climb`가 포함됩니다.
+- 배경 흐름은 `backgrounds.ts`의 `backgroundDrifts()`와 Scene의 배경 Image 위치입니다.
+
 ## 첫 플레이와 선택 자산 로딩
 
 `queueAssets(load, equippedSkin)`는 첫 플레이 아트·콤보 글자·세 음원·장착 스킨만 필수로 준비합니다. 로딩 실패 화면은 이 집합에 적용합니다. `GameController.assets`의 `DeferredAssets`는 playable Scene 로더에 연결되며 첫 Gameplay Start 보고 뒤 다른 스킨과 후반 배경을 두 파일씩 읽습니다. 먼저 SHOP을 열면 스킨만 요청합니다. 숨김 상점/결과의 HTML 이미지도 준비 전에는 URL을 지정하지 않습니다.

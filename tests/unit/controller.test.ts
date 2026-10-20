@@ -44,6 +44,7 @@ function fixture(
     platform: {
       gameplayStart: () => events.push('start'),
       gameplayStop: () => events.push('stop'),
+      happytime: () => events.push('happytime'),
     },
     save: new Store(storage, 'save', progressSchema),
   };
@@ -429,4 +430,23 @@ it('stops music before the one failure sound and does not replay it during resul
   expect(
     audio.sfx.mock.calls.filter(([key]) => key === assetKeys.failure),
   ).toHaveLength(1);
+});
+
+it('asks the platform to celebrate only a new best of at least ten coins', () => {
+  for (const [previous, height, celebrated] of [
+    [3, 9, false],
+    [3, 10, true],
+    [12, 11, false],
+  ] as const) {
+    const { controller: game, events } = fixture({
+      best: previous,
+      bestCombo: 0,
+      rounds: 1,
+    });
+    game.start();
+    for (let index = 0; index < height; index++) land(game);
+    land(game, -100);
+    expect(game.result?.score).toBe(height);
+    expect(events.includes('happytime')).toBe(celebrated);
+  }
 });

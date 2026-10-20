@@ -13,6 +13,9 @@ export interface CrazyGamesSdk {
     readonly settings: CrazyGamesSettings;
     gameplayStart(): void;
     gameplayStop(): void;
+    loadingStart(): void;
+    loadingStop(): void;
+    happytime(): void;
     addSettingsChangeListener(
       listener: (settings: CrazyGamesSettings) => void,
     ): void;
@@ -106,7 +109,23 @@ export class CrazyGamesIntegration {
   gameplayStop() {
     this.report('gameplayStop');
   }
-  private report(event: 'gameplayStart' | 'gameplayStop') {
+  loadingStart() {
+    this.report('loadingStart');
+  }
+  loadingStop() {
+    this.report('loadingStop');
+  }
+  happytime() {
+    this.report('happytime');
+  }
+  private report(
+    event:
+      | 'gameplayStart'
+      | 'gameplayStop'
+      | 'loadingStart'
+      | 'loadingStop'
+      | 'happytime',
+  ) {
     if (!this.sdk || this.disposed) return;
     // 플랫폼 통신 실패가 이미 진행 중인 판을 중단하지 않도록 경계에서 처리한다.
     try {

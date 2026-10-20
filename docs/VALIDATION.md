@@ -2,6 +2,17 @@
 
 이 문서는 이 프로젝트에서 실제 실행한 결과만 기록합니다. 템플릿 자체의 과거 검증은 [template/VALIDATION.md](template/VALIDATION.md)에 있습니다.
 
+## 2026-10-20 — PC 가로 측면 UI·배경 흐름·높이 이정표
+
+- 범위: [2차 품질 검토](quality-review-2026-10-20.md)의 승인된 제안 3 → 1-A → 2를 구현했다. 메뉴 기록 라벨·별조각 14px, 콤보 0 결과 행 숨김, 첫 플레이 힌트 바탕, `P` 일시정지, SDK `loadingStart/loadingStop`·`happytime`(10개 이상 개인 최고 경신), 4:3 이상 창의 측면 패널(COINS/BEST·HOW TO PLAY·일시정지/소리/전체화면), 세로 플레이 중 소리 버튼의 일시정지 아래 이동, 배경 1.18배·구간 흐름, 10·25·50·100·이후 50개마다 이정표 배너/소리. 판정·속도·보상·가격·저장 schema·런타임 의존성·자산은 변경하지 않았다.
+- 정적 검사: `rtk npm run check`의 lint·format·**117개 단위 검사(8개 파일)**·TypeScript·일반 빌드가 통과했다. 새 단위 검사는 이정표 경계/정지/초기화, `climb`, 배경 흐름 연속성, SDK 새 호출, happytime 조건을 다룬다.
+- 첫 개발 전체 E2E: `rtk proxy npx playwright test`는 **42 통과 / 22 실패(1.6시간)**였다. 실패는 모두 의도한 변경을 반영하지 않은 기대였다: 배경 표시 크기 720×1280 고정(배경 4건), 가로 창에서 `.utility`가 기둥 아래에 있다는 가정(결과·일시정지·품질 12건), 세로 플레이 중 숨긴 `#mute`를 탭하는 Perfect 4건, 같은 원인의 difficulty 2건. 플레이 중 음소거를 유지하도록 **숨김 대신 소리 버튼을 일시정지 아래로 옮기는 코드 변경**을 했고, 검사는 배경 배율·측면 배치(`tests/support/layout.ts`)를 반영했다.
+- 수정 후 개발 재실행: PC `backgrounds·game-over·difficulty·quality` **12/12**, `pause/countdown` PC/터치 **2/2**, 터치 `backgrounds·game-over·difficulty·quality·perfect` **17/17(14.9분)** 통과. 처음 전체 실행에서 통과한 42건은 소리 버튼 이동 뒤 다시 돌리지 않았다.
+- CrazyGames 배포: `build:crazygames`(업로드 17,228,338 bytes) 뒤 `E2E_PREVIEW=1 test:crazygames` 전체가 **46 통과 / 4 skip(30.3분)**. skip 2건은 개발 전용, 2건은 공식 SDK 파일 미지정이었다. 이어서 새로 받은 공식 v3 SDK(112,919 bytes, SHA-256 `d4c44671…5911`, 이전과 동일, `loadingStart/loadingStop/happytime` 포함)로 local 검사 PC/터치 **2/2** 통과. fixture 검사는 로딩 보고 `['start','stop']`을 확인한다.
+- 일반 배포: 첫 전체 실행은 세션 종료로 30/64에서 중단됐고 그 안에서 difficulty PC 1건이 실패했다. 데스크톱 기본 가로 창에서 360×640으로 바꾼 즉시 크기를 재 측면→기둥 이동(다음 렌더 프레임) 전 상태를 읽었다. 버튼 표시를 기다리도록 검사를 보완하고 `E2E_PREVIEW=1` difficulty PC/터치 **2/2(7.2분)** 통과. 이어서 `E2E_PREVIEW=1 test:e2e --grep-invert 'difficulty:|perfect: (gold|silver|ruby|emerald)'`는 **35 통과 / 3 실패 / 16 개발 전용 skip(7.3분)**이었다. 실패 3건은 game-over 작은 프레임에서 같은 이유(창 크기 변경 직후 `.utility` 이동 전 측정)였다. 공통 helper가 레이아웃 이동과 표시를 기다리도록 보완한 뒤 `game-over·quality·coin-tower` 배포 검사 **32 통과 / 10 skip(6.5분)**. 같은 helper를 쓰는 CrazyGames 배포 `game-over·quality`도 재빌드 후 **16 통과 / 2 skip(5.4분)**. 최종 CrazyGames `dist/`는 **업로드 17,228,338 bytes / 41 files**다.
+- 화면 관측: 개발 서버에서 PC 907×510·1920×1080·821×462, 800×450 터치, Pixel 7의 메뉴/플레이/일시정지/결과와 1·5·9·10·19·25개, 시간 고정 10개 이정표 정점을 직접 캡처해 확인했다. 페이지 오류는 없었다. 측면 패널 글자 14px 이상, 이정표 배너가 HUD·PERFECT·낙하 동전과 겹치지 않음, 세로 소리 버튼이 낙하 경로 밖임을 확인했다. 캡처는 세션 scratchpad에만 있다.
+- 한계: Chromium 로컬 관측이다. 전환 중 두 배경 위치 차이의 디졸브, 측면 패널의 인상, 이정표 동기 효과는 사람 평가 전이다. 실제 휴대폰·Safari·CrazyGames 포털 Preview는 확인하지 않았고 업로드/제출하지 않았다.
+
 ## 2026-10-20 — 기록 중심 GAME OVER
 
 - 범위: 확정한 A안의 큰 이번 점수·작은 BEST·보조 콤보 비교·별조각 아이콘+획득량·세로 TRY AGAIN/MENU를 구현했다. THIS RUN/EARNED/TOTAL 제목·총잔액·NEXT GOAL·스킨 안내·결과 SHOP과 사용하지 않는 목표 계산을 제거했다. 상점은 controller에서도 메뉴에 한정하며 BACK의 포커스는 메뉴 SHOP으로 복귀한다. 판정·난이도·가격·보상 정산·저장 schema·음원·런타임 의존성은 변경하지 않았다.

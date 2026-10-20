@@ -30,7 +30,7 @@ export function difficultyCases(crazygames = false) {
       await page.route(crazyGamesSdkUrl, (route) =>
         route.fulfill({
           contentType: 'application/javascript',
-          body: `window.CrazyGames={SDK:{init:async()=>{},environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>{},gameplayStop:()=>{},addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
+          body: `window.CrazyGames={SDK:{init:async()=>{},environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>{},gameplayStop:()=>{},loadingStart:()=>{},loadingStop:()=>{},happytime:()=>{},addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
         }),
       );
     const advance = (ms: number) =>
@@ -161,6 +161,8 @@ export function difficultyCases(crazygames = false) {
     ]) {
       await page.setViewportSize(viewport);
       for (const selector of ['#pause', '#mute']) {
+        // 가로/세로 전환 시 조작 버튼은 다음 렌더 프레임에 측면·기둥으로 옮겨진다.
+        await expect(page.locator(selector)).toBeVisible();
         const box = (await page.locator(selector).boundingBox())!;
         expect(box.width).toBeGreaterThanOrEqual(44);
         expect(box.height).toBeGreaterThanOrEqual(44);

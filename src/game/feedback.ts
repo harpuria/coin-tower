@@ -84,3 +84,36 @@ export function landingVisual(
     particleAlpha: active ? 1 - particleT : 0,
   };
 }
+
+/** 플레이 중 높이 이정표. 축하 표시는 다음 낙하를 지연시키지 않는다. */
+export const milestoneRules = {
+  coins: [10, 25, 50, 100],
+  /** 마지막 지정 높이 뒤에는 이 간격마다 축하한다. */
+  every: 50,
+  durationMs: 1600,
+  popMs: 260,
+  soundRate: 1.5,
+  soundGain: 0.8,
+} as const;
+
+export function isMilestone(score: number): boolean {
+  const last = milestoneRules.coins.at(-1)!;
+  return (
+    (milestoneRules.coins as readonly number[]).includes(score) ||
+    (score > last && (score - last) % milestoneRules.every === 0)
+  );
+}
+
+/** Session의 잔여 시간만으로 이정표 배너의 불투명도·크기를 계산한다. */
+export function milestoneVisual(remainingMs: number, reducedMotion: boolean) {
+  const elapsed = milestoneRules.durationMs - remainingMs;
+  const active = remainingMs > 0;
+  const fadeIn = Math.min(1, elapsed / 120);
+  const fadeOut = Math.min(1, remainingMs / 400);
+  const t = Math.min(1, elapsed / milestoneRules.popMs);
+  const pop =
+    active && !reducedMotion && t < 1
+      ? 0.7 + 0.3 * smooth(t) + 0.12 * Math.sin(t * Math.PI)
+      : 1;
+  return { opacity: active ? Math.min(fadeIn, fadeOut) : 0, scale: pop };
+}

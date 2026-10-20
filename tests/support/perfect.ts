@@ -29,7 +29,7 @@ async function prepare(
     await page.route(crazyGamesSdkUrl, (route) =>
       route.fulfill({
         contentType: 'application/javascript',
-        body: `window.CrazyGames={SDK:{init:async()=>{},environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>{},gameplayStop:()=>{},addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
+        body: `window.CrazyGames={SDK:{init:async()=>{},environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>{},gameplayStop:()=>{},loadingStart:()=>{},loadingStop:()=>{},happytime:()=>{},addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
       }),
     );
   await page.addInitScript(

@@ -46,6 +46,9 @@ export function loadingCases(crazygames = false) {
               gameplayStop: () => {
                 window.__LOAD_EVENTS__.push('stop');
               },
+              loadingStart() {},
+              loadingStop() {},
+              happytime() {},
               addSettingsChangeListener() {},
               removeSettingsChangeListener() {},
             },

@@ -3,6 +3,7 @@ import { gameConfig } from '../../src/config/game';
 import { progressSchema, type Progress } from '../../src/game/save';
 import { moveSpeed, rules } from '../../src/game/rules';
 import { crazyGamesSdkUrl } from '../../src/services/crazygames';
+import { expectUtilityClear } from './layout';
 
 declare global {
   interface Window {
@@ -89,7 +90,7 @@ export function qualityCases(crazygames = false) {
       await page.route(crazyGamesSdkUrl, (route) =>
         route.fulfill({
           contentType: 'application/javascript',
-          body: `window.__QUALITY_EVENTS__=[]; window.CrazyGames={SDK:{init:async()=>window.__QUALITY_EVENTS__.push('init'),environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>window.__QUALITY_EVENTS__.push('start'),gameplayStop:()=>window.__QUALITY_EVENTS__.push('stop'),addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
+          body: `window.__QUALITY_EVENTS__=[]; window.CrazyGames={SDK:{init:async()=>window.__QUALITY_EVENTS__.push('init'),environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>window.__QUALITY_EVENTS__.push('start'),gameplayStop:()=>window.__QUALITY_EVENTS__.push('stop'),loadingStart:()=>{},loadingStop:()=>{},happytime:()=>{},addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
         }),
       );
   });
@@ -334,8 +335,7 @@ export function qualityCases(crazygames = false) {
           bounds[i - 1]!.y + bounds[i - 1]!.height - 1,
         );
       const actions = bounds.at(-1)!;
-      const utility = (await page.locator('.utility').boundingBox())!;
-      expect(actions.y + actions.height).toBeLessThanOrEqual(utility.y);
+      await expectUtilityClear(page, actions);
       expect(
         await page
           .locator('.result-best-line')

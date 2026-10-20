@@ -29,6 +29,9 @@ function sdkFixture(muted = false) {
       settings: { muteAudio: muted },
       gameplayStart: vi.fn(),
       gameplayStop: vi.fn(),
+      loadingStart: vi.fn(),
+      loadingStop: vi.fn(),
+      happytime: vi.fn(),
       addSettingsChangeListener: vi.fn((listener) => {
         listeners.add(listener);
       }),
@@ -69,6 +72,12 @@ it('awaits initialization once before using settings or reporting play', async (
   integration.gameplayStop();
   expect(sdk.game.gameplayStart).toHaveBeenCalledOnce();
   expect(sdk.game.gameplayStop).toHaveBeenCalledOnce();
+  integration.loadingStart();
+  integration.loadingStop();
+  integration.happytime();
+  expect(sdk.game.loadingStart).toHaveBeenCalledOnce();
+  expect(sdk.game.loadingStop).toHaveBeenCalledOnce();
+  expect(sdk.game.happytime).toHaveBeenCalledOnce();
   integration.destroy();
 });
 

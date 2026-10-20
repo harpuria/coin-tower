@@ -5,7 +5,7 @@ import { artUrl } from '../game/art';
 import { resolveBackgroundTextures } from '../game/assets';
 import { backgroundAlpha } from '../game/backgrounds';
 import type { GameController } from '../game/controller';
-import { landingVisual } from '../game/feedback';
+import { landingVisual, milestoneVisual } from '../game/feedback';
 import { skins, skinById } from '../game/skins';
 
 /** 네이티브 HTML 버튼을 게임 화면 위에 배치해 입력과 접근성을 함께 유지한다. */
@@ -14,7 +14,9 @@ export class Shell {
   private root: HTMLElement;
   private displayedCombo = -1;
   private comboFrame = 0;
+  private milestoneFrame = 0;
   private backdropFrame = 0;
+  private landscape = matchMedia('(min-aspect-ratio: 4/3)');
   constructor(
     private app: App,
     private game: GameController,
@@ -28,6 +30,7 @@ export class Shell {
       }[kind];
       return `<span class="stat-icon stat-icon-${kind}" aria-hidden="true"><img src="${artUrl(`icons/${file}.png`)}" alt="" draggable="false" /></span>`;
     };
+    const coarse = matchMedia('(pointer: coarse)').matches;
     // CSS의 상대 URL이 배포 CSS 파일 위치를 기준으로 해석되지 않도록 고정한다.
     const panel = new URL(artUrl('hud_panel.png'), document.baseURI).href;
     this.root.style.setProperty('--panel-art', `url("${panel}")`);
@@ -38,16 +41,28 @@ export class Shell {
           <div id="backdrop-base" class="backdrop-layer"></div>
           <div id="backdrop-next" class="backdrop-layer" hidden></div>
         </div>
+        <aside id="side-left" class="side-panel side-left" aria-label="Run status and controls">
+          <div id="side-score" class="side-score"></div>
+          <section class="side-help" aria-label="How to play">
+            <h2>HOW TO PLAY</h2>
+            <dl>
+              <dt>${coarse ? 'Tap' : 'Click / Space'}</dt><dd>Drop the coin</dd>
+              <dt>${coarse ? 'Ⅱ button' : 'P'}</dt><dd>Pause</dd>
+            </dl>
+            <p>Land on the coin below. Hit the center for a PERFECT combo!</p>
+          </section>
+        </aside>
+        <aside id="side-right" class="side-panel side-right" aria-label="Game controls"><div id="side-controls" class="side-controls"></div></aside>
         <div id="surface">
           <div id="game" tabindex="0" aria-label="Game area. Click, tap or press Space to drop a coin."></div>
           <div id="title-screen" class="layer title-screen">
             <section class="title-records" aria-label="Personal bests">
               <div class="title-record-columns">
-                <div class="stat-readout icon-stat" title="Best coins"><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="title-best">0</strong></div>
-                <div class="stat-readout icon-stat" title="Best Perfect combo"><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="title-best-combo">x0</strong></div>
+                <div class="stat-readout icon-stat title-record" title="Best coins"><span class="title-caption" aria-hidden="true">BEST</span><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="title-best">0</strong></div>
+                <div class="stat-readout icon-stat title-record" title="Best Perfect combo"><span class="title-caption" aria-hidden="true">BEST COMBO</span><span class="sr-only">BEST COMBO</span>${icon('combo')}<strong id="title-best-combo">x0</strong></div>
               </div>
             </section>
-            <div class="title-shards shard-readout icon-stat" title="Star Shards balance"><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
+            <div class="title-shards shard-readout icon-stat" title="Star Shards balance"><span class="shards-caption" aria-hidden="true">SHARDS</span><span class="sr-only">STAR SHARDS</span>${icon('shards')}<strong id="title-shards">0</strong></div>
             <div class="start-prompt"><button id="play" class="start-image" aria-label="Tap to play"><img src="${artUrl('tap_to_play.png')}" alt="" draggable="false" /></button></div>
             <button id="skins-menu" class="utility-button skins-menu" aria-label="Shop" title="Shop"><img src="${artUrl('icons/shop.png')}" alt="" draggable="false" /><span class="utility-caption" aria-hidden="true">SHOP</span></button>
           </div>
@@ -56,9 +71,10 @@ export class Shell {
               <div class="stat-readout icon-stat" title="Best coins"><span class="hud-best-label" aria-hidden="true">BEST</span><span class="sr-only">BEST COINS</span>${icon('coins')}<strong id="best">0</strong></div>
             </section>
             <div class="hud-stats stat-readout"><span>COINS</span><strong id="score">0</strong></div>
-            <button id="pause" class="icon-button pause-button" aria-label="Pause">Ⅱ</button>
+            <button id="pause" class="icon-button pause-button" aria-label="Pause" title="Pause (P)">Ⅱ</button>
+            <div id="milestone" class="milestone stat-readout" role="status" hidden><strong id="milestone-count">10</strong><span>COINS!</span></div>
             <div id="combo" class="combo" hidden><strong id="combo-count" class="sr-only">x1</strong><span class="combo-glyphs" aria-hidden="true"></span></div>
-            <div id="tap-prompt" class="tap-prompt"><svg class="hint-gesture" aria-hidden="true" viewBox="0 0 36 42"><path d="M12 21V7a3 3 0 0 1 6 0v9l2-2a3 3 0 0 1 4 0l2 2a3 3 0 0 1 4 0l1 1v11c0 6-4 10-10 10h-1c-4 0-7-2-9-5L4 22a3 3 0 0 1 5-4z" fill="#fff3d0" stroke="#123b77" stroke-width="2.5" stroke-linejoin="round" /></svg><p><strong>Align the coins</strong><span>${matchMedia('(pointer: coarse)').matches ? 'Tap to drop' : 'Click or Space to drop'}</span></p><button id="skip-hints" class="hint-skip" aria-label="Skip hints">SKIP</button></div>
+            <div id="tap-prompt" class="tap-prompt"><svg class="hint-gesture" aria-hidden="true" viewBox="0 0 36 42"><path d="M12 21V7a3 3 0 0 1 6 0v9l2-2a3 3 0 0 1 4 0l2 2a3 3 0 0 1 4 0l1 1v11c0 6-4 10-10 10h-1c-4 0-7-2-9-5L4 22a3 3 0 0 1 5-4z" fill="#fff3d0" stroke="#123b77" stroke-width="2.5" stroke-linejoin="round" /></svg><p><strong>Align the coins</strong><span>${coarse ? 'Tap to drop' : 'Click or Space to drop'}</span></p><button id="skip-hints" class="hint-skip" aria-label="Skip hints">SKIP</button></div>
           </div>
           <div id="miss-feedback" class="miss-feedback" role="status" hidden>MISS</div>
           <section id="result-screen" class="layer veil" aria-label="Game results" hidden>
@@ -116,8 +132,27 @@ export class Shell {
         </div>
       </section>`;
     this.bind();
+    this.landscape.addEventListener('change', () => this.applyLayout(), {
+      signal: this.controller.signal,
+    });
+    this.applyLayout();
     app.onState = () => this.render();
     this.render();
+  }
+  /** 넓은 가로 창에서는 플레이 기둥을 비우고 기록·조작을 양옆으로 옮긴다. */
+  private applyLayout() {
+    const hud = this.element('hud');
+    const records = this.root.querySelector<HTMLElement>('.hud-records')!;
+    const stats = this.root.querySelector<HTMLElement>('.hud-stats')!;
+    const pause = this.element('pause');
+    const utility = this.root.querySelector<HTMLElement>('.utility')!;
+    if (this.landscape.matches) {
+      this.element('side-score').append(stats, records);
+      this.element('side-controls').append(pause, utility);
+    } else {
+      hud.prepend(records, stats, pause);
+      this.element('storage-notice').before(utility);
+    }
   }
   private element<T extends HTMLElement = HTMLElement>(id: string) {
     return this.root.querySelector<T>(`#${id}`)!;
@@ -187,6 +222,26 @@ export class Shell {
       `scale(${visual.pop})`;
     if (!element.hidden)
       this.comboFrame = requestAnimationFrame(() => this.renderComboFeedback());
+  }
+  /** 이정표 배너도 게임 시간의 잔여 시간으로만 나타났다 사라진다. */
+  private renderMilestone() {
+    cancelAnimationFrame(this.milestoneFrame);
+    this.milestoneFrame = 0;
+    const run = this.app.session;
+    const element = this.element('milestone');
+    element.hidden =
+      run.mode !== 'playing' || run.frozen || run.milestoneRemaining <= 0;
+    if (element.hidden) return;
+    const count = String(run.milestone);
+    if (this.element('milestone-count').textContent !== count)
+      this.element('milestone-count').textContent = count;
+    const visual = milestoneVisual(
+      run.milestoneRemaining,
+      this.app.settings.data.reducedMotion,
+    );
+    element.style.opacity = String(visual.opacity);
+    element.style.transform = `scale(${visual.scale})`;
+    this.milestoneFrame = requestAnimationFrame(() => this.renderMilestone());
   }
   private on(id: string, handler: () => void) {
     this.element(id).addEventListener('click', handler, {
@@ -338,8 +393,23 @@ export class Shell {
           }
           return;
         }
-        if (event.code !== 'Escape' || this.app.session.mode !== 'playing')
+        if (this.app.session.mode !== 'playing') return;
+        // Escape는 전체화면 해제와 겹칠 수 있어 P를 기본 일시정지 키로 함께 받는다.
+        if (event.code === 'KeyP') {
+          if (
+            event.repeat ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.isComposing ||
+            this.app.session.paused
+          )
+            return;
+          event.preventDefault();
+          this.game.pause();
           return;
+        }
+        if (event.code !== 'Escape') return;
         if (this.app.session.confirmation) this.game.confirm(false);
         else this.game.pause();
       },
@@ -354,6 +424,9 @@ export class Shell {
     this.renderBackdrop();
     this.element('surface').dataset.mode = run.mode;
     this.element('surface').dataset.phase = run.phase;
+    this.element('surface').dataset.active = String(
+      playing && !run.paused && !run.confirmation,
+    );
     this.element('title-screen').hidden = !menu || this.game.skinsOpen;
     this.element('result-screen').hidden =
       !run.resultReady || this.game.skinsOpen;
@@ -373,8 +446,10 @@ export class Shell {
     this.element('countdown').textContent = String(
       Math.ceil(run.countdownMs / 1000),
     );
-    this.element('pause').hidden = run.paused;
+    this.element('pause').hidden = !playing || run.paused;
+    this.element('side-score').hidden = !playing;
     this.renderComboFeedback();
+    this.renderMilestone();
     if (this.displayedCombo !== run.combo) {
       this.displayedCombo = run.combo;
       this.element('combo-count').textContent = `x${run.combo}`;
@@ -408,6 +483,9 @@ export class Shell {
     this.record('result-best-combo', `x${result?.bestCombo ?? 0}`);
     this.element('new-best-coins').hidden = !result?.newBest;
     this.element('new-best-combo').hidden = !result?.newBestCombo;
+    // Perfect가 없던 판은 비교할 콤보가 없으므로 보조 줄을 생략한다.
+    this.root.querySelector<HTMLElement>('.result-combo-record')!.hidden =
+      !result?.combo;
     this.element<HTMLButtonElement>('play').disabled =
       !app.ready || !!app.fatalError;
     this.element('loading-overlay').hidden = app.ready || !!app.loadingError;
@@ -466,6 +544,7 @@ export class Shell {
   }
   destroy() {
     cancelAnimationFrame(this.comboFrame);
+    cancelAnimationFrame(this.milestoneFrame);
     cancelAnimationFrame(this.backdropFrame);
     this.controller.abort();
     this.app.onState = () => {};

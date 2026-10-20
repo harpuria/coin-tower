@@ -64,8 +64,15 @@ async function assertRender(page: Page) {
   expect(scene.base.alpha).toBe(1);
   expect(scene.base.visible).toBe(true);
   for (const image of [scene.base, scene.next]) {
-    expect(image.width).toBeCloseTo(rules.width, 6);
-    expect(image.height).toBeCloseTo(rules.height, 6);
+    // 높이에 따라 흐를 수 있도록 논리 화면보다 일정 배율 크게 그린다.
+    expect(image.width).toBeCloseTo(
+      rules.width * backgroundRules.driftScale,
+      6,
+    );
+    expect(image.height).toBeCloseTo(
+      rules.height * backgroundRules.driftScale,
+      6,
+    );
   }
   expect(scene.next.visible).toBe(run.background.from !== run.background.to);
   const t = run.background.progress;

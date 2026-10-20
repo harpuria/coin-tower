@@ -6,6 +6,7 @@ import {
   rules,
 } from '../../src/game/rules';
 import { Session } from '../../src/game/session';
+import { isMilestone, milestoneRules } from '../../src/game/feedback';
 
 function land(run: Session, x = run.targetX) {
   run.activeX = x;
@@ -308,5 +309,54 @@ describe('gentle late-run difficulty', () => {
     expect(run.zoom).toBe(0.9);
     run.home();
     expect(run.zoom).toBe(1);
+  });
+});
+
+describe('height milestones', () => {
+  it.each([
+    [9, false],
+    [10, true],
+    [25, true],
+    [50, true],
+    [75, false],
+    [100, true],
+    [150, true],
+    [175, false],
+    [200, true],
+  ])('treats %i coins as a milestone: %s', (score, expected) => {
+    expect(isMilestone(score)).toBe(expected);
+  });
+
+  it('celebrates on landing, freezes while paused and clears on failure and reset', () => {
+    const run = new Session();
+    run.start();
+    for (let index = 0; index < 9; index++) land(run);
+    expect(run.milestoneRemaining).toBe(0);
+    land(run);
+    expect(run.score).toBe(10);
+    expect(run.milestone).toBe(10);
+    const remaining = run.milestoneRemaining;
+    expect(remaining).toBe(milestoneRules.durationMs - rules.settleMs);
+    run.pause();
+    run.update(500);
+    expect(run.milestoneRemaining).toBe(remaining);
+    run.resume();
+    run.update(rules.resumeMs);
+    run.update(100);
+    expect(run.milestoneRemaining).toBe(remaining - 100);
+    run.activeX = run.targetX + rules.diameter;
+    run.drop();
+    expect(run.update(1000)).toBe('finished');
+    expect(run.milestoneRemaining).toBe(0);
+    run.start();
+    expect(run.milestone).toBe(0);
+    expect(run.climb).toBe(0);
+  });
+
+  it('reports the camera climb in coins', () => {
+    const run = new Session();
+    run.start();
+    for (let index = 0; index < 3; index++) land(run);
+    expect(run.climb).toBeCloseTo(3);
   });
 });

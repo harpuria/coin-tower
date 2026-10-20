@@ -6,6 +6,8 @@ declare global {
     __CG_AUDIO_GAINS__: GainNode[];
     __CG_TEST__: {
       events: string[];
+      loading: string[];
+      celebrations: string[];
       finish(): void;
       setMute(value: boolean): void;
     };
@@ -30,10 +32,14 @@ async function fixture(
       const listeners = new Set();
       const settings = { muteAudio: !!options.muted };
       const events = [];
+      const loading = [];
+      const celebrations = [];
       let finish = () => {};
       const requireReady = () => { if (!initialized) throw new Error('SDK used before init'); };
       window.__CG_TEST__ = {
         events,
+        loading,
+        celebrations,
         finish: () => finish(),
         setMute: (value) => { settings.muteAudio = value; for (const listener of listeners) listener({ ...settings }); },
       };
@@ -49,6 +55,9 @@ async function fixture(
           get settings() { requireReady(); return settings; },
           gameplayStart: () => { requireReady(); events.push('start'); },
           gameplayStop: () => { requireReady(); events.push('stop'); },
+          loadingStart: () => { requireReady(); loading.push('start'); },
+          loadingStop: () => { requireReady(); loading.push('stop'); },
+          happytime: () => { requireReady(); celebrations.push('happytime'); },
           addSettingsChangeListener: (listener) => { requireReady(); listeners.add(listener); },
           removeSettingsChangeListener: (listener) => listeners.delete(listener),
         },
@@ -94,6 +103,10 @@ test('awaits v3 initialization, keeps English UI and hides custom fullscreen', a
     'Game area. Click, tap or press Space to drop a coin.',
   );
   expect(await events(page)).toEqual(['init']);
+  expect(await page.evaluate(() => window.__CG_TEST__.loading)).toEqual([
+    'start',
+    'stop',
+  ]);
   await page.screenshot({
     path: info.outputPath('english-title.png'),
     fullPage: true,

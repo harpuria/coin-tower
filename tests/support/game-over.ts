@@ -3,6 +3,7 @@ import { gameConfig } from '../../src/config/game';
 import { moveSpeed } from '../../src/game/rules';
 import { progressSchema } from '../../src/game/save';
 import { crazyGamesSdkUrl } from '../../src/services/crazygames';
+import { expectUtilityClear } from './layout';
 
 const saveKey = `${gameConfig.storagePrefix}:save`;
 const preview = process.env.E2E_PREVIEW === '1';
@@ -33,8 +34,7 @@ async function assertLayout(page: Page) {
         boxes[i - 1]!.y + boxes[i - 1]!.height - 1,
       );
   }
-  const utility = (await page.locator('.utility').boundingBox())!;
-  expect(boxes.at(-1)!.y + boxes.at(-1)!.height).toBeLessThanOrEqual(utility.y);
+  await expectUtilityClear(page, boxes.at(-1)!);
   for (const selector of ['#retry', '#home']) {
     const box = (await page.locator(selector).boundingBox())!;
     expect(box.width).toBeGreaterThanOrEqual(44);
@@ -121,7 +121,7 @@ export function gameOverCases(crazygames = false) {
         await page.route(crazyGamesSdkUrl, (route) =>
           route.fulfill({
             contentType: 'application/javascript',
-            body: `window.CrazyGames={SDK:{init:async()=>{},environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>{},gameplayStop:()=>{},addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
+            body: `window.CrazyGames={SDK:{init:async()=>{},environment:'local',game:{settings:{muteAudio:false},gameplayStart:()=>{},gameplayStop:()=>{},loadingStart:()=>{},loadingStop:()=>{},happytime:()=>{},addSettingsChangeListener:()=>{},removeSettingsChangeListener:()=>{}}}};`,
           }),
         );
       await page.addInitScript(

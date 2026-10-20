@@ -104,7 +104,7 @@ App의 숨김·blur는 게임의 `onBackground`를 호출합니다. controller�
 
 ## 서비스
 
-`PlatformServices`는 CrazyGames 모드에서 `CrazyGamesIntegration`의 준비·게임 이벤트·플랫폼 음소거·정리를 소유합니다. game 계층은 전역 SDK를 직접 참조하지 않습니다. `GameController.sync()`는 실제 플레이 가능 상태로의 전환만 보고하며 재개 카운트다운 종료 시 시작을 보고합니다. background callback은 SDK 이벤트 없이 내부 추적 상태만 갱신합니다. SDK가 포커스/visibility를 처리하고 게임 모델은 기존대로 일시정지에 머무릅니다. [ADR 0003](adr/0003-crazygames-basic-launch.md)을 함께 읽습니다.
+`PlatformServices`는 CrazyGames 모드에서 `CrazyGamesIntegration`의 준비·게임 이벤트·플랫폼 음소거·정리를 소유합니다. 공통 `PreloadScene`이 필수 자산 로딩 구간을 `loadingStart()`/`loadingStop()`으로 보고하며, 게임은 드문 성취에만 `happytime()`을 요청합니다. 모든 SDK 호출은 실패해도 플레이를 중단하지 않습니다. game 계층은 전역 SDK를 직접 참조하지 않습니다. `GameController.sync()`는 실제 플레이 가능 상태로의 전환만 보고하며 재개 카운트다운 종료 시 시작을 보고합니다. background callback은 SDK 이벤트 없이 내부 추적 상태만 갱신합니다. SDK가 포커스/visibility를 처리하고 게임 모델은 기존대로 일시정지에 머무릅니다. [ADR 0003](adr/0003-crazygames-basic-launch.md)을 함께 읽습니다.
 
 `PlatformAdapter`는 광고·구매·분석 호출의 교체 지점입니다. 이 기능들의 구현은 개발용 `MockAdapter`와 `UnavailableAdapter`뿐이며 CrazyGames 기본 연동으로 활성화하지 않습니다.
 `PlatformServices`가 gate(기능 스위치, 동의, 동시 요청)와 오류 변환을 담당합니다.

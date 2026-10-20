@@ -1,7 +1,11 @@
 import Phaser from 'phaser';
 import type { App } from '../app';
 import { assetKeys, resolveBackgroundTextures } from './assets';
-import { backgroundAlpha } from './backgrounds';
+import {
+  backgroundAlpha,
+  backgroundDrifts,
+  backgroundRules,
+} from './backgrounds';
 import type { GameController } from './controller';
 import { feedbackRules, landingVisual, failureVisual } from './feedback';
 import { rules } from './rules';
@@ -230,13 +234,25 @@ export class CoinTowerScene extends Phaser.Scene {
     const backdrop = resolveBackgroundTextures(background, (key) =>
       this.textures.exists(key),
     );
+    // 확대한 배경을 탑 높이에 따라 아래로 흘려 실제로 오르는 느낌을 준다.
+    const drift = backgroundDrifts(
+      run.score,
+      run.climb,
+      background.from !== background.to,
+    );
+    const width = rules.width * backgroundRules.driftScale;
+    const height = rules.height * backgroundRules.driftScale;
+    const driftY = (amount: number) =>
+      rules.height - height / 2 + amount * (height - rules.height);
     // 아래 배경은 불투명하게 두고 새 배경으로 덮어 검은 중간 화면을 막는다.
     this.backgroundBase
       .setTexture(backdrop.base)
-      .setDisplaySize(rules.width, rules.height);
+      .setDisplaySize(width, height)
+      .setPosition(rules.width / 2, driftY(drift.base));
     this.backgroundNext
       .setTexture(backdrop.next)
-      .setDisplaySize(rules.width, rules.height)
+      .setDisplaySize(width, height)
+      .setPosition(rules.width / 2, driftY(drift.next))
       .setAlpha(backgroundAlpha(progress))
       .setVisible(backdrop.changing);
     const title = run.mode === 'menu';

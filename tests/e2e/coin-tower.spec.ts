@@ -2,6 +2,7 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { gameConfig } from '../../src/config/game';
 import { progressSchema } from '../../src/game/save';
 import { rules } from '../../src/game/rules';
+import { expectUtilityClear } from '../support/layout';
 
 const preview = process.env.E2E_PREVIEW === '1';
 const saveKey = `${gameConfig.storagePrefix}:save`;
@@ -214,8 +215,7 @@ test('pause/countdown prevents drops and background return stays paused', async 
     canvas.y +
       (rules.height * rules.targetFraction + rules.coinHeight + 51) * scale,
   );
-  const utility = (await page.locator('.utility').boundingBox())!;
-  expect(actions.y + actions.height).toBeLessThan(utility.y);
+  await expectUtilityClear(page, actions);
   await page.screenshot({ path: info.outputPath('pause.png'), fullPage: true });
   await page.locator('#restart').click();
   await page.locator('#confirm-yes').click();
