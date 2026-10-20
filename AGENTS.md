@@ -25,6 +25,7 @@ Prefix all shell commands with `rtk`, including each segment in chains. `rtk pro
 - Production preview: `rtk npm run preview` → `http://localhost:4173`.
 - Production browser checks, after build: `rtk proxy env E2E_PREVIEW=1 npm run test:e2e`.
 - Development observation: open `http://localhost:5173/?debug`; `window.__COIN_TOWER__` supports `snapshot()`, `freeze(boolean)`, and `advance(milliseconds)`. See `docs/DEVELOPMENT.md`; the hook is excluded from production.
+- CrazyGames preview videos: run `rtk npm run dev:crazygames -- --port 5191`, then `rtk proxy node scripts/record-preview-frames.mjs <landscape|portrait> <frames dir>` and `python3 -I scripts/encode-preview-video.py` (needs ffmpeg via PATH or `FFMPEG`). Method and limits: `docs/art/crazygames-preview-videos.md`.
 - Validation status and environment limits: `docs/VALIDATION.md`. Update this section when a command changes or breaks; use these commands before claiming gameplay validation.
 
 ## Boundaries and development policies
