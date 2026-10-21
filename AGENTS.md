@@ -48,5 +48,5 @@ Prefix all shell commands with `rtk`, including each segment in chains. `rtk pro
 
 ## Version control
 
-- Local Git on `main`; no remote configured. Branch, push, and history-rewrite rules await the user's workflow. Git LFS is deferred until asset size and remote support justify it.
+- Git on `main`, pushed to `origin` (https://github.com/harpuria/coin-tower.git). Branch and history-rewrite rules await the user's workflow; push only when the user asks. Git LFS is deferred until asset size and remote support justify it.
 - Commit validated checkpoints with messages describing the player-visible change. Never commit secrets, signing material, local editor files, generated caches, or build outputs; use `.gitignore`.
